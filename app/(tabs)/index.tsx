@@ -7,9 +7,12 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { Account, AccountCategory } from '@/types/auth';
 import { Bell, Settings, Shield } from 'lucide-react-native';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  RefreshControl,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -24,6 +27,12 @@ export default function HomeScreen() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<AccountCategory>('All');
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const [showSearchBar, setShowSearchBar] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  const touchStartY = useRef<number>(0);
+  const scrollViewRef = useRef<FlatList>(null);
 
   const filteredAccounts = useMemo(() => {
     return mockAccounts.filter(account => {
@@ -37,6 +46,33 @@ export default function HomeScreen() {
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollY = event.nativeEvent.contentOffset.y;
+    
+    // 如果滚动位置大于20，标记为已滚动，隐藏Welcome Section
+    if (scrollY > 20 && !hasScrolled) {
+      setHasScrolled(true);
+      setShowSearchBar(false); // 滚动时隐藏搜索框
+    }
+  }, [hasScrolled]);
+
+  const handleRefresh = useCallback(() => {
+    // 下拉刷新时显示搜索框
+    setIsRefreshing(true);
+    setShowSearchBar(true);
+    
+    // 模拟刷新延迟
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 500);
+  }, []);
+
+  const handleCategoryChange = useCallback((category: AccountCategory) => {
+    setSelectedCategory(category);
+    // 重置搜索查询，因为用户改变了分类
+    setSearchQuery('');
+  }, []);
 
   const renderAccount = ({ item }: { item: Account }) => (
     <AccountCard account={item} />
@@ -64,34 +100,39 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Welcome Section */}
-      <View style={styles.welcomeSection}>
-        <Text style={[styles.welcomeTitle, { color: colors.text }]}>
-          {t('home.title')}
-        </Text>
-        <Text style={[styles.welcomeDescription, { color: colors.textSecondary }]}>
-          {t('home.description')}
-        </Text>
-      </View>
+      {/* Welcome Section - 只在未滚动时显示 */}
+      {!hasScrolled && (
+        <View style={styles.welcomeSection}>
+          <Text style={[styles.welcomeTitle, { color: colors.text }]}>
+            {t('home.title')}
+          </Text>
+          <Text style={[styles.welcomeDescription, { color: colors.textSecondary }]}>
+            {t('home.description')}
+          </Text>
+        </View>
+      )}
 
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder={t('common.search')}
-        />
-      </View>
+      {/* Search Bar - 只在下拉时显示 */}
+      {showSearchBar && (
+        <View style={styles.searchContainer}>
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={t('common.search')}
+          />
+        </View>
+      )}
 
-      {/* Category Filter */}
+      {/* Category Filter - 始终显示 */}
       <CategoryFilter
         selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
+        onCategoryChange={handleCategoryChange}
       />
 
       {/* Accounts List */}
       <View style={styles.listWrapper}>
         <FlatList
+          ref={scrollViewRef}
           data={filteredAccounts}
           renderItem={renderAccount}
           keyExtractor={(item) => item.id}
@@ -101,6 +142,23 @@ export default function HomeScreen() {
             filteredAccounts.length === 0 && styles.emptyListContainer
           ]}
           style={styles.flatList}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
+          onMomentumScrollBegin={() => {
+            // 当开始滚动时，标记为已滚动
+            if (!hasScrolled) {
+              setHasScrolled(true);
+              setShowSearchBar(false);
+            }
+          }}
         />
       </View>
     </SafeAreaView>
