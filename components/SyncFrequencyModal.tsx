@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import { ArrowLeft, Check } from 'lucide-react-native';
 import React from 'react';
 import {
@@ -33,37 +34,38 @@ export const SyncFrequencyModal: React.FC<SyncFrequencyModalProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
 
   const frequencyOptions: SyncFrequencyOption[] = [
     {
-      value: '实时',
-      label: '实时同步',
-      description: '收到邮件时立即扫描',
+      value: t('syncFrequency.options.realtime.value'),
+      label: t('syncFrequency.options.realtime.label'),
+      description: t('syncFrequency.options.realtime.description'),
     },
     {
-      value: '每15分钟',
-      label: '每15分钟',
-      description: '定期检查新邮件',
+      value: t('syncFrequency.options.every15min.value'),
+      label: t('syncFrequency.options.every15min.label'),
+      description: t('syncFrequency.options.every15min.description'),
     },
     {
-      value: '每30分钟',
-      label: '每30分钟',
-      description: '平衡性能和及时性',
+      value: t('syncFrequency.options.every30min.value'),
+      label: t('syncFrequency.options.every30min.label'),
+      description: t('syncFrequency.options.every30min.description'),
     },
     {
-      value: '每小时',
-      label: '每小时',
-      description: '推荐设置，节省电量',
+      value: t('syncFrequency.options.hourly.value'),
+      label: t('syncFrequency.options.hourly.label'),
+      description: t('syncFrequency.options.hourly.description'),
     },
     {
-      value: '每6小时',
-      label: '每6小时',
-      description: '低频同步，最省电',
+      value: t('syncFrequency.options.every6hours.value'),
+      label: t('syncFrequency.options.every6hours.label'),
+      description: t('syncFrequency.options.every6hours.description'),
     },
     {
-      value: '手动',
-      label: '仅手动同步',
-      description: '完全手动控制',
+      value: t('syncFrequency.options.manual.value'),
+      label: t('syncFrequency.options.manual.label'),
+      description: t('syncFrequency.options.manual.description'),
     },
   ];
 
@@ -125,7 +127,7 @@ export const SyncFrequencyModal: React.FC<SyncFrequencyModalProps> = ({
             <ArrowLeft size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.text }]}>
-            同步频率
+            {t('syncFrequency.title')}
           </Text>
           <View style={styles.placeholder} />
         </View>
@@ -134,10 +136,10 @@ export const SyncFrequencyModal: React.FC<SyncFrequencyModalProps> = ({
           {/* Summary Section */}
           <View style={styles.summarySection}>
             <Text style={[styles.summaryTitle, { color: colors.text }]}>
-              选择同步频率
+              {t('syncFrequency.selectTitle')}
             </Text>
             <Text style={[styles.summaryDescription, { color: colors.textSecondary }]}>
-              设置邮件扫描的频率，影响电池使用和同步及时性。
+              {t('syncFrequency.description')}
             </Text>
           </View>
 
@@ -149,12 +151,10 @@ export const SyncFrequencyModal: React.FC<SyncFrequencyModalProps> = ({
           {/* Info Section */}
           <View style={styles.infoSection}>
             <Text style={[styles.infoTitle, { color: colors.text }]}>
-              频率说明
+              {t('syncFrequency.infoSection.title')}
             </Text>
             <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-              • 实时同步：最及时，但耗电较多{'\n'}
-              • 每小时：推荐设置，平衡性能和及时性{'\n'}
-              • 手动同步：最省电，需要手动触发扫描
+              {t('syncFrequency.infoSection.description')}
             </Text>
           </View>
         </ScrollView>

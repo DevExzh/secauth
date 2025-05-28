@@ -60,7 +60,7 @@ export default function ProfileScreen() {
   const [emailAutoSync, setEmailAutoSync] = React.useState(true);
   const [emailNotifications, setEmailNotifications] = React.useState(true);
   const [autoDeleteEmails, setAutoDeleteEmails] = React.useState(true);
-  const [emailSyncFrequency, setEmailSyncFrequency] = React.useState('每小时');
+  const [emailSyncFrequency, setEmailSyncFrequency] = React.useState(t('emailSettings.syncFrequency'));
   const [connectedEmailAccounts] = React.useState(2); // Mock connected accounts count
   
   // 旋转动画

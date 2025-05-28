@@ -128,5 +128,155 @@
     "gaming": "Juegos",
     "work": "Trabajo",
     "other": "Otros"
+  },
+  "emailParsing": {
+    "alerts": {
+      "error": "Error",
+      "errorMessage": "Error al escanear emails",
+      "hint": "Sugerencia",
+      "selectAccountMessage": "Por favor selecciona al menos una cuenta",
+      "success": "Éxito",
+      "successMessage": "Autenticación de dos factores activada exitosamente para las cuentas seleccionadas",
+      "activationError": "Error durante la activación",
+      "securityConnection": "Conexión Segura",
+      "securityConnectionSettings": "Configuración de conexión segura"
+    }
+  },
+  "emailIntegration": {
+    "alerts": {
+      "permissionDenied": "Permiso Denegado",
+      "permissionDeniedMessage": "No se puede obtener permiso de acceso al email",
+      "error": "Error",
+      "errorMessage": "Error durante la autorización"
+    }
+  },
+  "emailSettings": {
+    "title": "Configuración de Email",
+    "summaryTitle": "Configuración de Integración de Email",
+    "summaryDescription": "Gestiona conexiones de email, configuración de sincronización y opciones de seguridad para escanear automáticamente emails de autenticación de dos factores.",
+    "syncFrequency": "Cada hora",
+    "accountManagement": {
+      "title": "Gestión de Cuentas"
+    },
+    "connectedAccounts": {
+      "title": "Cuentas Conectadas",
+      "subtitle": "{{count}} cuentas de email conectadas"
+    },
+    "addEmailAccount": {
+      "title": "Agregar Cuenta de Email",
+      "subtitle": "Conectar nuevo email para escaneo"
+    },
+    "syncSettings": {
+      "title": "Configuración de Sincronización"
+    },
+    "autoSync": {
+      "title": "Sincronización Automática",
+      "subtitle": "Escanear automáticamente nuevos emails de verificación"
+    },
+    "syncFrequencyOption": {
+      "title": "Frecuencia de Sincronización"
+    },
+    "emailProcessing": {
+      "title": "Procesamiento de Emails"
+    },
+    "autoDeleteEmails": {
+      "title": "Eliminar Emails Automáticamente",
+      "subtitle": "Eliminar automáticamente emails de verificación después del procesamiento"
+    },
+    "emailNotifications": {
+      "title": "Notificaciones de Email",
+      "subtitle": "Detección de nuevas cuentas y alertas de estado de sincronización"
+    },
+    "securitySettings": {
+      "title": "Configuración de Seguridad"
+    },
+    "secureConnection": {
+      "title": "Conexión Segura",
+      "subtitle": "Usar conexión encriptada para acceder al email"
+    },
+    "advancedSettings": {
+      "title": "Configuración Avanzada",
+      "subtitle": "Reglas de filtrado y escaneo de emails"
+    },
+    "statusSection": {
+      "title": "Estado de Sincronización",
+      "lastSync": "Última Sincronización",
+      "lastSyncValue": "hace 2 minutos",
+      "scannedEmails": "Emails Escaneados",
+      "scannedEmailsValue": "156 emails",
+      "foundAccounts": "Cuentas Encontradas",
+      "foundAccountsValue": "12 cuentas"
+    },
+    "infoSection": {
+      "title": "Acerca del Escaneo de Emails",
+      "description": "• Solo escanea emails que contienen información de autenticación de dos factores\n• No lee ni almacena contenido personal de emails\n• Todas las conexiones usan protocolos de encriptación seguros\n• Puedes desconectar conexiones de email en cualquier momento"
+    }
+  },
+  "connectedAccounts": {
+    "lastSyncTimes": {
+      "twoMinutesAgo": "hace 2 minutos",
+      "fiveMinutesAgo": "hace 5 minutos",
+      "oneHourAgo": "hace 1 hora",
+      "justNow": "ahora mismo"
+    },
+    "disconnect": {
+      "title": "Desconectar",
+      "message": "¿Estás seguro de que quieres desconectarte de {{email}}?",
+      "cancel": "Cancelar",
+      "confirm": "Desconectar"
+    },
+    "status": {
+      "connected": "Conectado",
+      "disconnected": "Desconectado"
+    },
+    "lastSync": "Última sincronización: {{time}}",
+    "title": "Cuentas Conectadas",
+    "subtitle": "Gestión de Cuentas de Email",
+    "description": "Gestiona tus conexiones de email y controla qué cuentas se usan para el escaneo automático de autenticación de dos factores.",
+    "connectedAccountsCount": "Cuentas conectadas ({{count}})",
+    "addAccount": "Agregar Nueva Cuenta de Email",
+    "infoTitle": "Acerca de la Conexión de Email",
+    "infoDescription": "• Los emails conectados escanearán automáticamente correos de autenticación de dos factores\n• Puedes desconectar o reconectar emails en cualquier momento\n• Desconectar no eliminará las cuentas importadas\n• Todo acceso de email usa conexiones encriptadas seguras"
+  },
+  "syncFrequency": {
+    "title": "Frecuencia de Sincronización",
+    "selectTitle": "Seleccionar Frecuencia de Sincronización",
+    "description": "Establece la frecuencia de escaneo de emails, afectando el uso de batería y la puntualidad de sincronización.",
+    "options": {
+      "realtime": {
+        "value": "Tiempo real",
+        "label": "Sincronización en Tiempo Real",
+        "description": "Escanear inmediatamente cuando se reciben emails"
+      },
+      "every15min": {
+        "value": "Cada 15 minutos",
+        "label": "Cada 15 minutos",
+        "description": "Verificar regularmente nuevos emails"
+      },
+      "every30min": {
+        "value": "Cada 30 minutos",
+        "label": "Cada 30 minutos",
+        "description": "Equilibrar rendimiento y puntualidad"
+      },
+      "hourly": {
+        "value": "Cada hora",
+        "label": "Cada hora",
+        "description": "Configuración recomendada, ahorra batería"
+      },
+      "every6hours": {
+        "value": "Cada 6 horas",
+        "label": "Cada 6 horas",
+        "description": "Sincronización de baja frecuencia, más eficiente energéticamente"
+      },
+      "manual": {
+        "value": "Manual",
+        "label": "Solo sincronización manual",
+        "description": "Control completamente manual"
+      }
+    },
+    "infoSection": {
+      "title": "Descripción de Frecuencia",
+      "description": "• Sincronización en tiempo real: Más oportuna, pero usa más batería\n• Cada hora: Configuración recomendada, equilibra rendimiento y puntualidad\n• Sincronización manual: Más eficiente energéticamente, requiere activación manual"
+    }
   }
 } 

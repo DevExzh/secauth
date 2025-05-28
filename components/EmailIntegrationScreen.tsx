@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import { EmailService } from '@/services/emailService';
 import {
     ArrowLeft,
@@ -29,9 +30,14 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
   
   const [isGranting, setIsGranting] = useState(false);
-  const permissions = EmailService.getPermissions();
+  const [permissions, setPermissions] = useState({
+    accessInbox: false,
+    deleteProcessed: false,
+    secureConnection: true,
+  });
 
   const handleGrantAccess = async () => {
     setIsGranting(true);
@@ -41,11 +47,11 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
         // 直接调用 onGrantAccess，不显示 Alert
         onGrantAccess();
       } else {
-        Alert.alert('权限被拒绝', '无法获取邮箱访问权限');
+        Alert.alert(t('emailIntegration.alerts.permissionDenied'), t('emailIntegration.alerts.permissionDeniedMessage'));
         setIsGranting(false);
       }
     } catch (error) {
-      Alert.alert('错误', '授权过程中发生错误');
+      Alert.alert(t('emailIntegration.alerts.error'), t('emailIntegration.alerts.errorMessage'));
       setIsGranting(false);
     }
     // 注意：如果成功，不在这里设置 setIsGranting(false)，因为会切换到下一个屏幕

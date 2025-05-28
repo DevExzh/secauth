@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import { EmailService } from '@/services/emailService';
 import { Account } from '@/types/auth';
 import {
@@ -29,6 +30,7 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
   
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [selectedAccounts, setSelectedAccounts] = useState<Set<string>>(new Set());
@@ -47,11 +49,10 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
       if (connectedAccounts.length > 0) {
         const scannedAccounts = await EmailService.scanEmailsForAccounts(connectedAccounts[0]);
         setAccounts(scannedAccounts);
-        // Select all accounts by default
         setSelectedAccounts(new Set(scannedAccounts.map(account => account.id)));
       }
     } catch (error) {
-      Alert.alert('错误', '扫描邮件时发生错误');
+      Alert.alert(t('emailParsing.alerts.error'), t('emailParsing.alerts.errorMessage'));
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +70,7 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
 
   const handleActivate2FA = async () => {
     if (selectedAccounts.size === 0) {
-      Alert.alert('提示', '请至少选择一个账户');
+      Alert.alert(t('emailParsing.alerts.hint'), t('emailParsing.alerts.selectAccountMessage'));
       return;
     }
 
@@ -79,7 +80,6 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
         selectedAccounts.has(account.id)
       );
       
-      // Simulate activation process
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       if (deleteProcessedEmails) {
@@ -87,9 +87,9 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
       }
       
       onActivate2FA(selectedAccountsList);
-      Alert.alert('成功', '已成功激活选中账户的两步验证');
+      Alert.alert(t('emailParsing.alerts.success'), t('emailParsing.alerts.successMessage'));
     } catch (error) {
-      Alert.alert('错误', '激活过程中发生错误');
+      Alert.alert(t('emailParsing.alerts.error'), t('emailParsing.alerts.activationError'));
     } finally {
       setIsActivating(false);
     }
@@ -141,14 +141,12 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
       </View>
 
       <ScrollView style={styles.content}>
-        {/* Description */}
         <View style={styles.descriptionSection}>
           <Text style={[styles.description, { color: colors.textSecondary }]}>
-                         We&apos;ve scanned your email for accounts that can be secured with two-factor authentication. Review the list below and activate 2FA for each account.
+            We&apos;ve scanned your email for accounts that can be secured with two-factor authentication. Review the list below and activate 2FA for each account.
           </Text>
         </View>
 
-        {/* Accounts List */}
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
@@ -161,7 +159,6 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
           </View>
         )}
 
-        {/* Delete Option */}
         {!isLoading && accounts.length > 0 && (
           <TouchableOpacity
             style={styles.deleteOption}
@@ -182,7 +179,6 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
           </TouchableOpacity>
         )}
 
-        {/* Action Buttons */}
         {!isLoading && accounts.length > 0 && (
           <View style={styles.buttonContainer}>
             <TouchableOpacity
@@ -198,8 +194,7 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
             <TouchableOpacity
               style={[styles.secureButton, { borderColor: colors.primary }]}
               onPress={() => {
-                // Navigate to secure connection settings
-                Alert.alert('安全连接', '安全连接设置');
+                Alert.alert(t('emailParsing.alerts.securityConnection'), t('emailParsing.alerts.securityConnectionSettings'));
               }}
             >
               <Text style={[styles.secureButtonText, { color: colors.primary }]}>

@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import {
     ArrowLeft,
     CheckCircle,
@@ -39,6 +40,7 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
 }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
   
   // Mock connected accounts data
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([
@@ -47,32 +49,32 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
       provider: 'Gmail',
       email: 'personal@gmail.com',
       isConnected: true,
-      lastSync: '2分钟前',
+      lastSync: t('connectedAccounts.lastSyncTimes.twoMinutesAgo'),
     },
     {
       id: '2',
       provider: 'Outlook',
       email: 'work@outlook.com',
       isConnected: true,
-      lastSync: '5分钟前',
+      lastSync: t('connectedAccounts.lastSyncTimes.fiveMinutesAgo'),
     },
     {
       id: '3',
       provider: 'Yahoo',
       email: 'backup@yahoo.com',
       isConnected: false,
-      lastSync: '1小时前',
+      lastSync: t('connectedAccounts.lastSyncTimes.oneHourAgo'),
     },
   ]);
 
   const handleDisconnectAccount = (accountId: string, email: string) => {
     Alert.alert(
-      '断开连接',
-      `确定要断开与 ${email} 的连接吗？`,
+      t('connectedAccounts.disconnect.title'),
+      t('connectedAccounts.disconnect.message', { email }),
       [
-        { text: '取消', style: 'cancel' },
+        { text: t('connectedAccounts.disconnect.cancel'), style: 'cancel' },
         {
-          text: '断开',
+          text: t('connectedAccounts.disconnect.confirm'),
           style: 'destructive',
           onPress: () => {
             setConnectedAccounts(prev => 
@@ -92,7 +94,7 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
     setConnectedAccounts(prev => 
       prev.map(account => 
         account.id === accountId 
-          ? { ...account, isConnected: true, lastSync: '刚刚' }
+          ? { ...account, isConnected: true, lastSync: t('connectedAccounts.lastSyncTimes.justNow') }
           : account
       )
     );
@@ -127,11 +129,11 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
               styles.statusText, 
               { color: account.isConnected ? colors.primary : colors.textSecondary }
             ]}>
-              {account.isConnected ? '已连接' : '已断开'}
+              {account.isConnected ? t('connectedAccounts.status.connected') : t('connectedAccounts.status.disconnected')}
             </Text>
           </View>
           <Text style={[styles.lastSyncText, { color: colors.textSecondary }]}>
-            最后同步: {account.lastSync}
+            {t('connectedAccounts.lastSync', { time: account.lastSync })}
           </Text>
         </View>
       </View>
@@ -163,7 +165,7 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
           <ArrowLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
-          已连接账户
+          {t('connectedAccounts.title')}
         </Text>
         <View style={styles.placeholder} />
       </View>
@@ -172,17 +174,17 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
         {/* Summary Section */}
         <View style={styles.summarySection}>
           <Text style={[styles.summaryTitle, { color: colors.text }]}>
-            邮箱账户管理
+            {t('connectedAccounts.subtitle')}
           </Text>
           <Text style={[styles.summaryDescription, { color: colors.textSecondary }]}>
-            管理您的邮箱连接，控制哪些账户用于自动扫描两步验证信息。
+            {t('connectedAccounts.description')}
           </Text>
         </View>
 
         {/* Connected Accounts List */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            连接的账户 ({connectedAccounts.filter(a => a.isConnected).length})
+            {t('connectedAccounts.connectedAccountsCount', { count: connectedAccounts.filter(a => a.isConnected).length })}
           </Text>
           
           <View style={styles.accountsList}>
@@ -198,7 +200,7 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
           >
             <Plus size={24} color={colors.primary} />
             <Text style={[styles.addAccountText, { color: colors.primary }]}>
-              添加新的邮箱账户
+              {t('connectedAccounts.addAccount')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -206,13 +208,10 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
         {/* Info Section */}
         <View style={styles.infoSection}>
           <Text style={[styles.infoTitle, { color: colors.text }]}>
-            关于邮箱连接
+            {t('connectedAccounts.infoTitle')}
           </Text>
           <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            • 连接的邮箱将自动扫描两步验证相关邮件{'\n'}
-            • 您可以随时断开或重新连接邮箱{'\n'}
-            • 断开连接不会删除已导入的账户{'\n'}
-            • 所有邮箱访问都使用安全加密连接
+            {t('connectedAccounts.infoDescription')}
           </Text>
         </View>
       </ScrollView>

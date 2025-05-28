@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import {
     ArrowLeft,
     Bell,
@@ -39,6 +40,7 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
 
   // Settings state
   const [emailAutoSync, setEmailAutoSync] = useState(true);
@@ -48,42 +50,42 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
 
   // Mock data
   const connectedAccountsCount = 2;
-  const currentSyncFrequency = '每小时';
+  const currentSyncFrequency = t('emailSettings.syncFrequency');
 
   const settingsGroups = [
     {
-      title: '账户管理',
+      title: t('emailSettings.accountManagement.title'),
       items: [
         {
           icon: <Link size={20} color={colors.primary} />,
-          title: '已连接账户',
-          subtitle: `${connectedAccountsCount} 个邮箱账户已连接`,
+          title: t('emailSettings.connectedAccounts.title'),
+          subtitle: t('emailSettings.connectedAccounts.subtitle', { count: connectedAccountsCount }),
           type: 'navigation',
           onPress: onConnectedAccounts,
         },
         {
           icon: <Plus size={20} color={colors.primary} />,
-          title: '添加邮箱账户',
-          subtitle: '连接新的邮箱进行扫描',
+          title: t('emailSettings.addEmailAccount.title'),
+          subtitle: t('emailSettings.addEmailAccount.subtitle'),
           type: 'navigation',
           onPress: onAddAccount,
         },
       ],
     },
     {
-      title: '同步设置',
+      title: t('emailSettings.syncSettings.title'),
       items: [
         {
           icon: <RefreshCw size={20} color={colors.primary} />,
-          title: '自动同步',
-          subtitle: '自动扫描新的验证邮件',
+          title: t('emailSettings.autoSync.title'),
+          subtitle: t('emailSettings.autoSync.subtitle'),
           type: 'switch',
           value: emailAutoSync,
           onToggle: setEmailAutoSync,
         },
         {
           icon: <Clock size={20} color={colors.primary} />,
-          title: '同步频率',
+          title: t('emailSettings.syncFrequencyOption.title'),
           subtitle: currentSyncFrequency,
           type: 'navigation',
           onPress: onSyncFrequency,
@@ -92,20 +94,20 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
       ],
     },
     {
-      title: '邮件处理',
+      title: t('emailSettings.emailProcessing.title'),
       items: [
         {
           icon: <Trash2 size={20} color={colors.primary} />,
-          title: '自动删除邮件',
-          subtitle: '处理后自动删除验证邮件',
+          title: t('emailSettings.autoDeleteEmails.title'),
+          subtitle: t('emailSettings.autoDeleteEmails.subtitle'),
           type: 'switch',
           value: autoDeleteEmails,
           onToggle: setAutoDeleteEmails,
         },
         {
           icon: <Bell size={20} color={colors.primary} />,
-          title: '邮件通知',
-          subtitle: '新账户检测和同步状态提醒',
+          title: t('emailSettings.emailNotifications.title'),
+          subtitle: t('emailSettings.emailNotifications.subtitle'),
           type: 'switch',
           value: emailNotifications,
           onToggle: setEmailNotifications,
@@ -113,20 +115,20 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
       ],
     },
     {
-      title: '安全设置',
+      title: t('emailSettings.securitySettings.title'),
       items: [
         {
           icon: <Shield size={20} color={colors.primary} />,
-          title: '安全连接',
-          subtitle: '使用加密连接访问邮箱',
+          title: t('emailSettings.secureConnection.title'),
+          subtitle: t('emailSettings.secureConnection.subtitle'),
           type: 'switch',
           value: secureConnection,
           onToggle: setSecureConnection,
         },
         {
           icon: <Settings size={20} color={colors.primary} />,
-          title: '高级设置',
-          subtitle: '邮件过滤和扫描规则',
+          title: t('emailSettings.advancedSettings.title'),
+          subtitle: t('emailSettings.advancedSettings.subtitle'),
           type: 'navigation',
           onPress: () => {
             // Navigate to advanced settings
@@ -196,7 +198,7 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
           <ArrowLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
-          邮箱设置
+          {t('emailSettings.title')}
         </Text>
         <View style={styles.placeholder} />
       </View>
@@ -208,10 +210,10 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
             <Mail size={32} color={colors.primary} />
           </View>
           <Text style={[styles.summaryTitle, { color: colors.text }]}>
-            邮箱集成设置
+            {t('emailSettings.summaryTitle')}
           </Text>
           <Text style={[styles.summaryDescription, { color: colors.textSecondary }]}>
-            管理邮箱连接、同步设置和安全选项，自动扫描两步验证相关邮件。
+            {t('emailSettings.summaryDescription')}
           </Text>
         </View>
 
@@ -237,31 +239,31 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
         {/* Status Section */}
         <View style={styles.statusSection}>
           <Text style={[styles.statusTitle, { color: colors.text }]}>
-            同步状态
+            {t('emailSettings.statusSection.title')}
           </Text>
           <View style={[styles.statusCard, { backgroundColor: colors.surface }]}>
             <View style={styles.statusRow}>
               <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                上次同步
+                {t('emailSettings.statusSection.lastSync')}
               </Text>
               <Text style={[styles.statusValue, { color: colors.text }]}>
-                2分钟前
+                {t('emailSettings.statusSection.lastSyncValue')}
               </Text>
             </View>
             <View style={styles.statusRow}>
               <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                扫描邮件数
+                {t('emailSettings.statusSection.scannedEmails')}
               </Text>
               <Text style={[styles.statusValue, { color: colors.text }]}>
-                156 封
+                {t('emailSettings.statusSection.scannedEmailsValue')}
               </Text>
             </View>
             <View style={styles.statusRow}>
               <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                发现账户数
+                {t('emailSettings.statusSection.foundAccounts')}
               </Text>
               <Text style={[styles.statusValue, { color: colors.text }]}>
-                12 个
+                {t('emailSettings.statusSection.foundAccountsValue')}
               </Text>
             </View>
           </View>
@@ -270,13 +272,10 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
         {/* Info Section */}
         <View style={styles.infoSection}>
           <Text style={[styles.infoTitle, { color: colors.text }]}>
-            关于邮箱扫描
+            {t('emailSettings.infoSection.title')}
           </Text>
           <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            • 仅扫描包含两步验证信息的邮件{'\n'}
-            • 不会读取或存储个人邮件内容{'\n'}
-            • 所有连接都使用安全加密协议{'\n'}
-            • 您可以随时断开邮箱连接
+            {t('emailSettings.infoSection.description')}
           </Text>
         </View>
       </ScrollView>

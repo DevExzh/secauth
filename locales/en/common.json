@@ -128,5 +128,155 @@
     "gaming": "Gaming",
     "work": "Work",
     "other": "Other"
+  },
+  "emailParsing": {
+    "alerts": {
+      "error": "Error",
+      "errorMessage": "Error occurred while scanning emails",
+      "hint": "Hint",
+      "selectAccountMessage": "Please select at least one account",
+      "success": "Success",
+      "successMessage": "Successfully activated two-factor authentication for selected accounts",
+      "activationError": "Error occurred during activation",
+      "securityConnection": "Secure Connection",
+      "securityConnectionSettings": "Secure connection settings"
+    }
+  },
+  "emailIntegration": {
+    "alerts": {
+      "permissionDenied": "Permission Denied",
+      "permissionDeniedMessage": "Unable to obtain email access permission",
+      "error": "Error",
+      "errorMessage": "Error occurred during authorization"
+    }
+  },
+  "emailSettings": {
+    "title": "Email Settings",
+    "summaryTitle": "Email Integration Settings",
+    "summaryDescription": "Manage email connections, sync settings, and security options to automatically scan for two-factor authentication emails.",
+    "syncFrequency": "Hourly",
+    "accountManagement": {
+      "title": "Account Management"
+    },
+    "connectedAccounts": {
+      "title": "Connected Accounts",
+      "subtitle": "{{count}} email accounts connected"
+    },
+    "addEmailAccount": {
+      "title": "Add Email Account",
+      "subtitle": "Connect new email for scanning"
+    },
+    "syncSettings": {
+      "title": "Sync Settings"
+    },
+    "autoSync": {
+      "title": "Auto Sync",
+      "subtitle": "Automatically scan for new verification emails"
+    },
+    "syncFrequencyOption": {
+      "title": "Sync Frequency"
+    },
+    "emailProcessing": {
+      "title": "Email Processing"
+    },
+    "autoDeleteEmails": {
+      "title": "Auto Delete Emails",
+      "subtitle": "Automatically delete verification emails after processing"
+    },
+    "emailNotifications": {
+      "title": "Email Notifications",
+      "subtitle": "New account detection and sync status alerts"
+    },
+    "securitySettings": {
+      "title": "Security Settings"
+    },
+    "secureConnection": {
+      "title": "Secure Connection",
+      "subtitle": "Use encrypted connection to access email"
+    },
+    "advancedSettings": {
+      "title": "Advanced Settings",
+      "subtitle": "Email filtering and scanning rules"
+    },
+    "statusSection": {
+      "title": "Sync Status",
+      "lastSync": "Last Sync",
+      "lastSyncValue": "2 minutes ago",
+      "scannedEmails": "Scanned Emails",
+      "scannedEmailsValue": "156 emails",
+      "foundAccounts": "Found Accounts",
+      "foundAccountsValue": "12 accounts"
+    },
+    "infoSection": {
+      "title": "About Email Scanning",
+      "description": "• Only scans emails containing two-factor authentication information\n• Does not read or store personal email content\n• All connections use secure encryption protocols\n• You can disconnect email connections at any time"
+    }
+  },
+  "connectedAccounts": {
+    "lastSyncTimes": {
+      "twoMinutesAgo": "2 minutes ago",
+      "fiveMinutesAgo": "5 minutes ago",
+      "oneHourAgo": "1 hour ago",
+      "justNow": "just now"
+    },
+    "disconnect": {
+      "title": "Disconnect",
+      "message": "Are you sure you want to disconnect from {{email}}?",
+      "cancel": "Cancel",
+      "confirm": "Disconnect"
+    },
+    "status": {
+      "connected": "Connected",
+      "disconnected": "Disconnected"
+    },
+    "lastSync": "Last sync: {{time}}",
+    "title": "Connected Accounts",
+    "subtitle": "Email Account Management",
+    "description": "Manage your email connections and control which accounts are used for automatic two-factor authentication scanning.",
+    "connectedAccountsCount": "Connected accounts ({{count}})",
+    "addAccount": "Add New Email Account",
+    "infoTitle": "About Email Connection",
+    "infoDescription": "• Connected emails will automatically scan for two-factor authentication emails\n• You can disconnect or reconnect emails at any time\n• Disconnecting will not delete imported accounts\n• All email access uses secure encrypted connections"
+  },
+  "syncFrequency": {
+    "title": "Sync Frequency",
+    "selectTitle": "Select Sync Frequency",
+    "description": "Set the frequency of email scanning, affecting battery usage and sync timeliness.",
+    "options": {
+      "realtime": {
+        "value": "Real-time",
+        "label": "Real-time Sync",
+        "description": "Scan immediately when emails are received"
+      },
+      "every15min": {
+        "value": "Every 15 minutes",
+        "label": "Every 15 minutes",
+        "description": "Regularly check for new emails"
+      },
+      "every30min": {
+        "value": "Every 30 minutes",
+        "label": "Every 30 minutes",
+        "description": "Balance performance and timeliness"
+      },
+      "hourly": {
+        "value": "Hourly",
+        "label": "Hourly",
+        "description": "Recommended setting, saves battery"
+      },
+      "every6hours": {
+        "value": "Every 6 hours",
+        "label": "Every 6 hours",
+        "description": "Low-frequency sync, most power efficient"
+      },
+      "manual": {
+        "value": "Manual",
+        "label": "Manual sync only",
+        "description": "Complete manual control"
+      }
+    },
+    "infoSection": {
+      "title": "Frequency Description",
+      "description": "• Real-time sync: Most timely, but uses more battery\n• Hourly: Recommended setting, balances performance and timeliness\n• Manual sync: Most power efficient, requires manual trigger"
+    }
   }
 } 
