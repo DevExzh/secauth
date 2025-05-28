@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import type { AccountCategory } from '@/types/auth';
 import {
     Briefcase,
@@ -17,35 +18,35 @@ interface CategoryFilterProps {
   onCategoryChange: (category: AccountCategory) => void;
 }
 
-const categories: { key: AccountCategory; label: string; icon: React.ReactNode }[] = [
+const getCategoryConfig = (t: any): { key: AccountCategory; labelKey: string; icon: React.ReactNode }[] => [
   { 
     key: 'All', 
-    label: '全部', 
+    labelKey: 'categories.all',
     icon: <Grid3X3 size={16} />
   },
   { 
     key: 'Social', 
-    label: '社交', 
+    labelKey: 'categories.social',
     icon: <Users size={16} />
   },
   { 
     key: 'Finance', 
-    label: '金融', 
+    labelKey: 'categories.finance',
     icon: <CreditCard size={16} />
   },
   { 
     key: 'Gaming', 
-    label: '游戏', 
+    labelKey: 'categories.gaming',
     icon: <Gamepad2 size={16} />
   },
   { 
     key: 'Work', 
-    label: '工作', 
+    labelKey: 'categories.work',
     icon: <Briefcase size={16} />
   },
   { 
     key: 'Other', 
-    label: '其他', 
+    labelKey: 'categories.other',
     icon: <MoreHorizontal size={16} />
   },
 ];
@@ -56,61 +57,73 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
+
+  const categories = getCategoryConfig(t);
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.container}
-      style={styles.scrollView}
-    >
-      {categories.map((category, index) => {
-        const isSelected = selectedCategory === category.key;
-        const isFirst = index === 0;
-        const isLast = index === categories.length - 1;
-        
-        return (
-          <TouchableOpacity
-            key={category.key}
-            style={[
-              styles.categoryButton,
-              {
-                backgroundColor: isSelected ? colors.primary : 'transparent',
-                borderColor: isSelected ? colors.primary : colors.border,
-                marginLeft: isFirst ? 16 : 0,
-                marginRight: isLast ? 16 : 12,
-              },
-            ]}
-            onPress={() => onCategoryChange(category.key)}
-          >
-            <View style={styles.iconContainer}>
-              {React.cloneElement(category.icon as React.ReactElement<any>, {
-                color: isSelected ? colors.background : colors.textSecondary,
-              })}
-            </View>
-            <Text
+    <View style={[styles.wrapper, { backgroundColor: colors.background }]}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.container}
+        style={styles.scrollView}
+      >
+        {categories.map((category, index) => {
+          const isSelected = selectedCategory === category.key;
+          const isFirst = index === 0;
+          const isLast = index === categories.length - 1;
+          
+          return (
+            <TouchableOpacity
+              key={category.key}
               style={[
-                styles.categoryText,
+                styles.categoryButton,
                 {
-                  color: isSelected ? colors.background : colors.text,
+                  backgroundColor: isSelected ? colors.primary : colors.surface,
+                  borderColor: isSelected ? colors.primary : colors.border,
+                  marginLeft: isFirst ? 16 : 0,
+                  marginRight: isLast ? 16 : 12,
                 },
               ]}
+              onPress={() => onCategoryChange(category.key)}
+              activeOpacity={0.7}
             >
-              {category.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
-    </ScrollView>
+              <View style={styles.iconContainer}>
+                {React.cloneElement(category.icon as React.ReactElement<any>, {
+                  color: isSelected ? colors.background : colors.textSecondary,
+                })}
+              </View>
+              <Text
+                style={[
+                  styles.categoryText,
+                  {
+                    color: isSelected ? colors.background : colors.text,
+                  },
+                ]}
+              >
+                {t(category.labelKey)}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
+  wrapper: {
     paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  scrollView: {
+    flexGrow: 0,
   },
   container: {
     alignItems: 'center',
+    paddingVertical: 4,
   },
   categoryButton: {
     flexDirection: 'row',
@@ -121,6 +134,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     height: 36,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   iconContainer: {
     marginRight: 6,

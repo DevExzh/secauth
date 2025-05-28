@@ -85,5 +85,13 @@
     "helpSupport": "帮助与支持",
     "support": "支持",
     "signOut": "退出登录"
+  },
+  "categories": {
+    "all": "全部",
+    "social": "社交",
+    "finance": "金融",
+    "gaming": "游戏",
+    "work": "工作",
+    "other": "其他"
   }
 } 

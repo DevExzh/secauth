@@ -85,5 +85,13 @@
     "helpSupport": "Help & Support",
     "support": "Support",
     "signOut": "Sign Out"
+  },
+  "categories": {
+    "all": "All",
+    "social": "Social",
+    "finance": "Finance",
+    "gaming": "Gaming",
+    "work": "Work",
+    "other": "Other"
   }
 } 

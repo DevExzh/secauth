@@ -9,12 +9,12 @@ import type { Account, AccountCategory } from '@/types/auth';
 import { Bell, Settings, Shield } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import {
-    FlatList,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default function HomeScreen() {
@@ -75,11 +75,13 @@ export default function HomeScreen() {
       </View>
 
       {/* Search Bar */}
-      <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholder={t('common.search')}
-      />
+      <View style={styles.searchContainer}>
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder={t('common.search')}
+        />
+      </View>
 
       {/* Category Filter */}
       <CategoryFilter
@@ -88,13 +90,19 @@ export default function HomeScreen() {
       />
 
       {/* Accounts List */}
-      <FlatList
-        data={filteredAccounts}
-        renderItem={renderAccount}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-      />
+      <View style={styles.listWrapper}>
+        <FlatList
+          data={filteredAccounts}
+          renderItem={renderAccount}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.listContainer,
+            filteredAccounts.length === 0 && styles.emptyListContainer
+          ]}
+          style={styles.flatList}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -147,7 +155,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 22,
   },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  listWrapper: {
+    flex: 1,
+  },
   listContainer: {
     paddingBottom: 20,
+    flexGrow: 1,
+  },
+  emptyListContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flatList: {
+    flex: 1,
   },
 });

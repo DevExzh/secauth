@@ -85,5 +85,13 @@
     "helpSupport": "Ayuda y Soporte",
     "support": "Soporte",
     "signOut": "Cerrar Sesión"
+  },
+  "categories": {
+    "all": "Todos",
+    "social": "Social",
+    "finance": "Finanzas",
+    "gaming": "Juegos",
+    "work": "Trabajo",
+    "other": "Otros"
   }
 } 
