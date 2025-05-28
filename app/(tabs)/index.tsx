@@ -4,6 +4,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { Colors } from '@/constants/Colors';
 import { mockAccounts } from '@/constants/mockData';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import type { Account, AccountCategory } from '@/types/auth';
 import { Bell, Settings, Shield } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
@@ -19,6 +20,7 @@ import {
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<AccountCategory>('All');
@@ -49,7 +51,7 @@ export default function HomeScreen() {
             <Shield size={24} color={colors.background} />
           </View>
           <Text style={[styles.appTitle, { color: colors.text }]}>
-            SecureAuth
+            {t('home.subtitle')}
           </Text>
         </View>
         <View style={styles.headerRight}>
@@ -62,11 +64,21 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      {/* Welcome Section */}
+      <View style={styles.welcomeSection}>
+        <Text style={[styles.welcomeTitle, { color: colors.text }]}>
+          {t('home.title')}
+        </Text>
+        <Text style={[styles.welcomeDescription, { color: colors.textSecondary }]}>
+          {t('home.description')}
+        </Text>
+      </View>
+
       {/* Search Bar */}
       <SearchBar
         value={searchQuery}
         onChangeText={setSearchQuery}
-        placeholder="搜索账户"
+        placeholder={t('common.search')}
       />
 
       {/* Category Filter */}
@@ -121,6 +133,19 @@ const styles = StyleSheet.create({
   headerButton: {
     padding: 8,
     marginLeft: 8,
+  },
+  welcomeSection: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  welcomeDescription: {
+    fontSize: 16,
+    lineHeight: 22,
   },
   listContainer: {
     paddingBottom: 20,

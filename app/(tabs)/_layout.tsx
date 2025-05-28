@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import { Tabs } from 'expo-router';
 import { Home, Plus, User } from 'lucide-react-native';
 import React from 'react';
@@ -8,6 +9,7 @@ import { View } from 'react-native';
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
 
   return (
     <Tabs
@@ -27,7 +29,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('navigation.home'),
           tabBarIcon: ({ color, focused }) => (
             <Home size={24} color={color} />
           ),
@@ -60,7 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('navigation.profile'),
           tabBarIcon: ({ color, focused }) => (
             <User size={24} color={color} />
           ),

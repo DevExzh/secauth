@@ -1,0 +1,89 @@
+{
+  "navigation": {
+    "home": "Inicio",
+    "add": "Agregar",
+    "profile": "Perfil"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "done": "Hecho",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "warning": "Advertencia",
+    "info": "Información",
+    "search": "Buscar cuentas"
+  },
+  "settings": {
+    "title": "Configuración",
+    "language": "Idioma",
+    "selectLanguage": "Seleccionar Idioma",
+    "theme": "Tema",
+    "themeDescription": "Usar tema oscuro",
+    "notifications": "Notificaciones",
+    "notificationsDescription": "Recibir recordatorios de expiración de códigos",
+    "privacy": "Privacidad",
+    "about": "Acerca de",
+    "biometricUnlock": "Desbloqueo Biométrico",
+    "biometricDescription": "Usar huella dactilar o Face ID para desbloquear",
+    "autoLock": "Bloqueo Automático",
+    "autoLockDescription": "Bloquear automáticamente después de 5 minutos",
+    "emailIntegration": "Integración de Email",
+    "emailIntegrationDescription": "Configuración de conexión y sincronización de email",
+    "connectedAccounts": "Cuentas Conectadas",
+    "connectedAccountsDescription": "cuentas de email conectadas",
+    "autoSync": "Sincronización Automática",
+    "autoSyncDescription": "Escanear automáticamente nuevos emails de verificación",
+    "syncFrequency": "Frecuencia de Sincronización",
+    "syncFrequencyDescription": "Cada hora",
+    "autoDeleteEmails": "Eliminar Emails Automáticamente",
+    "autoDeleteEmailsDescription": "Eliminar automáticamente emails de verificación después del procesamiento",
+    "emailNotifications": "Notificaciones de Email",
+    "emailNotificationsDescription": "Detección de nuevas cuentas y alertas de estado de sincronización",
+    "exportData": "Exportar Datos",
+    "exportDataDescription": "Respaldar los datos de tu cuenta",
+    "importData": "Importar Datos",
+    "importDataDescription": "Restaurar datos desde archivo de respaldo",
+    "cloudSync": "Configuración de Sincronización en la Nube",
+    "cloudSyncDescription": "Configuración de sincronización WebDAV en la nube",
+    "helpCenter": "Centro de Ayuda",
+    "helpCenterDescription": "Preguntas frecuentes y guías de usuario",
+    "aboutApp": "Acerca de la App",
+    "aboutAppDescription": "SecAuth v1.0.0"
+  },
+  "languages": {
+    "en": "English",
+    "zh": "中文",
+    "es": "Español"
+  },
+  "home": {
+    "title": "Bienvenido",
+    "subtitle": "SecAuth",
+    "description": "Gestiona tus códigos de autenticación y cuentas de forma segura."
+  },
+  "add": {
+    "title": "Agregar Cuenta",
+    "scanQR": "Escanear Código QR",
+    "manualEntry": "Entrada Manual",
+    "accountName": "Nombre de Cuenta",
+    "secretKey": "Clave Secreta",
+    "issuer": "Emisor"
+  },
+  "profile": {
+    "title": "Perfil",
+    "account": "Cuenta",
+    "security": "Seguridad",
+    "preferences": "Preferencias",
+    "emailSettings": "Configuración de Email",
+    "dataManagement": "Gestión de Datos",
+    "helpSupport": "Ayuda y Soporte",
+    "support": "Soporte",
+    "signOut": "Cerrar Sesión"
+  }
+} 

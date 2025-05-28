@@ -1,0 +1,89 @@
+{
+  "navigation": {
+    "home": "Home",
+    "add": "Add",
+    "profile": "Profile"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+    "search": "Search accounts"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "selectLanguage": "Select Language",
+    "theme": "Theme",
+    "themeDescription": "Use dark theme",
+    "notifications": "Notifications",
+    "notificationsDescription": "Receive verification code expiry reminders",
+    "privacy": "Privacy",
+    "about": "About",
+    "biometricUnlock": "Biometric Unlock",
+    "biometricDescription": "Use fingerprint or Face ID to unlock app",
+    "autoLock": "Auto Lock",
+    "autoLockDescription": "Automatically lock app after 5 minutes",
+    "emailIntegration": "Email Integration",
+    "emailIntegrationDescription": "Email connection and sync settings",
+    "connectedAccounts": "Connected Accounts",
+    "connectedAccountsDescription": "email accounts connected",
+    "autoSync": "Auto Sync",
+    "autoSyncDescription": "Automatically scan for new verification emails",
+    "syncFrequency": "Sync Frequency",
+    "syncFrequencyDescription": "Hourly",
+    "autoDeleteEmails": "Auto Delete Emails",
+    "autoDeleteEmailsDescription": "Automatically delete verification emails after processing",
+    "emailNotifications": "Email Notifications",
+    "emailNotificationsDescription": "New account detection and sync status alerts",
+    "exportData": "Export Data",
+    "exportDataDescription": "Backup your account data",
+    "importData": "Import Data",
+    "importDataDescription": "Restore data from backup file",
+    "cloudSync": "Cloud Sync Settings",
+    "cloudSyncDescription": "WebDAV cloud sync configuration",
+    "helpCenter": "Help Center",
+    "helpCenterDescription": "FAQ and user guides",
+    "aboutApp": "About App",
+    "aboutAppDescription": "SecAuth v1.0.0"
+  },
+  "languages": {
+    "en": "English",
+    "zh": "中文",
+    "es": "Español"
+  },
+  "home": {
+    "title": "Welcome",
+    "subtitle": "SecAuth",
+    "description": "Manage your secure authentication codes and accounts safely."
+  },
+  "add": {
+    "title": "Add Account",
+    "scanQR": "Scan QR Code",
+    "manualEntry": "Manual Entry",
+    "accountName": "Account Name",
+    "secretKey": "Secret Key",
+    "issuer": "Issuer"
+  },
+  "profile": {
+    "title": "Profile",
+    "account": "Account",
+    "security": "Security",
+    "preferences": "Preferences",
+    "emailSettings": "Email Settings",
+    "dataManagement": "Data Management",
+    "helpSupport": "Help & Support",
+    "support": "Support",
+    "signOut": "Sign Out"
+  }
+} 

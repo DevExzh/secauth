@@ -6,42 +6,44 @@ import { SyncFrequencyModal } from '@/components/SyncFrequencyModal';
 import CloudSyncStaticScreen from '@/components/ui/CloudSyncStaticScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import { Account } from '@/types/auth';
 import {
-    Bell,
-    ChevronRight,
-    Clock,
-    Download,
-    HelpCircle,
-    Info,
-    Link,
-    Lock,
-    Mail,
-    MailCheck,
-    Moon,
-    RefreshCw,
-    Settings,
-    Shield,
-    Trash2,
-    Upload,
-    User,
-    Wifi
+  Bell,
+  ChevronRight,
+  Clock,
+  Download,
+  HelpCircle,
+  Info,
+  Link,
+  Lock,
+  Mail,
+  MailCheck,
+  Moon,
+  RefreshCw,
+  Settings,
+  Shield,
+  Trash2,
+  Upload,
+  User,
+  Wifi
 } from 'lucide-react-native';
 import React from 'react';
 import {
-    Animated,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TouchableOpacity,
-    View
+  Animated,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
   
   const [darkMode, setDarkMode] = React.useState(colorScheme === 'dark');
   const [notifications, setNotifications] = React.useState(true);
@@ -53,6 +55,11 @@ export default function ProfileScreen() {
   const [showConnectedAccounts, setShowConnectedAccounts] = React.useState(false);
   const [showSyncFrequency, setShowSyncFrequency] = React.useState(false);
   const [showCloudSync, setShowCloudSync] = React.useState(false);
+  const [emailAutoSync, setEmailAutoSync] = React.useState(true);
+  const [emailNotifications, setEmailNotifications] = React.useState(true);
+  const [autoDeleteEmails, setAutoDeleteEmails] = React.useState(true);
+  const [emailSyncFrequency, setEmailSyncFrequency] = React.useState('每小时');
+  const [connectedEmailAccounts] = React.useState(2); // Mock connected accounts count
   
   // 旋转动画
   const spinValue = React.useRef(new Animated.Value(0)).current;
@@ -71,13 +78,6 @@ export default function ProfileScreen() {
     }
   }, [isScanning, spinValue]);
   
-  // Email-related settings
-  const [emailAutoSync, setEmailAutoSync] = React.useState(true);
-  const [emailNotifications, setEmailNotifications] = React.useState(true);
-  const [autoDeleteEmails, setAutoDeleteEmails] = React.useState(true);
-  const [emailSyncFrequency, setEmailSyncFrequency] = React.useState('每小时');
-  const [connectedEmailAccounts] = React.useState(2); // Mock connected accounts count
-
   const settingsGroups = [
     {
       title: '安全设置',
@@ -124,45 +124,45 @@ export default function ProfileScreen() {
       items: [
         {
           icon: <Mail size={20} color={colors.primary} />,
-          title: '邮箱集成',
-          subtitle: '邮箱连接和同步设置',
+          title: t('settings.emailIntegration'),
+          subtitle: t('settings.emailIntegrationDescription'),
           type: 'navigation',
           onPress: () => setShowEmailSettings(true),
         },
         {
           icon: <Link size={20} color={colors.primary} />,
-          title: '已连接账户',
-          subtitle: `${connectedEmailAccounts} 个邮箱账户已连接`,
+          title: t('settings.connectedAccounts'),
+          subtitle: `${connectedEmailAccounts} ${t('settings.connectedAccountsDescription')}`,
           type: 'navigation',
           onPress: () => setShowConnectedAccounts(true),
         },
         {
           icon: <RefreshCw size={20} color={colors.primary} />,
-          title: '自动同步',
-          subtitle: '自动扫描新的验证邮件',
+          title: t('settings.autoSync'),
+          subtitle: t('settings.autoSyncDescription'),
           type: 'switch',
           value: emailAutoSync,
           onToggle: setEmailAutoSync,
         },
         {
           icon: <Clock size={20} color={colors.primary} />,
-          title: '同步频率',
-          subtitle: emailSyncFrequency,
+          title: t('settings.syncFrequency'),
+          subtitle: t('settings.syncFrequencyDescription'),
           type: 'navigation',
           onPress: () => setShowSyncFrequency(true),
         },
         {
           icon: <Trash2 size={20} color={colors.primary} />,
-          title: '自动删除邮件',
-          subtitle: '处理后自动删除验证邮件',
+          title: t('settings.autoDeleteEmails'),
+          subtitle: t('settings.autoDeleteEmailsDescription'),
           type: 'switch',
           value: autoDeleteEmails,
           onToggle: setAutoDeleteEmails,
         },
         {
           icon: <MailCheck size={20} color={colors.primary} />,
-          title: '邮件通知',
-          subtitle: '新账户检测和同步状态提醒',
+          title: t('settings.emailNotifications'),
+          subtitle: t('settings.emailNotificationsDescription'),
           type: 'switch',
           value: emailNotifications,
           onToggle: setEmailNotifications,
@@ -174,20 +174,22 @@ export default function ProfileScreen() {
       items: [
         {
           icon: <Upload size={20} color={colors.primary} />,
-          title: '导出数据',
-          subtitle: '备份您的账户数据',
+          title: t('settings.exportData'),
+          subtitle: t('settings.exportDataDescription'),
           type: 'navigation',
+          onPress: () => console.log('Export Data'),
         },
         {
           icon: <Download size={20} color={colors.primary} />,
-          title: '导入数据',
-          subtitle: '从备份文件恢复数据',
+          title: t('settings.importData'),
+          subtitle: t('settings.importDataDescription'),
           type: 'navigation',
+          onPress: () => console.log('Import Data'),
         },
         {
           icon: <Wifi size={20} color={colors.primary} />,
-          title: '云同步设置',
-          subtitle: 'WebDAV 云端同步配置',
+          title: t('settings.cloudSync'),
+          subtitle: t('settings.cloudSyncDescription'),
           type: 'navigation',
           onPress: () => setShowCloudSync(true),
         },
@@ -198,15 +200,17 @@ export default function ProfileScreen() {
       items: [
         {
           icon: <HelpCircle size={20} color={colors.primary} />,
-          title: '帮助中心',
-          subtitle: '常见问题和使用指南',
+          title: t('settings.helpCenter'),
+          subtitle: t('settings.helpCenterDescription'),
           type: 'navigation',
+          onPress: () => console.log('Help Center'),
         },
         {
           icon: <Info size={20} color={colors.primary} />,
-          title: '关于应用',
-          subtitle: 'SecureAuth v1.0.0',
+          title: t('settings.aboutApp'),
+          subtitle: t('settings.aboutAppDescription'),
           type: 'navigation',
+          onPress: () => console.log('About App'),
         },
       ],
     },
@@ -249,7 +253,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
-          个人资料
+          {t('profile.title')}
         </Text>
       </View>
 
@@ -261,7 +265,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.profileInfo}>
             <Text style={[styles.userName, { color: colors.text }]}>
-              用户
+              User
             </Text>
             <Text style={[styles.userEmail, { color: colors.textSecondary }]}>
               user@example.com
@@ -294,10 +298,10 @@ export default function ProfileScreen() {
         {/* App Info */}
         <View style={styles.appInfo}>
           <Text style={[styles.appInfoText, { color: colors.textSecondary }]}>
-            SecureAuth - 安全的两步验证应用
+            {t('home.subtitle')}
           </Text>
           <Text style={[styles.versionText, { color: colors.textSecondary }]}>
-            版本 1.0.0
+            Version 1.0.0
           </Text>
         </View>
       </ScrollView>
@@ -358,10 +362,10 @@ export default function ProfileScreen() {
         <View style={[styles.scanningModal, { backgroundColor: colors.background }]}>
           <View style={styles.scanningContent}>
             <Text style={[styles.scanningTitle, { color: colors.text }]}>
-              正在扫描邮件...
+              {t('common.loading')}
             </Text>
             <Text style={[styles.scanningSubtitle, { color: colors.textSecondary }]}>
-              正在查找可用的两步验证账户
+              Scanning for verification accounts...
             </Text>
             {/* 旋转加载动画 */}
             <Animated.View 
@@ -406,7 +410,7 @@ export default function ProfileScreen() {
         <View style={styles.fullScreenModal}>
           <CloudSyncStaticScreen onClose={() => setShowCloudSync(false)} />
           <TouchableOpacity style={styles.closeModalBtn} onPress={() => setShowCloudSync(false)}>
-            <Text style={styles.closeModalText}>关闭</Text>
+            <Text style={styles.closeModalText}>{t('common.cancel')}</Text>
           </TouchableOpacity>
         </View>
       )}
