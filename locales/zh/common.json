@@ -69,11 +69,46 @@
   },
   "add": {
     "title": "添加账户",
-    "scanQR": "扫描二维码",
-    "manualEntry": "手动输入",
-    "accountName": "账户名称",
-    "secretKey": "密钥",
-    "issuer": "发行方"
+    "subtitle": "添加新的验证器账户",
+    "description": "选择一种方式来添加您的两步验证账户",
+    "scanQR": {
+      "title": "扫描二维码",
+      "description": "扫描服务提供的QR码快速添加"
+    },
+    "emailImport": {
+      "title": "从邮件导入",
+      "description": "自动扫描邮件中的验证账户"
+    },
+    "manualInput": {
+      "title": "手动输入",
+      "description": "手动输入账户信息和密钥"
+    },
+    "manual": {
+      "title": "手动添加账户",
+      "serviceName": "服务名称 *",
+      "serviceNamePlaceholder": "例如：Google",
+      "accountEmail": "账户邮箱 *",
+      "accountEmailPlaceholder": "example@gmail.com",
+      "secretKey": "密钥 *",
+      "secretKeyPlaceholder": "输入或粘贴密钥",
+      "addButton": "添加账户"
+    },
+    "alerts": {
+      "scanSuccess": "扫描成功",
+      "scanSuccessMessage": "已识别账户：{{name}}",
+      "scanFailed": "扫描失败",
+      "scanFailedMessage": "无法识别的二维码格式，请手动输入账户信息。",
+      "manualInput": "手动输入",
+      "rescan": "重新扫描",
+      "cancel": "取消",
+      "importSuccess": "导入成功",
+      "importSuccessMessage": "已成功导入 {{count}} 个账户！",
+      "addSuccess": "添加成功",
+      "addSuccessMessage": "账户 {{name}} 已添加成功！",
+      "error": "错误",
+      "errorMessage": "请填写所有必填字段",
+      "ok": "确定"
+    }
   },
   "profile": {
     "title": "个人资料",

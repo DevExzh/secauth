@@ -69,11 +69,46 @@
   },
   "add": {
     "title": "Add Account",
-    "scanQR": "Scan QR Code",
-    "manualEntry": "Manual Entry",
-    "accountName": "Account Name",
-    "secretKey": "Secret Key",
-    "issuer": "Issuer"
+    "subtitle": "Add New Authenticator Account",
+    "description": "Choose a method to add your two-factor authentication account",
+    "scanQR": {
+      "title": "Scan QR Code",
+      "description": "Scan the QR code provided by the service"
+    },
+    "emailImport": {
+      "title": "Import from Email",
+      "description": "Automatically scan verification accounts from email"
+    },
+    "manualInput": {
+      "title": "Manual Input",
+      "description": "Manually enter account information and secret key"
+    },
+    "manual": {
+      "title": "Add Account Manually",
+      "serviceName": "Service Name *",
+      "serviceNamePlaceholder": "e.g., Google",
+      "accountEmail": "Account Email *",
+      "accountEmailPlaceholder": "example@gmail.com",
+      "secretKey": "Secret Key *",
+      "secretKeyPlaceholder": "Enter or paste secret key",
+      "addButton": "Add Account"
+    },
+    "alerts": {
+      "scanSuccess": "Scan Successful",
+      "scanSuccessMessage": "Account identified: {{name}}",
+      "scanFailed": "Scan Failed",
+      "scanFailedMessage": "Unrecognized QR code format, please enter account information manually.",
+      "manualInput": "Manual Input",
+      "rescan": "Rescan",
+      "cancel": "Cancel",
+      "importSuccess": "Import Successful",
+      "importSuccessMessage": "Successfully imported {{count}} accounts!",
+      "addSuccess": "Add Successful",
+      "addSuccessMessage": "Account {{name}} has been added successfully!",
+      "error": "Error",
+      "errorMessage": "Please fill in all required fields",
+      "ok": "OK"
+    }
   },
   "profile": {
     "title": "Profile",

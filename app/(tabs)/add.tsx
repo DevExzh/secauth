@@ -3,34 +3,36 @@ import { EmailParsingScreen } from '@/components/EmailParsingScreen';
 import { QRScanner } from '@/components/QRScanner';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import type { Account, AccountCategory, AuthType } from '@/types/auth';
 import { parseTOTPUrl } from '@/utils/totpParser';
 import {
-    ArrowLeft,
-    Camera,
-    Check,
-    Mail,
-    Plus,
-    QrCode,
-    Shield,
-    Type
+  ArrowLeft,
+  Camera,
+  Check,
+  Mail,
+  Plus,
+  QrCode,
+  Shield,
+  Type
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Modal,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 export default function AddScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
   
   const [showManualForm, setShowManualForm] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
@@ -64,18 +66,18 @@ export default function AddScreen() {
       setShowManualForm(true);
       
       Alert.alert(
-        '扫描成功',
-        `已识别账户：${parsedData.name}`,
-        [{ text: '确定' }]
+        t('add.alerts.scanSuccess'),
+        t('add.alerts.scanSuccessMessage', { name: parsedData.name }),
+        [{ text: t('add.alerts.ok') }]
       );
     } else {
       Alert.alert(
-        '扫描失败',
-        '无法识别的二维码格式，请手动输入账户信息。',
+        t('add.alerts.scanFailed'),
+        t('add.alerts.scanFailedMessage'),
         [
-          { text: '手动输入', onPress: () => setShowManualForm(true) },
-          { text: '重新扫描', onPress: () => setShowQRScanner(true) },
-          { text: '取消' }
+          { text: t('add.alerts.manualInput'), onPress: () => setShowManualForm(true) },
+          { text: t('add.alerts.rescan'), onPress: () => setShowQRScanner(true) },
+          { text: t('add.alerts.cancel') }
         ]
       );
     }
@@ -97,24 +99,24 @@ export default function AddScreen() {
   const handleEmailParsingComplete = (accounts: Account[]) => {
     setShowEmailParsing(false);
     Alert.alert(
-      '导入成功',
-      `已成功导入 ${accounts.length} 个账户！`,
-      [{ text: '确定' }]
+      t('add.alerts.importSuccess'),
+      t('add.alerts.importSuccessMessage', { count: accounts.length }),
+      [{ text: t('add.alerts.ok') }]
     );
   };
 
   const handleManualAdd = () => {
     if (!formData.name || !formData.email || !formData.secret) {
-      Alert.alert('错误', '请填写所有必填字段');
+      Alert.alert(t('add.alerts.error'), t('add.alerts.errorMessage'));
       return;
     }
     
     Alert.alert(
-      '添加成功',
-      `账户 ${formData.name} 已添加成功！`,
+      t('add.alerts.addSuccess'),
+      t('add.alerts.addSuccessMessage', { name: formData.name }),
       [
         {
-          text: '确定',
+          text: t('add.alerts.ok'),
           onPress: () => {
             setFormData({
               name: '',
@@ -141,7 +143,7 @@ export default function AddScreen() {
             <ArrowLeft size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.text }]}>
-            手动添加账户
+            {t('add.manual.title')}
           </Text>
           <View style={styles.placeholder} />
         </View>
@@ -149,7 +151,7 @@ export default function AddScreen() {
         <ScrollView style={styles.formContainer}>
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>
-              服务名称 *
+              {t('add.manual.serviceName')}
             </Text>
             <TextInput
               style={[styles.input, { 
@@ -159,14 +161,14 @@ export default function AddScreen() {
               }]}
               value={formData.name}
               onChangeText={(text) => setFormData({ ...formData, name: text })}
-              placeholder="例如：Google"
+              placeholder={t('add.manual.serviceNamePlaceholder')}
               placeholderTextColor={colors.textSecondary}
             />
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>
-              账户邮箱 *
+              {t('add.manual.accountEmail')}
             </Text>
             <TextInput
               style={[styles.input, { 
@@ -176,7 +178,7 @@ export default function AddScreen() {
               }]}
               value={formData.email}
               onChangeText={(text) => setFormData({ ...formData, email: text })}
-              placeholder="example@gmail.com"
+              placeholder={t('add.manual.accountEmailPlaceholder')}
               placeholderTextColor={colors.textSecondary}
               keyboardType="email-address"
               autoCapitalize="none"
@@ -185,7 +187,7 @@ export default function AddScreen() {
 
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>
-              密钥 *
+              {t('add.manual.secretKey')}
             </Text>
             <TextInput
               style={[styles.input, { 
@@ -195,7 +197,7 @@ export default function AddScreen() {
               }]}
               value={formData.secret}
               onChangeText={(text) => setFormData({ ...formData, secret: text })}
-              placeholder="输入或粘贴密钥"
+              placeholder={t('add.manual.secretKeyPlaceholder')}
               placeholderTextColor={colors.textSecondary}
               autoCapitalize="characters"
               secureTextEntry
@@ -208,7 +210,7 @@ export default function AddScreen() {
           >
             <Check size={20} color={colors.background} />
             <Text style={[styles.addButtonText, { color: colors.background }]}>
-              添加账户
+              {t('add.manual.addButton')}
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -222,7 +224,7 @@ export default function AddScreen() {
         <View style={styles.header}>
           <View style={styles.placeholder} />
           <Text style={[styles.headerTitle, { color: colors.text }]}>
-            添加账户
+            {t('add.title')}
           </Text>
           <View style={styles.placeholder} />
         </View>
@@ -235,10 +237,10 @@ export default function AddScreen() {
         </View>
 
         <Text style={[styles.title, { color: colors.text }]}>
-          添加新的验证器账户
+          {t('add.subtitle')}
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          选择一种方式来添加您的两步验证账户
+          {t('add.description')}
         </Text>
 
         <View style={styles.optionsContainer}>
@@ -254,10 +256,10 @@ export default function AddScreen() {
             </View>
             <View style={styles.optionContent}>
               <Text style={[styles.optionTitle, { color: colors.text }]}>
-                扫描二维码
+                {t('add.scanQR.title')}
               </Text>
               <Text style={[styles.optionDescription, { color: colors.textSecondary }]}>
-                扫描服务提供的QR码快速添加
+                {t('add.scanQR.description')}
               </Text>
             </View>
             <Camera size={20} color={colors.textSecondary} />
@@ -275,10 +277,10 @@ export default function AddScreen() {
             </View>
             <View style={styles.optionContent}>
               <Text style={[styles.optionTitle, { color: colors.text }]}>
-                从邮件导入
+                {t('add.emailImport.title')}
               </Text>
               <Text style={[styles.optionDescription, { color: colors.textSecondary }]}>
-                自动扫描邮件中的验证账户
+                {t('add.emailImport.description')}
               </Text>
             </View>
             <Plus size={20} color={colors.textSecondary} />
@@ -296,10 +298,10 @@ export default function AddScreen() {
             </View>
             <View style={styles.optionContent}>
               <Text style={[styles.optionTitle, { color: colors.text }]}>
-                手动输入
+                {t('add.manualInput.title')}
               </Text>
               <Text style={[styles.optionDescription, { color: colors.textSecondary }]}>
-                手动输入账户信息和密钥
+                {t('add.manualInput.description')}
               </Text>
             </View>
             <Plus size={20} color={colors.textSecondary} />

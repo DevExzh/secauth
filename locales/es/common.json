@@ -69,11 +69,46 @@
   },
   "add": {
     "title": "Agregar Cuenta",
-    "scanQR": "Escanear Código QR",
-    "manualEntry": "Entrada Manual",
-    "accountName": "Nombre de Cuenta",
-    "secretKey": "Clave Secreta",
-    "issuer": "Emisor"
+    "subtitle": "Agregar Nueva Cuenta de Autenticador",
+    "description": "Elige un método para agregar tu cuenta de autenticación de dos factores",
+    "scanQR": {
+      "title": "Escanear Código QR",
+      "description": "Escanea el código QR proporcionado por el servicio"
+    },
+    "emailImport": {
+      "title": "Importar desde Email",
+      "description": "Escanea automáticamente cuentas de verificación del email"
+    },
+    "manualInput": {
+      "title": "Entrada Manual",
+      "description": "Ingresa manualmente la información de la cuenta y la clave secreta"
+    },
+    "manual": {
+      "title": "Agregar Cuenta Manualmente",
+      "serviceName": "Nombre del Servicio *",
+      "serviceNamePlaceholder": "ej., Google",
+      "accountEmail": "Email de la Cuenta *",
+      "accountEmailPlaceholder": "ejemplo@gmail.com",
+      "secretKey": "Clave Secreta *",
+      "secretKeyPlaceholder": "Ingresa o pega la clave secreta",
+      "addButton": "Agregar Cuenta"
+    },
+    "alerts": {
+      "scanSuccess": "Escaneo Exitoso",
+      "scanSuccessMessage": "Cuenta identificada: {{name}}",
+      "scanFailed": "Escaneo Fallido",
+      "scanFailedMessage": "Formato de código QR no reconocido, por favor ingresa la información de la cuenta manualmente.",
+      "manualInput": "Entrada Manual",
+      "rescan": "Reescanear",
+      "cancel": "Cancelar",
+      "importSuccess": "Importación Exitosa",
+      "importSuccessMessage": "¡Se importaron {{count}} cuentas exitosamente!",
+      "addSuccess": "Agregado Exitosamente",
+      "addSuccessMessage": "¡La cuenta {{name}} se ha agregado exitosamente!",
+      "error": "Error",
+      "errorMessage": "Por favor completa todos los campos requeridos",
+      "ok": "OK"
+    }
   },
   "profile": {
     "title": "Perfil",
