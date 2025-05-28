@@ -3,39 +3,40 @@ import { EmailIntegrationScreen } from '@/components/EmailIntegrationScreen';
 import { EmailParsingScreen } from '@/components/EmailParsingScreen';
 import { EmailSettingsScreen } from '@/components/EmailSettingsScreen';
 import { SyncFrequencyModal } from '@/components/SyncFrequencyModal';
+import CloudSyncStaticScreen from '@/components/ui/CloudSyncStaticScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Account } from '@/types/auth';
 import {
-  Bell,
-  ChevronRight,
-  Clock,
-  Download,
-  HelpCircle,
-  Info,
-  Link,
-  Lock,
-  Mail,
-  MailCheck,
-  Moon,
-  RefreshCw,
-  Settings,
-  Shield,
-  Trash2,
-  Upload,
-  User,
-  Wifi
+    Bell,
+    ChevronRight,
+    Clock,
+    Download,
+    HelpCircle,
+    Info,
+    Link,
+    Lock,
+    Mail,
+    MailCheck,
+    Moon,
+    RefreshCw,
+    Settings,
+    Shield,
+    Trash2,
+    Upload,
+    User,
+    Wifi
 } from 'lucide-react-native';
 import React from 'react';
 import {
-  Animated,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View
+    Animated,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 export default function ProfileScreen() {
@@ -51,6 +52,7 @@ export default function ProfileScreen() {
   const [showEmailSettings, setShowEmailSettings] = React.useState(false);
   const [showConnectedAccounts, setShowConnectedAccounts] = React.useState(false);
   const [showSyncFrequency, setShowSyncFrequency] = React.useState(false);
+  const [showCloudSync, setShowCloudSync] = React.useState(false);
   
   // 旋转动画
   const spinValue = React.useRef(new Animated.Value(0)).current;
@@ -187,6 +189,7 @@ export default function ProfileScreen() {
           title: '云同步设置',
           subtitle: 'WebDAV 云端同步配置',
           type: 'navigation',
+          onPress: () => setShowCloudSync(true),
         },
       ],
     },
@@ -397,6 +400,16 @@ export default function ProfileScreen() {
         onSelect={(frequency) => setEmailSyncFrequency(frequency)}
         onClose={() => setShowSyncFrequency(false)}
       />
+
+      {/* Cloud Sync Static Modal */}
+      {showCloudSync && (
+        <View style={styles.fullScreenModal}>
+          <CloudSyncStaticScreen onClose={() => setShowCloudSync(false)} />
+          <TouchableOpacity style={styles.closeModalBtn} onPress={() => setShowCloudSync(false)}>
+            <Text style={styles.closeModalText}>关闭</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -540,5 +553,20 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 1000,
+  },
+  closeModalBtn: {
+    position: 'absolute',
+    top: 40,
+    right: 24,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    zIndex: 10,
+  },
+  closeModalText: {
+    color: '#1976F6',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 }); 
