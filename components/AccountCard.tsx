@@ -1,32 +1,33 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { BrandIconService } from '@/services/brandIconService';
 import { TOTPService } from '@/services/totpService';
 import type { Account, GeneratedCode } from '@/types/auth';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import {
-    Building2,
-    Copy,
-    CreditCard,
-    Gamepad2,
-    Github,
-    Mail,
-    MessageCircle,
-    MoreVertical,
-    Shield
+  Building2,
+  Copy,
+  CreditCard,
+  Gamepad2,
+  Github,
+  Mail,
+  MessageCircle,
+  MoreVertical,
+  Shield
 } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Alert,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -75,6 +76,17 @@ export const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   const getServiceIcon = (serviceName: string) => {
     const iconSize = 24;
 
+    // 首先尝试使用品牌图标服务
+    const matchedBrand = BrandIconService.matchServiceName(serviceName);
+    
+    if (matchedBrand) {
+      const brandIcon = BrandIconService.getBrandIcon(matchedBrand, iconSize);
+      if (brandIcon) {
+        return brandIcon;
+      }
+    }
+
+    // 如果没有品牌图标，使用lucide图标作为备选
     switch (serviceName.toLowerCase()) {
       case 'google':
         return <Mail size={iconSize} color="#EA4335" />;
@@ -94,6 +106,16 @@ export const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   };
 
   const getServiceIconBackground = (serviceName: string) => {
+    // 首先尝试使用品牌背景色
+    const matchedBrand = BrandIconService.matchServiceName(serviceName);
+    if (matchedBrand) {
+      const brandBgColor = BrandIconService.getBrandBackgroundColor(matchedBrand, colorScheme ?? 'dark');
+      if (brandBgColor) {
+        return brandBgColor;
+      }
+    }
+
+    // 如果没有品牌背景色，使用默认颜色
     switch (serviceName.toLowerCase()) {
       case 'google':
         return colorScheme === 'dark' ? '#2A1F1A' : '#FEF7F0';
