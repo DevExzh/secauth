@@ -4,6 +4,7 @@ import { EmailParsingScreen } from '@/components/EmailParsingScreen';
 import { EmailSettingsScreen } from '@/components/EmailSettingsScreen';
 import { SyncFrequencyModal } from '@/components/SyncFrequencyModal';
 import CloudSyncStaticScreen from '@/components/ui/CloudSyncStaticScreen';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -13,6 +14,7 @@ import {
   ChevronRight,
   Clock,
   Download,
+  Globe,
   HelpCircle,
   Info,
   Link,
@@ -26,7 +28,7 @@ import {
   Trash2,
   Upload,
   User,
-  Wifi
+  Wifi,
 } from 'lucide-react-native';
 import React from 'react';
 import {
@@ -37,7 +39,7 @@ import {
   Switch,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 export default function ProfileScreen() {
@@ -80,39 +82,45 @@ export default function ProfileScreen() {
   
   const settingsGroups = [
     {
-      title: '安全设置',
+      title: t('profile.security'),
       items: [
         {
           icon: <Lock size={20} color={colors.primary} />,
-          title: '生物识别解锁',
-          subtitle: '使用指纹或面容ID解锁应用',
+          title: t('settings.biometricUnlock'),
+          subtitle: t('settings.biometricDescription'),
           type: 'switch',
           value: biometric,
           onToggle: setBiometric,
         },
         {
           icon: <Shield size={20} color={colors.primary} />,
-          title: '自动锁定',
-          subtitle: '5分钟后自动锁定应用',
+          title: t('settings.autoLock'),
+          subtitle: t('settings.autoLockDescription'),
           type: 'navigation',
         },
       ],
     },
     {
-      title: '应用设置',
+      title: t('profile.preferences'),
       items: [
         {
+          icon: <Globe size={20} color={colors.primary} />,
+          title: t('settings.language'),
+          subtitle: '',
+          type: 'language',
+        },
+        {
           icon: <Moon size={20} color={colors.primary} />,
-          title: '深色模式',
-          subtitle: '使用深色主题',
+          title: t('settings.theme'),
+          subtitle: t('settings.themeDescription'),
           type: 'switch',
           value: darkMode,
           onToggle: setDarkMode,
         },
         {
           icon: <Bell size={20} color={colors.primary} />,
-          title: '通知',
-          subtitle: '接收验证码过期提醒',
+          title: t('settings.notifications'),
+          subtitle: t('settings.notificationsDescription'),
           type: 'switch',
           value: notifications,
           onToggle: setNotifications,
@@ -120,7 +128,7 @@ export default function ProfileScreen() {
       ],
     },
     {
-      title: '邮箱设置',
+      title: t('profile.emailSettings'),
       items: [
         {
           icon: <Mail size={20} color={colors.primary} />,
@@ -170,7 +178,7 @@ export default function ProfileScreen() {
       ],
     },
     {
-      title: '数据管理',
+      title: t('profile.dataManagement'),
       items: [
         {
           icon: <Upload size={20} color={colors.primary} />,
@@ -196,7 +204,7 @@ export default function ProfileScreen() {
       ],
     },
     {
-      title: '帮助与支持',
+      title: t('profile.helpSupport'),
       items: [
         {
           icon: <HelpCircle size={20} color={colors.primary} />,
@@ -216,38 +224,44 @@ export default function ProfileScreen() {
     },
   ];
 
-  const renderSettingItem = (item: any) => (
-    <TouchableOpacity
-      key={item.title}
-      style={[styles.settingItem, { backgroundColor: colors.surface }]}
-      disabled={item.type === 'switch'}
-      onPress={item.onPress}
-    >
-      <View style={styles.settingIcon}>
-        {item.icon}
-      </View>
-      <View style={styles.settingContent}>
-        <Text style={[styles.settingTitle, { color: colors.text }]}>
-          {item.title}
-        </Text>
-        <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
-          {item.subtitle}
-        </Text>
-      </View>
-      <View style={styles.settingAction}>
-        {item.type === 'switch' ? (
-          <Switch
-            value={item.value}
-            onValueChange={item.onToggle}
-            trackColor={{ false: colors.border, true: colors.primary }}
-            thumbColor={colors.background}
-          />
-        ) : (
-          <ChevronRight size={20} color={colors.textSecondary} />
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+  const renderSettingItem = (item: any) => {
+    if (item.type === 'language') {
+      return <LanguageSelector key={item.title} />;
+    }
+
+    return (
+      <TouchableOpacity
+        key={item.title}
+        style={[styles.settingItem, { backgroundColor: colors.surface }]}
+        disabled={item.type === 'switch'}
+        onPress={item.onPress}
+      >
+        <View style={styles.settingIcon}>
+          {item.icon}
+        </View>
+        <View style={styles.settingContent}>
+          <Text style={[styles.settingTitle, { color: colors.text }]}>
+            {item.title}
+          </Text>
+          <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
+            {item.subtitle}
+          </Text>
+        </View>
+        <View style={styles.settingAction}>
+          {item.type === 'switch' ? (
+            <Switch
+              value={item.value}
+              onValueChange={item.onToggle}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={colors.background}
+            />
+          ) : (
+            <ChevronRight size={20} color={colors.textSecondary} />
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
