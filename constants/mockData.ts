@@ -1,0 +1,88 @@
+import type { Account } from '@/types/auth';
+
+export const mockAccounts: Account[] = [
+  {
+    id: '1',
+    name: 'Google',
+    email: 'personal@gmail.com',
+    secret: 'JBSWY3DPEHPK3PXP', // Test secret for demo
+    type: 'TOTP',
+    category: 'Social',
+    issuer: 'Google',
+    algorithm: 'SHA1',
+    digits: 6,
+    period: 30,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+  },
+  {
+    id: '2',
+    name: 'Microsoft',
+    email: 'work@outlook.com',
+    secret: 'HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ', // Test secret for demo
+    type: 'TOTP',
+    category: 'Work',
+    issuer: 'Microsoft',
+    algorithm: 'SHA1',
+    digits: 6,
+    period: 30,
+    createdAt: new Date('2024-01-02'),
+    updatedAt: new Date('2024-01-02'),
+  },
+  {
+    id: '3',
+    name: 'GitHub',
+    email: 'dev@github.com',
+    secret: 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', // Test secret for demo
+    type: 'TOTP',
+    category: 'Work',
+    issuer: 'GitHub',
+    algorithm: 'SHA1',
+    digits: 6,
+    period: 30,
+    createdAt: new Date('2024-01-03'),
+    updatedAt: new Date('2024-01-03'),
+  },
+  {
+    id: '4',
+    name: 'Discord',
+    email: 'gaming@discord.com',
+    secret: 'MFRGG2LTEBUW4IDPMYFA', // Test secret for demo
+    type: 'TOTP',
+    category: 'Social',
+    issuer: 'Discord',
+    algorithm: 'SHA1',
+    digits: 6,
+    period: 30,
+    createdAt: new Date('2024-01-04'),
+    updatedAt: new Date('2024-01-04'),
+  },
+  {
+    id: '5',
+    name: 'PayPal',
+    email: 'finance@paypal.com',
+    secret: 'ORSXG5DJNRQXI4TJMFZXIZLTOQ', // Test secret for demo
+    type: 'TOTP',
+    category: 'Finance',
+    issuer: 'PayPal',
+    algorithm: 'SHA1',
+    digits: 6,
+    period: 30,
+    createdAt: new Date('2024-01-05'),
+    updatedAt: new Date('2024-01-05'),
+  },
+  {
+    id: '6',
+    name: 'Steam',
+    email: 'gaming@steam.com',
+    secret: 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', // Test secret for demo
+    type: 'TOTP',
+    category: 'Gaming',
+    issuer: 'Steam',
+    algorithm: 'SHA1',
+    digits: 6,
+    period: 30,
+    createdAt: new Date('2024-01-06'),
+    updatedAt: new Date('2024-01-06'),
+  },
+]; 
