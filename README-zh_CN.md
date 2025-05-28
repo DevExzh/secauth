@@ -174,6 +174,50 @@ secauth/
    - 选择冲突解决策略
    - 启用/禁用特定数据类型
 
+## 🚀 发布与部署
+
+### 自动化发布工作流
+
+SecAuth 使用 GitHub Actions 进行自动构建和发布：
+
+- **触发条件**：推送到 `release/**` 分支或手动触发工作流
+- **多架构 Android**：为 arm64-v8a、armeabi-v7a 和 x86_64 构建 APK
+- **iOS 支持**：构建生产就绪的 IPA 文件
+- **自动变更日志**：从 git 提交生成变更日志
+- **GitHub 发布**：创建包含可下载文件的发布版本
+
+### 创建发布版本
+
+1. **创建发布分支：**
+   ```bash
+   git checkout -b release/v1.0.0
+   git push origin release/v1.0.0
+   ```
+
+2. **工作流将自动：**
+   - 为所有架构构建 Android APK
+   - 构建 iOS IPA
+   - 生成变更日志
+   - 创建标签为 `v1.0.0` 的 GitHub 发布版本
+
+### 手动构建命令
+
+```bash
+# 生成变更日志
+npm run changelog
+
+# 为特定平台构建
+npm run build:android    # 仅 Android
+npm run build:ios        # 仅 iOS
+npm run build:all        # 两个平台
+
+# 开发构建
+npm run build:dev        # 开发版本构建
+npm run build:preview    # 预览版本构建
+```
+
+详细的发布说明请参阅 [docs/RELEASE.md](docs/RELEASE.md)。
+
 ## 🤝 贡献指南
 
 我们欢迎贡献！请遵循以下步骤：

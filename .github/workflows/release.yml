@@ -1,0 +1,322 @@
+name: 🚀 Release Build & Deploy
+
+on:
+  push:
+    branches:
+      - 'release/**'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+env:
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+  NODE_VERSION: '18'
+
+jobs:
+  # Extract version and prepare release info
+  prepare:
+    name: 📋 Prepare Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract_version.outputs.version }}
+      tag: ${{ steps.extract_version.outputs.tag }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📝 Extract version from branch or input
+        id: extract_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            BRANCH_NAME="${{ github.ref_name }}"
+            VERSION=${BRANCH_NAME#release/}
+          fi
+          
+          # Ensure version starts with 'v'
+          if [[ ! $VERSION =~ ^v ]]; then
+            VERSION="v$VERSION"
+          fi
+          
+          echo "version=${VERSION#v}" >> $GITHUB_OUTPUT
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: ${VERSION#v}"
+          echo "Release tag: $VERSION"
+
+      - name: 📜 Generate Changelog
+        id: changelog
+        run: |
+          # Get the latest tag
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No previous tags found, generating changelog from all commits"
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            echo "Generating changelog since $LATEST_TAG"
+            COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          
+          # Create changelog
+          CHANGELOG="## 🚀 What's New in ${{ steps.extract_version.outputs.tag }}
+
+          ### 📱 Features & Improvements
+          $COMMITS
+
+          ### 🔧 Technical Details
+          - Built with React Native 0.79.2
+          - Expo SDK ~53.0.7
+          - TypeScript support
+          - Multi-architecture Android build (arm64-v8a, armeabi-v7a, x86_64)
+
+          ### 📦 Download
+          - **Android**: Download the APK from the assets below
+          - **iOS**: Install via TestFlight or App Store (coming soon)
+
+          ---
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${LATEST_TAG}...${{ steps.extract_version.outputs.tag }}"
+          
+          # Save changelog to file and output
+          echo "$CHANGELOG" > changelog.md
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 📤 Upload changelog artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: changelog.md
+
+  # Build Android with multiple architectures
+  build-android:
+    name: 🤖 Build Android
+    runs-on: ubuntu-latest
+    needs: prepare
+    strategy:
+      matrix:
+        architecture: [arm64-v8a, armeabi-v7a, x86_64]
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔧 Update app version
+        run: |
+          # Update version in app.json
+          node -e "
+            const fs = require('fs');
+            const appJson = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+            appJson.expo.version = '${{ needs.prepare.outputs.version }}';
+            appJson.expo.android.versionCode = parseInt('${{ github.run_number }}');
+            fs.writeFileSync('app.json', JSON.stringify(appJson, null, 2));
+          "
+
+      - name: 🔨 Build Android (${{ matrix.architecture }})
+        run: |
+          eas build --platform android --profile production-${{ matrix.architecture }} --non-interactive --no-wait
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: ⏳ Wait for build completion
+        run: |
+          # Wait for the build to complete and get the artifact URL
+          BUILD_ID=$(eas build:list --platform android --status in-progress --limit 1 --json | jq -r '.[0].id')
+          echo "Waiting for build $BUILD_ID to complete..."
+          
+          while true; do
+            STATUS=$(eas build:view $BUILD_ID --json | jq -r '.status')
+            echo "Build status: $STATUS"
+            
+            if [ "$STATUS" = "finished" ]; then
+              ARTIFACT_URL=$(eas build:view $BUILD_ID --json | jq -r '.artifacts.buildUrl')
+              echo "Build completed! Artifact URL: $ARTIFACT_URL"
+              echo "ARTIFACT_URL=$ARTIFACT_URL" >> $GITHUB_ENV
+              break
+            elif [ "$STATUS" = "errored" ] || [ "$STATUS" = "canceled" ]; then
+              echo "Build failed with status: $STATUS"
+              exit 1
+            fi
+            
+            sleep 30
+          done
+
+      - name: 📥 Download Android APK
+        run: |
+          curl -L -o "secauth-android-${{ matrix.architecture }}.apk" "${{ env.ARTIFACT_URL }}"
+
+      - name: 📤 Upload Android APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-${{ matrix.architecture }}
+          path: secauth-android-${{ matrix.architecture }}.apk
+
+  # Build iOS
+  build-ios:
+    name: 🍎 Build iOS
+    runs-on: macos-latest
+    needs: prepare
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔧 Update app version
+        run: |
+          # Update version in app.json
+          node -e "
+            const fs = require('fs');
+            const appJson = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+            appJson.expo.version = '${{ needs.prepare.outputs.version }}';
+            appJson.expo.ios.buildNumber = '${{ github.run_number }}';
+            fs.writeFileSync('app.json', JSON.stringify(appJson, null, 2));
+          "
+
+      - name: 🔨 Build iOS
+        run: |
+          eas build --platform ios --profile production --non-interactive --no-wait
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: ⏳ Wait for build completion
+        run: |
+          # Wait for the build to complete and get the artifact URL
+          BUILD_ID=$(eas build:list --platform ios --status in-progress --limit 1 --json | jq -r '.[0].id')
+          echo "Waiting for build $BUILD_ID to complete..."
+          
+          while true; do
+            STATUS=$(eas build:view $BUILD_ID --json | jq -r '.status')
+            echo "Build status: $STATUS"
+            
+            if [ "$STATUS" = "finished" ]; then
+              ARTIFACT_URL=$(eas build:view $BUILD_ID --json | jq -r '.artifacts.buildUrl')
+              echo "Build completed! Artifact URL: $ARTIFACT_URL"
+              echo "ARTIFACT_URL=$ARTIFACT_URL" >> $GITHUB_ENV
+              break
+            elif [ "$STATUS" = "errored" ] || [ "$STATUS" = "canceled" ]; then
+              echo "Build failed with status: $STATUS"
+              exit 1
+            fi
+            
+            sleep 30
+          done
+
+      - name: 📥 Download iOS IPA
+        run: |
+          curl -L -o "secauth-ios.ipa" "${{ env.ARTIFACT_URL }}"
+
+      - name: 📤 Upload iOS IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-app
+          path: secauth-ios.ipa
+
+  # Create GitHub Release
+  release:
+    name: 🎉 Create Release
+    runs-on: ubuntu-latest
+    needs: [prepare, build-android, build-ios]
+    permissions:
+      contents: write
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: 📝 Download changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog
+          path: .
+
+      - name: 🏷️ Create Git Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ needs.prepare.outputs.tag }}" -m "Release ${{ needs.prepare.outputs.tag }}"
+          git push origin "${{ needs.prepare.outputs.tag }}"
+
+      - name: 🎉 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.prepare.outputs.tag }}
+          name: "SecAuth ${{ needs.prepare.outputs.tag }}"
+          body_path: changelog.md
+          draft: false
+          prerelease: false
+          files: |
+            ./artifacts/android-arm64-v8a/secauth-android-arm64-v8a.apk
+            ./artifacts/android-armeabi-v7a/secauth-android-armeabi-v7a.apk
+            ./artifacts/android-x86_64/secauth-android-x86_64.apk
+            ./artifacts/ios-app/secauth-ios.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📢 Notify Success
+        run: |
+          echo "🎉 Release ${{ needs.prepare.outputs.tag }} has been successfully created!"
+          echo "📱 Android APKs (arm64-v8a, armeabi-v7a, x86_64) and iOS IPA are available for download."
+          echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ needs.prepare.outputs.tag }}"
+
+  # Cleanup on failure
+  cleanup:
+    name: 🧹 Cleanup on Failure
+    runs-on: ubuntu-latest
+    needs: [prepare, build-android, build-ios, release]
+    if: failure()
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🧹 Cancel running builds
+        run: |
+          echo "Workflow failed, cleaning up..."
+          # Add any cleanup logic here if needed
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📢 Notify Failure
+        run: |
+          echo "❌ Release workflow failed for ${{ needs.prepare.outputs.tag }}"
+          echo "Please check the logs and try again." 

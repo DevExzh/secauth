@@ -174,6 +174,50 @@ secauth/
    - Choose conflict resolution strategy
    - Enable/disable specific data types
 
+## 🚀 Release & Deployment
+
+### Automated Release Workflow
+
+SecAuth uses GitHub Actions for automated building and releasing:
+
+- **Triggers**: Push to `release/**` branches or manual workflow dispatch
+- **Multi-Architecture Android**: Builds APKs for arm64-v8a, armeabi-v7a, and x86_64
+- **iOS Support**: Builds production-ready IPA files
+- **Automatic Changelog**: Generates changelogs from git commits
+- **GitHub Releases**: Creates releases with downloadable artifacts
+
+### Creating a Release
+
+1. **Create a release branch:**
+   ```bash
+   git checkout -b release/v1.0.0
+   git push origin release/v1.0.0
+   ```
+
+2. **The workflow automatically:**
+   - Builds Android APKs for all architectures
+   - Builds iOS IPA
+   - Generates changelog
+   - Creates GitHub release with tag `v1.0.0`
+
+### Manual Build Commands
+
+```bash
+# Generate changelog
+npm run changelog
+
+# Build for specific platforms
+npm run build:android    # Android only
+npm run build:ios        # iOS only
+npm run build:all        # Both platforms
+
+# Development builds
+npm run build:dev        # Development builds
+npm run build:preview    # Preview builds
+```
+
+For detailed release instructions, see [docs/RELEASE.md](docs/RELEASE.md).
+
 ## 🤝 Contributing
 
 We welcome contributions! Please follow these steps:
