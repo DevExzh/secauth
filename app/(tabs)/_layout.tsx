@@ -4,7 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { Tabs } from 'expo-router';
 import { Home, Plus, User } from 'lucide-react-native';
 import React from 'react';
-import { Platform, StatusBar, View } from 'react-native';
+import { Platform, StatusBar, TouchableOpacity, View } from 'react-native';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -75,9 +75,13 @@ export default function TabLayout() {
               </View>
             ),
             tabBarButton: (props) => (
-              <View style={{ flex: 1, alignItems: 'center' }}>
+              <TouchableOpacity 
+                style={{ flex: 1, alignItems: 'center' }}
+                onPress={props.onPress}
+                activeOpacity={0.7}
+              >
                 {props.children}
-              </View>
+              </TouchableOpacity>
             ),
           }}
         />
