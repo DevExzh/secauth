@@ -1,17 +1,17 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { BarCodeScanner } from 'expo-barcode-scanner';
-import { Camera } from 'expo-camera';
+import { useLanguage } from '@/hooks/useLanguage';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import { X } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
-    Alert,
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 interface QRScannerProps {
@@ -19,24 +19,16 @@ interface QRScannerProps {
   onClose: () => void;
 }
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const scanAreaSize = width * 0.7;
 
 export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
   
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
-
-  useEffect(() => {
-    const getCameraPermissions = async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    };
-
-    getCameraPermissions();
-  }, []);
 
   const handleBarCodeScanned = async ({ type, data }: { type: string; data: string }) => {
     if (scanned) return;
@@ -49,15 +41,15 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
       onScan(data);
     } else {
       Alert.alert(
-        '无效的二维码',
-        '请扫描有效的身份验证器二维码',
+        t('qrScanner.invalidQR'),
+        t('qrScanner.invalidQRMessage'),
         [
           {
-            text: '重试',
+            text: t('qrScanner.retry'),
             onPress: () => setScanned(false),
           },
           {
-            text: '取消',
+            text: t('qrScanner.cancel'),
             onPress: onClose,
           },
         ]
@@ -65,28 +57,36 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
     }
   };
 
-  if (hasPermission === null) {
+  if (!permission) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Text style={[styles.message, { color: colors.text }]}>
-          请求相机权限中...
+          {t('qrScanner.requestingPermission')}
         </Text>
       </View>
     );
   }
 
-  if (hasPermission === false) {
+  if (!permission.granted) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Text style={[styles.message, { color: colors.text }]}>
-          需要相机权限才能扫描二维码
+          {t('qrScanner.permissionRequired')}
         </Text>
         <TouchableOpacity
           style={[styles.button, { backgroundColor: colors.primary }]}
-          onPress={onClose}
+          onPress={requestPermission}
         >
           <Text style={[styles.buttonText, { color: colors.background }]}>
-            返回
+            {t('qrScanner.grantPermission')}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: colors.surface, marginTop: 10 }]}
+          onPress={onClose}
+        >
+          <Text style={[styles.buttonText, { color: colors.text }]}>
+            {t('qrScanner.back')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -95,9 +95,13 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
 
   return (
     <View style={styles.container}>
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+      <CameraView
         style={StyleSheet.absoluteFillObject}
+        facing="back"
+        barcodeScannerSettings={{
+          barcodeTypes: ["qr"],
+        }}
+        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
       />
       
       {/* Overlay */}
@@ -121,7 +125,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
         {/* Bottom overlay */}
         <View style={[styles.overlayBottom, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
           <Text style={[styles.instructionText, { color: colors.background }]}>
-            将二维码对准扫描框
+            {t('qrScanner.instruction')}
           </Text>
         </View>
       </View>

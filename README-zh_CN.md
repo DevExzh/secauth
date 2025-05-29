@@ -101,7 +101,7 @@ SecAuth 是一款基于 React Native 和 Expo 构建的现代化、功能丰富�
 - **状态管理**：React Hooks + Context API
 
 ### 核心依赖
-- **相机与二维码**：`expo-camera`、`expo-barcode-scanner`
+- **相机与二维码**：`expo-camera`
 - **安全存储**：`expo-secure-store`
 - **UI 组件**：`lucide-react-native`、`react-native-svg`
 - **实用工具**：`expo-clipboard`、`expo-haptics`、`expo-linking`

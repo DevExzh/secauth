@@ -366,5 +366,16 @@
     "howItWorksDescription": "Auto lock helps protect your sensitive data by automatically requiring authentication when the app has been inactive or moved to the background.",
     "settingsSaved": "Auto lock settings have been saved successfully.",
     "saveError": "Failed to save auto lock settings. Please try again."
+  },
+  "qrScanner": {
+    "requestingPermission": "Requesting camera permission...",
+    "permissionRequired": "Camera permission is required to scan QR codes",
+    "grantPermission": "Grant Camera Access",
+    "back": "Back",
+    "invalidQR": "Invalid QR Code",
+    "invalidQRMessage": "Please scan a valid authenticator QR code",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "instruction": "Align the QR code within the scanning frame"
   }
 } 

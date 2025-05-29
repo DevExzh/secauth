@@ -101,7 +101,7 @@ SecAuth is a modern, feature-rich two-factor authentication (2FA) app built with
 - **State Management**: React Hooks + Context API
 
 ### Key Dependencies
-- **Camera & QR**: `expo-camera`, `expo-barcode-scanner`
+- **Camera & QR**: `expo-camera`
 - **Security**: `expo-secure-store`
 - **UI Components**: `lucide-react-native`, `react-native-svg`
 - **Utilities**: `expo-clipboard`, `expo-haptics`, `expo-linking`

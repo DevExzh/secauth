@@ -366,5 +366,16 @@
     "howItWorksDescription": "自动锁定通过在应用不活动或移动到后台时自动要求身份验证，帮助保护您的敏感数据。",
     "settingsSaved": "自动锁定设置已成功保存。",
     "saveError": "保存自动锁定设置失败。请重试。"
+  },
+  "qrScanner": {
+    "requestingPermission": "请求相机权限中...",
+    "permissionRequired": "需要相机权限才能扫描二维码",
+    "grantPermission": "授权访问相机",
+    "back": "返回",
+    "invalidQR": "无效的二维码",
+    "invalidQRMessage": "请扫描有效的身份验证器二维码",
+    "retry": "重试",
+    "cancel": "取消",
+    "instruction": "将二维码对准扫描框"
   }
 } 

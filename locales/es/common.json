@@ -366,5 +366,16 @@
     "howItWorksDescription": "El bloqueo automático ayuda a proteger sus datos sensibles al requerir automáticamente autenticación cuando la aplicación ha estado inactiva o se ha movido al segundo plano.",
     "settingsSaved": "La configuración de bloqueo automático se ha guardado exitosamente.",
     "saveError": "Error al guardar la configuración de bloqueo automático. Por favor, inténtelo de nuevo."
+  },
+  "qrScanner": {
+    "requestingPermission": "Solicitando permiso de cámara...",
+    "permissionRequired": "Se requiere permiso de cámara para escanear códigos QR",
+    "grantPermission": "Conceder Acceso a Cámara",
+    "back": "Atrás",
+    "invalidQR": "Código QR Inválido",
+    "invalidQRMessage": "Por favor, escanee un código QR de autenticador válido",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "instruction": "Alinee el código QR dentro del marco de escaneo"
   }
 } 
