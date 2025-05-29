@@ -1,4 +1,4 @@
-export type AuthType = 'TOTP' | 'HOTP' | 'Steam';
+export type AuthType = 'TOTP' | 'HOTP' | 'mOTP' | 'Steam';
 
 export type AccountCategory = 'All' | 'Social' | 'Finance' | 'Gaming' | 'Work' | 'Other';
 
@@ -14,6 +14,7 @@ export interface Account {
   digits?: number;
   period?: number; // For TOTP
   counter?: number; // For HOTP
+  pin?: string; // For mOTP
   createdAt: Date;
   updatedAt: Date;
 }

@@ -108,12 +108,33 @@
     },
     "manual": {
       "title": "Add Account Manually",
+      "type": "Type *",
+      "typeSelect": "Select authentication type",
+      "typeOptions": {
+        "TOTP": "Time-based (TOTP)",
+        "HOTP": "Counter-based (HOTP)",
+        "mOTP": "Mobile-OTP (mOTP)",
+        "Steam": "Steam Guard"
+      },
       "serviceName": "Service Name *",
       "serviceNamePlaceholder": "e.g., Google",
       "accountEmail": "Account Email *",
       "accountEmailPlaceholder": "example@gmail.com",
       "secretKey": "Secret Key *",
       "secretKeyPlaceholder": "Enter or paste secret key",
+      "pin": "PIN Code *",
+      "pinPlaceholder": "Enter PIN code",
+      "counter": "Counter",
+      "counterPlaceholder": "0",
+      "advancedOptions": "Advanced Options",
+      "algorithm": "Algorithm",
+      "algorithmOptions": {
+        "SHA1": "SHA1 (Default)",
+        "SHA256": "SHA256",
+        "SHA512": "SHA512"
+      },
+      "digits": "Digits",
+      "period": "Time Interval (seconds)",
       "addButton": "Add Account"
     },
     "alerts": {

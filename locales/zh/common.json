@@ -108,12 +108,33 @@
     },
     "manual": {
       "title": "手动添加账户",
+      "type": "类型 *",
+      "typeSelect": "选择验证类型",
+      "typeOptions": {
+        "TOTP": "基于时间（TOTP）",
+        "HOTP": "基于计数器（HOTP）",
+        "mOTP": "Mobile-OTP（mOTP）",
+        "Steam": "Steam Guard"
+      },
       "serviceName": "服务名称 *",
       "serviceNamePlaceholder": "例如：Google",
       "accountEmail": "账户邮箱 *",
       "accountEmailPlaceholder": "example@gmail.com",
       "secretKey": "密钥 *",
       "secretKeyPlaceholder": "输入或粘贴密钥",
+      "pin": "PIN码 *",
+      "pinPlaceholder": "输入PIN码",
+      "counter": "计数器",
+      "counterPlaceholder": "0",
+      "advancedOptions": "高级选项",
+      "algorithm": "算法",
+      "algorithmOptions": {
+        "SHA1": "SHA1（默认）",
+        "SHA256": "SHA256",
+        "SHA512": "SHA512"
+      },
+      "digits": "位数",
+      "period": "时间间隔（秒）",
       "addButton": "添加账户"
     },
     "alerts": {
