@@ -26,6 +26,11 @@
     "selectLanguage": "选择语言",
     "theme": "主题",
     "themeDescription": "使用深色主题",
+    "themeOptions": {
+      "system": "跟随系统",
+      "light": "浅色模式",
+      "dark": "深色模式"
+    },
     "notifications": "通知",
     "notificationsDescription": "接收验证码过期提醒",
     "privacy": "隐私",
@@ -33,9 +38,17 @@
     "biometricUnlock": "生物识别解锁",
     "biometricDescription": "使用指纹或面容ID解锁应用",
     "autoLock": "自动锁定",
-    "autoLockDescription": "5分钟后自动锁定应用",
-    "emailIntegration": "邮箱集成",
-    "emailIntegrationDescription": "邮箱连接和同步设置",
+    "autoLockDescription": "在不活动后自动锁定应用",
+    "autoLockOptions": {
+      "immediate": "立即",
+      "1min": "1分钟后",
+      "5min": "5分钟后",
+      "15min": "15分钟后",
+      "30min": "30分钟后",
+      "never": "从不"
+    },
+    "emailIntegration": "邮件集成",
+    "emailIntegrationDescription": "邮件连接和同步设置",
     "connectedAccounts": "已连接账户",
     "connectedAccountsDescription": "个邮箱账户已连接",
     "autoSync": "自动同步",
@@ -51,11 +64,21 @@
     "importData": "导入数据",
     "importDataDescription": "从备份文件恢复数据",
     "cloudSync": "云同步设置",
-    "cloudSyncDescription": "WebDAV 云端同步配置",
+    "cloudSyncDescription": "WebDAV云同步配置",
     "helpCenter": "帮助中心",
-    "helpCenterDescription": "常见问题和使用指南",
+    "helpCenterDescription": "常见问题和用户指南",
     "aboutApp": "关于应用",
-    "aboutAppDescription": "SecAuth v1.0.0"
+    "aboutAppDescription": "SecAuth v1.0.0",
+    "saved": "设置已保存",
+    "pinRequiredTitle": "需要设置PIN",
+    "pinRequiredMessage": "在启用生物识别解锁之前，您需要先设置PIN。",
+    "setPinNow": "立即设置PIN",
+    "biometricAvailableTitle": "启用生物识别解锁？",
+    "biometricAvailableMessage": "您已设置PIN，是否现在启用生物识别解锁？",
+    "setPin": "设置PIN",
+    "setPinDescription": "创建安全PIN用于应用访问",
+    "changePin": "修改PIN",
+    "changePinDescription": "更新您当前的PIN"
   },
   "languages": {
     "en": "English",
@@ -278,5 +301,70 @@
       "title": "频率说明",
       "description": "• 实时同步：最及时，但耗电较多\n• 每小时：推荐设置，平衡性能和及时性\n• 手动同步：最省电，需要手动触发扫描"
     }
+  },
+  "auth": {
+    "pin": {
+      "title": "PIN安全",
+      "enterPin": "输入PIN",
+      "enterNew": "创建PIN",
+      "confirmNew": "确认PIN",
+      "enterPinDescription": "输入您的6位PIN以继续",
+      "enterNewDescription": "为应用安全创建6位PIN",
+      "confirmNewDescription": "重新输入您的PIN以确认",
+      "createPin": "创建PIN",
+      "confirmPin": "确认PIN",
+      "incorrect": "PIN错误",
+      "incorrectMessage": "PIN错误。还剩{{remaining}}次尝试机会。",
+      "maxAttemptsTitle": "达到最大尝试次数",
+      "maxAttemptsMessage": "尝试次数过多。请稍后再试。",
+      "attemptsRemaining": "剩余{{remaining}}次尝试",
+      "verifyError": "PIN验证失败。请重试。",
+      "setError": "设置PIN失败。请重试。",
+      "mismatch": "PIN不匹配",
+      "mismatchMessage": "您输入的PIN不匹配。请重试。",
+      "success": "PIN设置成功",
+      "successMessage": "您的PIN已成功设置。",
+      "pinCreated": "PIN创建成功",
+      "pinUpdated": "PIN更新成功"
+    },
+    "biometric": {
+      "prompt": "验证以解锁SecAuth",
+      "fallback": "使用PIN",
+      "cancel": "取消",
+      "notAvailable": "生物识别认证不可用",
+      "notEnrolled": "未录入生物识别数据",
+      "authenticationFailed": "验证失败",
+      "enabled": "生物识别解锁已启用",
+      "disabled": "生物识别解锁已禁用"
+    },
+    "autoLock": {
+      "title": "自动锁定设置",
+      "description": "选择何时自动锁定应用",
+      "enabled": "自动锁定已启用",
+      "disabled": "自动锁定已禁用"
+    }
+  },
+  "autoLock": {
+    "enable": "启用自动锁定",
+    "enableDescription": "在不活动一段时间后自动锁定应用",
+    "timeout": {
+      "title": "自动锁定超时",
+      "description": "选择应用在自动锁定前等待多长时间",
+      "immediate": "立即",
+      "1minute": "1分钟后",
+      "5minutes": "5分钟后",
+      "15minutes": "15分钟后",
+      "30minutes": "30分钟后",
+      "never": "从不",
+      "custom": "自定义"
+    },
+    "backgroundLock": "后台锁定",
+    "backgroundLockDescription": "当移动到后台时锁定应用",
+    "deviceLock": "设备锁定时锁定",
+    "deviceLockDescription": "当设备锁定时锁定应用",
+    "howItWorks": "自动锁定工作原理",
+    "howItWorksDescription": "自动锁定通过在应用不活动或移动到后台时自动要求身份验证，帮助保护您的敏感数据。",
+    "settingsSaved": "自动锁定设置已成功保存。",
+    "saveError": "保存自动锁定设置失败。请重试。"
   }
 } 

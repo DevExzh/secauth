@@ -29,6 +29,14 @@ export const Colors = {
     success: '#34C759',
     warning: '#FF9500',
     error: '#FF3B30',
+    // Additional colors for the authenticator app
+    cardBackground: '#FFFFFF',
+    searchBackground: '#F2F2F7',
+    categoryActive: '#007AFF',
+    categoryInactive: '#C6C6C8',
+    codeText: '#007AFF',
+    timerText: '#007AFF',
+    tabBarBackground: '#F2F2F7',
   },
   dark: {
     text: '#FFFFFF',
@@ -54,5 +62,6 @@ export const Colors = {
     categoryInactive: '#48484A',
     codeText: '#007AFF',
     timerText: '#007AFF',
+    tabBarBackground: '#1C1C1E',
   },
 };

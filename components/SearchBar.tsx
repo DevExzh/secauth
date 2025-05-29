@@ -19,7 +19,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const colors = Colors[colorScheme ?? 'dark'];
 
   return (
-    <View style={[styles.container, { backgroundColor: (colors as any).searchBackground || colors.surface }]}>
+    <View style={[styles.container, { backgroundColor: colors.searchBackground }]}>
       <Search size={20} color={colors.textSecondary} style={styles.icon} />
       <TextInput
         style={[styles.input, { color: colors.text }]}

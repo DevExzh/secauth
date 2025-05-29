@@ -26,14 +26,27 @@
     "selectLanguage": "Seleccionar Idioma",
     "theme": "Tema",
     "themeDescription": "Usar tema oscuro",
+    "themeOptions": {
+      "system": "Seguir Sistema",
+      "light": "Modo Claro",
+      "dark": "Modo Oscuro"
+    },
     "notifications": "Notificaciones",
-    "notificationsDescription": "Recibir recordatorios de expiración de códigos",
+    "notificationsDescription": "Recibir recordatorios de expiración de códigos de verificación",
     "privacy": "Privacidad",
     "about": "Acerca de",
     "biometricUnlock": "Desbloqueo Biométrico",
-    "biometricDescription": "Usar huella dactilar o Face ID para desbloquear",
+    "biometricDescription": "Usar huella dactilar o Face ID para desbloquear la aplicación",
     "autoLock": "Bloqueo Automático",
-    "autoLockDescription": "Bloquear automáticamente después de 5 minutos",
+    "autoLockDescription": "Bloquear automáticamente la aplicación después de inactividad",
+    "autoLockOptions": {
+      "immediate": "Inmediatamente",
+      "1min": "Después de 1 minuto",
+      "5min": "Después de 5 minutos",
+      "15min": "Después de 15 minutos",
+      "30min": "Después de 30 minutos",
+      "never": "Nunca"
+    },
     "emailIntegration": "Integración de Email",
     "emailIntegrationDescription": "Configuración de conexión y sincronización de email",
     "connectedAccounts": "Cuentas Conectadas",
@@ -45,7 +58,7 @@
     "autoDeleteEmails": "Eliminar Emails Automáticamente",
     "autoDeleteEmailsDescription": "Eliminar automáticamente emails de verificación después del procesamiento",
     "emailNotifications": "Notificaciones de Email",
-    "emailNotificationsDescription": "Detección de nuevas cuentas y alertas de estado de sincronización",
+    "emailNotificationsDescription": "Alertas de detección de nuevas cuentas y estado de sincronización",
     "exportData": "Exportar Datos",
     "exportDataDescription": "Respaldar los datos de tu cuenta",
     "importData": "Importar Datos",
@@ -55,7 +68,17 @@
     "helpCenter": "Centro de Ayuda",
     "helpCenterDescription": "Preguntas frecuentes y guías de usuario",
     "aboutApp": "Acerca de la App",
-    "aboutAppDescription": "SecAuth v1.0.0"
+    "aboutAppDescription": "SecAuth v1.0.0",
+    "saved": "Configuración Guardada",
+    "pinRequiredTitle": "PIN Requerido",
+    "pinRequiredMessage": "Necesita configurar un PIN antes de habilitar el desbloqueo biométrico.",
+    "setPinNow": "Configurar PIN Ahora",
+    "biometricAvailableTitle": "¿Habilitar Desbloqueo Biométrico?",
+    "biometricAvailableMessage": "¿Le gustaría habilitar el desbloqueo biométrico ahora que ha configurado un PIN?",
+    "setPin": "Configurar PIN",
+    "setPinDescription": "Crear un PIN seguro para el acceso a la aplicación",
+    "changePin": "Cambiar PIN",
+    "changePinDescription": "Actualizar su PIN actual"
   },
   "languages": {
     "en": "English",
@@ -278,5 +301,70 @@
       "title": "Descripción de Frecuencia",
       "description": "• Sincronización en tiempo real: Más oportuna, pero usa más batería\n• Cada hora: Configuración recomendada, equilibra rendimiento y puntualidad\n• Sincronización manual: Más eficiente energéticamente, requiere activación manual"
     }
+  },
+  "auth": {
+    "pin": {
+      "title": "Seguridad PIN",
+      "enterPin": "Ingresar PIN",
+      "enterNew": "Crear PIN",
+      "confirmNew": "Confirmar PIN",
+      "enterPinDescription": "Ingrese su PIN de 6 dígitos para continuar",
+      "enterNewDescription": "Cree un PIN de 6 dígitos para la seguridad de la aplicación",
+      "confirmNewDescription": "Vuelva a ingresar su PIN para confirmar",
+      "createPin": "Crear PIN",
+      "confirmPin": "Confirmar PIN",
+      "incorrect": "PIN Incorrecto",
+      "incorrectMessage": "PIN incorrecto. Quedan {{remaining}} intentos.",
+      "maxAttemptsTitle": "Máximo de Intentos Alcanzado",
+      "maxAttemptsMessage": "Demasiados intentos incorrectos. Por favor, inténtelo de nuevo más tarde.",
+      "attemptsRemaining": "{{remaining}} intentos restantes",
+      "verifyError": "La verificación del PIN falló. Por favor, inténtelo de nuevo.",
+      "setError": "Error al configurar el PIN. Por favor, inténtelo de nuevo.",
+      "mismatch": "Los PINs No Coinciden",
+      "mismatchMessage": "Los PINs que ingresó no coinciden. Por favor, inténtelo de nuevo.",
+      "success": "PIN Configurado Exitosamente",
+      "successMessage": "Su PIN ha sido configurado exitosamente.",
+      "pinCreated": "PIN creado exitosamente",
+      "pinUpdated": "PIN actualizado exitosamente"
+    },
+    "biometric": {
+      "prompt": "Autentíquese para desbloquear SecAuth",
+      "fallback": "Usar PIN",
+      "cancel": "Cancelar",
+      "notAvailable": "La autenticación biométrica no está disponible",
+      "notEnrolled": "No hay datos biométricos registrados",
+      "authenticationFailed": "Autenticación fallida",
+      "enabled": "Desbloqueo biométrico habilitado",
+      "disabled": "Desbloqueo biométrico deshabilitado"
+    },
+    "autoLock": {
+      "title": "Configuración de Bloqueo Automático",
+      "description": "Elija cuándo bloquear automáticamente la aplicación",
+      "enabled": "Bloqueo automático habilitado",
+      "disabled": "Bloqueo automático deshabilitado"
+    }
+  },
+  "autoLock": {
+    "enable": "Habilitar Bloqueo Automático",
+    "enableDescription": "Bloquear automáticamente la aplicación después de un período de inactividad",
+    "timeout": {
+      "title": "Tiempo de Bloqueo Automático",
+      "description": "Elija cuánto tiempo espera la aplicación antes de bloquearse automáticamente",
+      "immediate": "Inmediatamente",
+      "1minute": "Después de 1 minuto",
+      "5minutes": "Después de 5 minutos",
+      "15minutes": "Después de 15 minutos",
+      "30minutes": "Después de 30 minutos",
+      "never": "Nunca",
+      "custom": "Personalizado"
+    },
+    "backgroundLock": "Bloquear en Segundo Plano",
+    "backgroundLockDescription": "Bloquear aplicación cuando se mueva al segundo plano",
+    "deviceLock": "Bloquear con Dispositivo",
+    "deviceLockDescription": "Bloquear aplicación cuando el dispositivo esté bloqueado",
+    "howItWorks": "Cómo Funciona el Bloqueo Automático",
+    "howItWorksDescription": "El bloqueo automático ayuda a proteger sus datos sensibles al requerir automáticamente autenticación cuando la aplicación ha estado inactiva o se ha movido al segundo plano.",
+    "settingsSaved": "La configuración de bloqueo automático se ha guardado exitosamente.",
+    "saveError": "Error al guardar la configuración de bloqueo automático. Por favor, inténtelo de nuevo."
   }
 } 

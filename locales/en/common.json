@@ -26,6 +26,11 @@
     "selectLanguage": "Select Language",
     "theme": "Theme",
     "themeDescription": "Use dark theme",
+    "themeOptions": {
+      "system": "Follow System",
+      "light": "Light Mode",
+      "dark": "Dark Mode"
+    },
     "notifications": "Notifications",
     "notificationsDescription": "Receive verification code expiry reminders",
     "privacy": "Privacy",
@@ -33,7 +38,15 @@
     "biometricUnlock": "Biometric Unlock",
     "biometricDescription": "Use fingerprint or Face ID to unlock app",
     "autoLock": "Auto Lock",
-    "autoLockDescription": "Automatically lock app after 5 minutes",
+    "autoLockDescription": "Automatically lock app after inactivity",
+    "autoLockOptions": {
+      "immediate": "Immediately",
+      "1min": "After 1 minute",
+      "5min": "After 5 minutes",
+      "15min": "After 15 minutes",
+      "30min": "After 30 minutes",
+      "never": "Never"
+    },
     "emailIntegration": "Email Integration",
     "emailIntegrationDescription": "Email connection and sync settings",
     "connectedAccounts": "Connected Accounts",
@@ -55,7 +68,17 @@
     "helpCenter": "Help Center",
     "helpCenterDescription": "FAQ and user guides",
     "aboutApp": "About App",
-    "aboutAppDescription": "SecAuth v1.0.0"
+    "aboutAppDescription": "SecAuth v1.0.0",
+    "saved": "Settings Saved",
+    "pinRequiredTitle": "PIN Required",
+    "pinRequiredMessage": "You need to set up a PIN before enabling biometric unlock.",
+    "setPinNow": "Set PIN Now",
+    "biometricAvailableTitle": "Enable Biometric Unlock?",
+    "biometricAvailableMessage": "Would you like to enable biometric unlock now that you have set up a PIN?",
+    "setPin": "Set PIN",
+    "setPinDescription": "Create a secure PIN for app access",
+    "changePin": "Change PIN",
+    "changePinDescription": "Update your current PIN"
   },
   "languages": {
     "en": "English",
@@ -278,5 +301,70 @@
       "title": "Frequency Description",
       "description": "• Real-time sync: Most timely, but uses more battery\n• Hourly: Recommended setting, balances performance and timeliness\n• Manual sync: Most power efficient, requires manual trigger"
     }
+  },
+  "auth": {
+    "pin": {
+      "title": "PIN Security",
+      "enterPin": "Enter PIN",
+      "enterNew": "Create PIN",
+      "confirmNew": "Confirm PIN",
+      "enterPinDescription": "Enter your 6-digit PIN to continue",
+      "enterNewDescription": "Create a 6-digit PIN for app security",
+      "confirmNewDescription": "Re-enter your PIN to confirm",
+      "createPin": "Create PIN",
+      "confirmPin": "Confirm PIN",
+      "incorrect": "Incorrect PIN",
+      "incorrectMessage": "Incorrect PIN. {{remaining}} attempts remaining.",
+      "maxAttemptsTitle": "Maximum Attempts Reached",
+      "maxAttemptsMessage": "Too many incorrect attempts. Please try again later.",
+      "attemptsRemaining": "{{remaining}} attempts remaining",
+      "verifyError": "PIN verification failed. Please try again.",
+      "setError": "Failed to set PIN. Please try again.",
+      "mismatch": "PINs Don't Match",
+      "mismatchMessage": "The PINs you entered don't match. Please try again.",
+      "success": "PIN Set Successfully",
+      "successMessage": "Your PIN has been set successfully.",
+      "pinCreated": "PIN created successfully",
+      "pinUpdated": "PIN updated successfully"
+    },
+    "biometric": {
+      "prompt": "Authenticate to unlock SecAuth",
+      "fallback": "Use PIN",
+      "cancel": "Cancel",
+      "notAvailable": "Biometric authentication is not available",
+      "notEnrolled": "No biometric data enrolled",
+      "authenticationFailed": "Authentication failed",
+      "enabled": "Biometric unlock enabled",
+      "disabled": "Biometric unlock disabled"
+    },
+    "autoLock": {
+      "title": "Auto Lock Settings",
+      "description": "Choose when to automatically lock the app",
+      "enabled": "Auto lock enabled",
+      "disabled": "Auto lock disabled"
+    }
+  },
+  "autoLock": {
+    "enable": "Enable Auto Lock",
+    "enableDescription": "Automatically lock the app after a period of inactivity",
+    "timeout": {
+      "title": "Auto Lock Timeout",
+      "description": "Choose how long the app waits before locking automatically",
+      "immediate": "Immediately",
+      "1minute": "After 1 minute",
+      "5minutes": "After 5 minutes", 
+      "15minutes": "After 15 minutes",
+      "30minutes": "After 30 minutes",
+      "never": "Never",
+      "custom": "Custom"
+    },
+    "backgroundLock": "Lock on Background",
+    "backgroundLockDescription": "Lock app when moved to background",
+    "deviceLock": "Lock with Device",
+    "deviceLockDescription": "Lock app when device is locked",
+    "howItWorks": "How Auto Lock Works",
+    "howItWorksDescription": "Auto lock helps protect your sensitive data by automatically requiring authentication when the app has been inactive or moved to the background.",
+    "settingsSaved": "Auto lock settings have been saved successfully.",
+    "saveError": "Failed to save auto lock settings. Please try again."
   }
 } 

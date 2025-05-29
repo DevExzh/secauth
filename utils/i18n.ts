@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Localization from 'expo-localization';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { Platform } from 'react-native';
 
 // Import translation files
 import enCommon from '../locales/en/common.json';
@@ -23,13 +24,46 @@ const resources = {
   },
 };
 
+// Safe storage operations with platform detection
+const safeStorageOperations = {
+  async getItem(key: string): Promise<string | null> {
+    try {
+      // Ensure we're not running in a web context where window doesn't exist
+      if (Platform.OS === 'web' && typeof window === 'undefined') {
+        return null;
+      }
+      return await AsyncStorage.getItem(key);
+    } catch (error) {
+      console.error('Error getting item from storage:', error);
+      return null;
+    }
+  },
+  
+  async setItem(key: string, value: string): Promise<void> {
+    try {
+      // Ensure we're not running in a web context where window doesn't exist
+      if (Platform.OS === 'web' && typeof window === 'undefined') {
+        return;
+      }
+      await AsyncStorage.setItem(key, value);
+    } catch (error) {
+      console.error('Error setting item in storage:', error);
+    }
+  },
+};
+
 // Get device language
 const getDeviceLanguage = () => {
-  const deviceLanguage = Localization.getLocales()[0]?.languageCode || 'en';
-  // Map device language to supported languages
-  if (deviceLanguage.startsWith('zh')) return 'zh';
-  if (deviceLanguage.startsWith('es')) return 'es';
-  return 'en'; // Default to English
+  try {
+    const deviceLanguage = Localization.getLocales()[0]?.languageCode || 'en';
+    // Map device language to supported languages
+    if (deviceLanguage.startsWith('zh')) return 'zh';
+    if (deviceLanguage.startsWith('es')) return 'es';
+    return 'en'; // Default to English
+  } catch (error) {
+    console.error('Error getting device language:', error);
+    return 'en';
+  }
 };
 
 // Language detector
@@ -39,7 +73,7 @@ const languageDetector = {
   detect: async (callback: (language: string) => void) => {
     try {
       // First try to get saved language from storage
-      const savedLanguage = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+      const savedLanguage = await safeStorageOperations.getItem(LANGUAGE_STORAGE_KEY);
       if (savedLanguage && Object.keys(resources).includes(savedLanguage)) {
         callback(savedLanguage);
         return;
@@ -56,7 +90,7 @@ const languageDetector = {
   init: () => {},
   cacheUserLanguage: async (language: string) => {
     try {
-      await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+      await safeStorageOperations.setItem(LANGUAGE_STORAGE_KEY, language);
     } catch (error) {
       console.error('Error saving language:', error);
     }

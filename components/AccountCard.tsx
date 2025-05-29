@@ -6,28 +6,28 @@ import type { Account, GeneratedCode } from '@/types/auth';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import {
-  Building2,
-  Copy,
-  CreditCard,
-  Gamepad2,
-  Github,
-  Mail,
-  MessageCircle,
-  MoreVertical,
-  Shield
+    Building2,
+    Copy,
+    CreditCard,
+    Gamepad2,
+    Github,
+    Mail,
+    MessageCircle,
+    MoreVertical,
+    Shield
 } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -142,8 +142,8 @@ export const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   const getProgressColor = () => {
     const percentage = getProgressPercentage();
     if (percentage > 50) return colors.primary;
-    if (percentage > 20) return '#FF9500'; // Orange
-    return '#FF3B30'; // Red
+    if (percentage > 20) return colors.warning;
+    return colors.error;
   };
 
   const animatedProgressStyle = useAnimatedStyle(() => {
@@ -160,7 +160,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   const strokeDashoffset = circumference * (1 - getProgressPercentage() / 100);
 
   return (
-    <View style={[styles.container, { backgroundColor: (colors as any).cardBackground || colors.surface }]}>
+    <View style={[styles.container, { backgroundColor: colors.cardBackground }]}>
       <View style={styles.header}>
         <View style={styles.serviceInfo}>
           <View style={[styles.iconContainer, { backgroundColor: getServiceIconBackground(account.name) }]}>
@@ -182,7 +182,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
 
       <View style={styles.codeSection}>
         <TouchableOpacity onPress={handleCopyCode} style={styles.codeContainer}>
-          <Text style={[styles.code, { color: (colors as any).codeText || colors.primary }]}>
+          <Text style={[styles.code, { color: colors.codeText }]}>
             {generatedCode?.code || '--- ---'}
           </Text>
           <Copy size={20} color={colors.textSecondary} />
@@ -243,14 +243,8 @@ const styles = StyleSheet.create({
     padding: 20,
     marginHorizontal: 16,
     marginVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
     elevation: 4,
+    boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.1)',
   },
   header: {
     flexDirection: 'row',

@@ -4,7 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { Tabs } from 'expo-router';
 import { Home, Plus, User } from 'lucide-react-native';
 import React from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -17,7 +17,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: (colors as any).tabBarBackground || colors.background,
+          backgroundColor: colors.tabBarBackground,
           borderTopColor: colors.border,
           borderTopWidth: 1,
           height: 80,
@@ -48,11 +48,17 @@ export default function TabLayout() {
               justifyContent: 'center',
               alignItems: 'center',
               marginBottom: 10,
-              shadowColor: colors.primary,
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 8,
+              ...Platform.select({
+                ios: {
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                },
+                android: {
+                  elevation: 8,
+                },
+              }),
             }}>
               <Plus size={28} color={colors.background} />
             </View>
