@@ -97,25 +97,51 @@ const languageDetector = {
   },
 };
 
+// Track initialization status
+let isInitialized = false;
+let initPromise: Promise<void> | null = null;
+
 // Initialize i18n
-i18n
-  .use(languageDetector)
-  .use(initReactI18next)
-  .init({
-    resources,
-    fallbackLng: 'en',
-    defaultNS: 'common',
-    ns: ['common'],
-    
-    interpolation: {
-      escapeValue: false, // React already escapes values
-    },
-    
-    react: {
-      useSuspense: false, // Disable suspense for React Native
-    },
-    
-    debug: __DEV__, // Enable debug in development
+const initI18n = () => {
+  if (initPromise) {
+    return initPromise;
+  }
+
+  initPromise = new Promise<void>((resolve, reject) => {
+    i18n
+      .use(languageDetector)
+      .use(initReactI18next)
+      .init({
+        resources,
+        fallbackLng: 'en',
+        defaultNS: 'common',
+        ns: ['common'],
+        
+        interpolation: {
+          escapeValue: false, // React already escapes values
+        },
+        
+        react: {
+          useSuspense: false, // Disable suspense for React Native
+        },
+        
+        debug: __DEV__, // Enable debug in development
+      })
+      .then(() => {
+        isInitialized = true;
+        resolve();
+      })
+      .catch((error) => {
+        console.error('i18n initialization failed:', error);
+        reject(error);
+      });
   });
 
+  return initPromise;
+};
+
+// Start initialization
+initI18n();
+
+export { initPromise, isInitialized };
 export default i18n; 
