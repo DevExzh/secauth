@@ -2,12 +2,13 @@ import { BiometricAuthService } from '@/services/biometricAuth';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { useLanguage } from './useLanguage';
+import { useTheme } from './useTheme';
 
 export const useProfileSettings = () => {
   const { t } = useLanguage();
+  const { themeMode, setTheme } = useTheme();
   
-  // Settings state
-  const [darkMode, setDarkMode] = useState(false);
+  // Settings state (removed darkMode as it's now handled by useTheme)
   const [notifications, setNotifications] = useState(true);
   const [biometric, setBiometric] = useState(false);
   const [hasPinSet, setHasPinSet] = useState(false);
@@ -36,10 +37,9 @@ export const useProfileSettings = () => {
   }, []);
 
   // Handlers
-  const handleDarkModeToggle = useCallback((value: boolean) => {
-    setDarkMode(value);
-    // Add logic to save theme preference to storage
-  }, []);
+  const handleThemeChange = useCallback((newThemeMode: 'light' | 'dark' | 'system') => {
+    setTheme(newThemeMode);
+  }, [setTheme]);
 
   const handleBiometricToggle = useCallback(async (value: boolean) => {
     if (value) {
@@ -105,7 +105,7 @@ export const useProfileSettings = () => {
 
   return {
     // State values
-    darkMode,
+    themeMode,
     notifications,
     biometric,
     hasPinSet,
@@ -123,7 +123,7 @@ export const useProfileSettings = () => {
     setEmailSyncFrequency,
     
     // Handlers
-    handleDarkModeToggle,
+    handleThemeChange,
     handleBiometricToggle,
     handlePinSet,
   };

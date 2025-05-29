@@ -25,7 +25,7 @@
     "language": "Language",
     "selectLanguage": "Select Language",
     "theme": "Theme",
-    "themeDescription": "Use dark theme",
+    "themeDescription": "Choose your preferred theme or follow system setting",
     "themeOptions": {
       "system": "Follow System",
       "light": "Light Mode",

@@ -4,6 +4,7 @@ export const useProfileModals = () => {
   // Modal visibility states
   const [showPinModal, setShowPinModal] = useState(false);
   const [showAutoLockModal, setShowAutoLockModal] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
   const [showEmailIntegration, setShowEmailIntegration] = useState(false);
   const [showEmailParsing, setShowEmailParsing] = useState(false);
   const [showEmailSettings, setShowEmailSettings] = useState(false);
@@ -18,6 +19,9 @@ export const useProfileModals = () => {
   
   const openAutoLockModal = useCallback(() => setShowAutoLockModal(true), []);
   const closeAutoLockModal = useCallback(() => setShowAutoLockModal(false), []);
+  
+  const openThemeModal = useCallback(() => setShowThemeModal(true), []);
+  const closeThemeModal = useCallback(() => setShowThemeModal(false), []);
   
   const openEmailSettings = useCallback(() => setShowEmailSettings(true), []);
   const closeEmailSettings = useCallback(() => setShowEmailSettings(false), []);
@@ -72,6 +76,7 @@ export const useProfileModals = () => {
     // Modal states
     showPinModal,
     showAutoLockModal,
+    showThemeModal,
     showEmailIntegration,
     showEmailParsing,
     showEmailSettings,
@@ -83,6 +88,7 @@ export const useProfileModals = () => {
     // Individual setters
     setShowPinModal,
     setShowAutoLockModal,
+    setShowThemeModal,
     setShowEmailSettings,
     setShowConnectedAccounts,
     setShowSyncFrequency,
@@ -93,6 +99,8 @@ export const useProfileModals = () => {
     closePinModal,
     openAutoLockModal,
     closeAutoLockModal,
+    openThemeModal,
+    closeThemeModal,
     openEmailSettings,
     closeEmailSettings,
     openConnectedAccounts,

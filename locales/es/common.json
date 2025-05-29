@@ -25,7 +25,7 @@
     "language": "Idioma",
     "selectLanguage": "Seleccionar Idioma",
     "theme": "Tema",
-    "themeDescription": "Usar tema oscuro",
+    "themeDescription": "Elige tu tema preferido o sigue la configuración del sistema",
     "themeOptions": {
       "system": "Seguir Sistema",
       "light": "Modo Claro",

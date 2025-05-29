@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react';
-import { useColorScheme as useRNColorScheme } from 'react-native';
+import { useTheme } from './useTheme';
 
 /**
- * To support static rendering, this value needs to be re-calculated on the client side for web
+ * Web version of useColorScheme that follows React Native's recommendation
+ * to get fresh values on every render and subscribe to changes for immediate updates
  */
 export function useColorScheme() {
   const [hasHydrated, setHasHydrated] = useState(false);
+  const { currentColorScheme, isLoading } = useTheme();
 
   useEffect(() => {
     setHasHydrated(true);
   }, []);
 
-  const colorScheme = useRNColorScheme();
-
-  if (hasHydrated) {
-    return colorScheme;
+  // For web, we need to handle hydration but still get fresh values on every render
+  if (!hasHydrated && isLoading) {
+    return 'light';
   }
 
-  return 'light';
+  // Return the current color scheme (fresh on every render as recommended)
+  return currentColorScheme;
 }

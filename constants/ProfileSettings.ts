@@ -22,8 +22,9 @@ export interface SettingItem {
   icon: React.ReactNode;
   title: string;
   subtitle: string;
-  type: 'switch' | 'navigation' | 'language';
+  type: 'switch' | 'navigation' | 'language' | 'theme';
   value?: boolean;
+  themeValue?: string; // For theme selection
   onToggle?: (value: boolean) => void;
   onPress?: () => void;
   disabled?: boolean;
@@ -40,7 +41,7 @@ export const createSettingsGroups = (
   values: {
     biometric: boolean;
     hasPinSet: boolean;
-    darkMode: boolean;
+    themeMode: 'light' | 'dark' | 'system';
     notifications: boolean;
     emailAutoSync: boolean;
     emailNotifications: boolean;
@@ -51,7 +52,7 @@ export const createSettingsGroups = (
     handleBiometricToggle: (value: boolean) => void;
     setShowPinModal: (show: boolean) => void;
     setShowAutoLockModal: (show: boolean) => void;
-    handleDarkModeToggle: (value: boolean) => void;
+    setShowThemeModal: (show: boolean) => void;
     setNotifications: (value: boolean) => void;
     setShowEmailSettings: (show: boolean) => void;
     setShowConnectedAccounts: (show: boolean) => void;
@@ -101,10 +102,10 @@ export const createSettingsGroups = (
       {
         icon: React.createElement(Moon, { size: 20, color: colors.primary }),
         title: t('settings.theme'),
-        subtitle: t('settings.themeDescription'),
-        type: 'switch',
-        value: values.darkMode,
-        onToggle: handlers.handleDarkModeToggle,
+        subtitle: t(`settings.themeOptions.${values.themeMode}`),
+        type: 'theme',
+        themeValue: values.themeMode,
+        onPress: () => handlers.setShowThemeModal(true),
       },
       {
         icon: React.createElement(Bell, { size: 20, color: colors.primary }),

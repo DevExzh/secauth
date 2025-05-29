@@ -7,11 +7,13 @@ import { EmailSettingsScreen } from '@/components/EmailSettingsScreen';
 import { LoadingModal, ProfileHeader, SettingsGroup } from '@/components/profile';
 import { SyncFrequencyModal } from '@/components/SyncFrequencyModal';
 import CloudSyncStaticScreen from '@/components/ui/CloudSyncStaticScreen';
+import { ThemeModal } from '@/components/ui/ThemeModal';
 import { Colors } from '@/constants/Colors';
 import { createSettingsGroups } from '@/constants/ProfileSettings';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useProfileModals } from '@/hooks/useProfileModals';
 import { useProfileSettings } from '@/hooks/useProfileSettings';
+import { useTheme } from '@/hooks/useTheme';
 import { AutoLockService, AutoLockSettings } from '@/services/autoLock';
 import { Account } from '@/types/auth';
 import React from 'react';
@@ -19,14 +21,14 @@ import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } fr
 
 export default function ProfileScreen() {
   const { t } = useLanguage();
+  const { currentColorScheme } = useTheme();
   
   // Custom hooks for state management
   const settings = useProfileSettings();
   const modals = useProfileModals();
   
-  // Color scheme based on dark mode setting
-  const colorScheme = settings.darkMode ? 'dark' : 'light';
-  const colors = Colors[colorScheme];
+  // Color scheme based on current theme
+  const colors = Colors[currentColorScheme];
 
   // Create settings configuration
   const settingsGroups = createSettingsGroups(
@@ -35,7 +37,7 @@ export default function ProfileScreen() {
     {
       biometric: settings.biometric,
       hasPinSet: settings.hasPinSet,
-      darkMode: settings.darkMode,
+      themeMode: settings.themeMode,
       notifications: settings.notifications,
       emailAutoSync: settings.emailAutoSync,
       emailNotifications: settings.emailNotifications,
@@ -46,7 +48,7 @@ export default function ProfileScreen() {
       handleBiometricToggle: settings.handleBiometricToggle,
       setShowPinModal: modals.setShowPinModal,
       setShowAutoLockModal: modals.setShowAutoLockModal,
-      handleDarkModeToggle: settings.handleDarkModeToggle,
+      setShowThemeModal: modals.setShowThemeModal,
       setNotifications: settings.setNotifications,
       setShowEmailSettings: modals.setShowEmailSettings,
       setShowConnectedAccounts: modals.setShowConnectedAccounts,
@@ -89,6 +91,15 @@ export default function ProfileScreen() {
       </ScrollView>
 
       {/* Modals */}
+      {/* Theme Modal */}
+      <ThemeModal
+        visible={modals.showThemeModal}
+        currentTheme={settings.themeMode}
+        onThemeSelect={settings.handleThemeChange}
+        onClose={modals.closeThemeModal}
+        colors={colors}
+      />
+
       {/* Email Settings Modal */}
       {modals.showEmailSettings && (
         <View style={styles.fullScreenModal}>
