@@ -6,28 +6,28 @@ import type { Account, GeneratedCode } from '@/types/auth';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import {
-    Building2,
-    Copy,
-    CreditCard,
-    Gamepad2,
-    Github,
-    Mail,
-    MessageCircle,
-    MoreVertical,
-    Shield
+  Building2,
+  Copy,
+  CreditCard,
+  Gamepad2,
+  Github,
+  Mail,
+  MessageCircle,
+  MoreVertical,
+  Shield
 } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Alert,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 import { ContextMenu } from './ui/ContextMenu';
@@ -51,12 +51,18 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   const [showEditNameModal, setShowEditNameModal] = useState(false);
   const [showQRCodeModal, setShowQRCodeModal] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [currentAccount, setCurrentAccount] = useState<Account>(account);
   
   const progressValue = useSharedValue(0);
 
+  // Update local account state when account prop changes
+  useEffect(() => {
+    setCurrentAccount(account);
+  }, [account]);
+
   const updateCode = useCallback(() => {
     try {
-      const code = TOTPService.generateCode(account);
+      const code = TOTPService.generateCode(currentAccount);
       setGeneratedCode(code);
       progressValue.value = withTiming(code.timeRemaining / code.period, { duration: 100 });
     } catch (error) {
@@ -69,7 +75,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
       });
       progressValue.value = withTiming(1, { duration: 100 });
     }
-  }, [account, progressValue]);
+  }, [currentAccount, progressValue]);
 
   useEffect(() => {
     updateCode();
@@ -100,11 +106,20 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   }, []);
 
   const handleSaveName = useCallback(async (accountId: string, newName: string) => {
-    // Call the parent callback to update the account
-    if (onAccountUpdate) {
-      await onAccountUpdate(accountId, newName);
+    try {
+      // Update local state immediately for instant feedback
+      setCurrentAccount(prev => ({ ...prev, name: newName }));
+      
+      // Call the parent callback to update the account in storage
+      if (onAccountUpdate) {
+        await onAccountUpdate(accountId, newName);
+      }
+    } catch (error) {
+      // Revert local state if update fails
+      setCurrentAccount(account);
+      throw error;
     }
-  }, [onAccountUpdate]);
+  }, [onAccountUpdate, account]);
 
   const getServiceIcon = (serviceName: string) => {
     const iconSize = 24;
@@ -197,15 +212,15 @@ export const AccountCard: React.FC<AccountCardProps> = ({
       <View style={[styles.container, { backgroundColor: colors.cardBackground }]}>
         <View style={styles.header}>
           <View style={styles.serviceInfo}>
-            <View style={[styles.iconContainer, { backgroundColor: getServiceIconBackground(account.name) }]}>
-              {getServiceIcon(account.name)}
+            <View style={[styles.iconContainer, { backgroundColor: getServiceIconBackground(currentAccount.name) }]}>
+              {getServiceIcon(currentAccount.name)}
             </View>
             <View style={styles.textInfo}>
               <Text style={[styles.serviceName, { color: colors.text }]}>
-                {account.name}
+                {currentAccount.name}
               </Text>
               <Text style={[styles.email, { color: colors.textSecondary }]}>
-                {account.email}
+                {currentAccount.email}
               </Text>
             </View>
           </View>
@@ -284,7 +299,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
       {/* Edit Name Modal */}
       <EditNameModal
         visible={showEditNameModal}
-        account={account}
+        account={currentAccount}
         onClose={() => setShowEditNameModal(false)}
         onSave={handleSaveName}
       />
@@ -292,7 +307,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
       {/* QR Code Modal */}
       <QRCodeModal
         visible={showQRCodeModal}
-        account={account}
+        account={currentAccount}
         onClose={() => setShowQRCodeModal(false)}
       />
     </>

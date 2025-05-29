@@ -15,59 +15,13 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import Svg, { Rect } from 'react-native-svg';
+import QRCode from 'react-native-qrcode-svg';
 
 interface QRCodeModalProps {
   visible: boolean;
   account: Account | null;
   onClose: () => void;
 }
-
-// Simple QR Code generator using SVG
-const QRCodeSVG: React.FC<{ value: string; size: number; color: string }> = ({ 
-  value, 
-  size, 
-  color 
-}) => {
-  const qrData = useMemo(() => {
-    // This is a simplified QR code representation
-    // In a real implementation, you would use a proper QR code library
-    const modules = [];
-    const moduleCount = 21; // Standard QR code size
-    const moduleSize = size / moduleCount;
-    
-    // Generate a pattern based on the value (simplified)
-    for (let row = 0; row < moduleCount; row++) {
-      for (let col = 0; col < moduleCount; col++) {
-        const hash = (value.charCodeAt(row % value.length) + col + row) % 2;
-        if (hash === 1) {
-          modules.push({
-            x: col * moduleSize,
-            y: row * moduleSize,
-            size: moduleSize,
-          });
-        }
-      }
-    }
-    
-    return modules;
-  }, [value, size]);
-
-  return (
-    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {qrData.map((module, index) => (
-        <Rect
-          key={index}
-          x={module.x}
-          y={module.y}
-          width={module.size}
-          height={module.size}
-          fill={color}
-        />
-      ))}
-    </Svg>
-  );
-};
 
 export const QRCodeModal: React.FC<QRCodeModalProps> = ({
   visible,
@@ -98,6 +52,18 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
       Alert.alert(t('common.success'), 'Secret key copied to clipboard');
     } catch (error) {
       Alert.alert(t('common.error'), 'Failed to copy secret key');
+    }
+  };
+
+  const handleCopyQRData = async () => {
+    if (!qrCodeData) return;
+    
+    try {
+      await Clipboard.setStringAsync(qrCodeData);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert(t('common.success'), 'QR code data copied to clipboard');
+    } catch (error) {
+      Alert.alert(t('common.error'), 'Failed to copy QR code data');
     }
   };
 
@@ -150,11 +116,20 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
                 { backgroundColor: '#FFFFFF' }
               ]}
             >
-              <QRCodeSVG 
-                value={qrCodeData} 
-                size={240} 
-                color={'#000000'} 
-              />
+              {qrCodeData && (
+                <QRCode
+                  value={qrCodeData}
+                  size={240}
+                  color="#000000"
+                  backgroundColor="#FFFFFF"
+                  logo={undefined}
+                  logoSize={30}
+                  logoBackgroundColor="transparent"
+                  logoMargin={2}
+                  logoBorderRadius={15}
+                  quietZone={10}
+                />
+              )}
             </View>
           </View>
 
@@ -167,6 +142,16 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
               <Copy size={20} color={colors.text} />
               <Text style={[styles.actionButtonText, { color: colors.text }]}>
                 Copy Secret
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.actionButton, { backgroundColor: colors.cardBackground }]}
+              onPress={handleCopyQRData}
+            >
+              <Copy size={20} color={colors.text} />
+              <Text style={[styles.actionButtonText, { color: colors.text }]}>
+                Copy QR Data
               </Text>
             </TouchableOpacity>
           </View>
@@ -255,6 +240,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 16,
     marginBottom: 32,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
   actionButton: {
     flexDirection: 'row',
@@ -263,6 +250,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     gap: 8,
+    minWidth: 120,
   },
   actionButtonText: {
     fontSize: 16,
