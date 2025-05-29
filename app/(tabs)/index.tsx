@@ -9,15 +9,17 @@ import type { Account, AccountCategory } from '@/types/auth';
 import { Bell, Settings, Shield } from 'lucide-react-native';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  FlatList,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  RefreshControl,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    FlatList,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    Platform,
+    RefreshControl,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 export default function HomeScreen() {
@@ -80,8 +82,14 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar
+        barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.background}
+        translucent={false}
+      />
+      
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 }]}>
         <View style={styles.headerLeft}>
           <View style={[styles.appIconContainer, { backgroundColor: colors.primary }]}>
             <Shield size={24} color={colors.background} />
@@ -175,6 +183,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    minHeight: 56,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -221,7 +230,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContainer: {
-    paddingBottom: 20,
+    paddingBottom: Platform.OS === 'ios' ? 100 : 90,
     flexGrow: 1,
   },
   emptyListContainer: {

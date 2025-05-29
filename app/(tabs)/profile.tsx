@@ -17,7 +17,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { AutoLockService, AutoLockSettings } from '@/services/autoLock';
 import { Account } from '@/types/auth';
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
   const { t } = useLanguage();
@@ -62,8 +62,14 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar
+        barStyle={currentColorScheme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.background}
+        translucent={false}
+      />
+      
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 }]}>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
           {t('profile.title')}
         </Text>
@@ -197,6 +203,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     alignItems: 'center',
+    minHeight: 56,
   },
   headerTitle: {
     fontSize: 18,
