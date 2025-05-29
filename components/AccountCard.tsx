@@ -30,16 +30,28 @@ import Animated, {
     withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
+import { ContextMenu } from './ui/ContextMenu';
+import { EditNameModal } from './ui/EditNameModal';
+import { QRCodeModal } from './ui/QRCodeModal';
 
 interface AccountCardProps {
   account: Account;
+  onAccountUpdate?: (accountId: string, newName: string) => void;
 }
 
-export const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
+export const AccountCard: React.FC<AccountCardProps> = ({ 
+  account, 
+  onAccountUpdate 
+}) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   
   const [generatedCode, setGeneratedCode] = useState<GeneratedCode | null>(null);
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [showEditNameModal, setShowEditNameModal] = useState(false);
+  const [showQRCodeModal, setShowQRCodeModal] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  
   const progressValue = useSharedValue(0);
 
   const updateCode = useCallback(() => {
@@ -72,6 +84,27 @@ export const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
       Alert.alert('已复制', '验证码已复制到剪贴板');
     }
   }, [generatedCode]);
+
+  const handleMenuPress = useCallback((event: any) => {
+    const { pageY, pageX } = event.nativeEvent;
+    setMenuPosition({ x: pageX, y: pageY });
+    setShowContextMenu(true);
+  }, []);
+
+  const handleEditName = useCallback(() => {
+    setShowEditNameModal(true);
+  }, []);
+
+  const handleShowQRCode = useCallback(() => {
+    setShowQRCodeModal(true);
+  }, []);
+
+  const handleSaveName = useCallback(async (accountId: string, newName: string) => {
+    // Call the parent callback to update the account
+    if (onAccountUpdate) {
+      await onAccountUpdate(accountId, newName);
+    }
+  }, [onAccountUpdate]);
 
   const getServiceIcon = (serviceName: string) => {
     const iconSize = 24;
@@ -160,80 +193,109 @@ export const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   const strokeDashoffset = circumference * (1 - getProgressPercentage() / 100);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.cardBackground }]}>
-      <View style={styles.header}>
-        <View style={styles.serviceInfo}>
-          <View style={[styles.iconContainer, { backgroundColor: getServiceIconBackground(account.name) }]}>
-            {getServiceIcon(account.name)}
+    <>
+      <View style={[styles.container, { backgroundColor: colors.cardBackground }]}>
+        <View style={styles.header}>
+          <View style={styles.serviceInfo}>
+            <View style={[styles.iconContainer, { backgroundColor: getServiceIconBackground(account.name) }]}>
+              {getServiceIcon(account.name)}
+            </View>
+            <View style={styles.textInfo}>
+              <Text style={[styles.serviceName, { color: colors.text }]}>
+                {account.name}
+              </Text>
+              <Text style={[styles.email, { color: colors.textSecondary }]}>
+                {account.email}
+              </Text>
+            </View>
           </View>
-          <View style={styles.textInfo}>
-            <Text style={[styles.serviceName, { color: colors.text }]}>
-              {account.name}
+          <TouchableOpacity 
+            style={styles.menuButton}
+            onPress={handleMenuPress}
+          >
+            <MoreVertical size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.codeSection}>
+          <TouchableOpacity onPress={handleCopyCode} style={styles.codeContainer}>
+            <Text style={[styles.code, { color: colors.codeText }]}>
+              {generatedCode?.code || '--- ---'}
             </Text>
-            <Text style={[styles.email, { color: colors.textSecondary }]}>
-              {account.email}
-            </Text>
+            <Copy size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+          
+          <View style={styles.timerContainer}>
+            <View style={styles.circularTimer}>
+              <Svg width={50} height={50} style={styles.svgContainer}>
+                {/* Background circle */}
+                <Circle
+                  cx={25}
+                  cy={25}
+                  r={radius}
+                  stroke={colors.border}
+                  strokeWidth={strokeWidth}
+                  fill="transparent"
+                />
+                {/* Progress circle */}
+                <Circle
+                  cx={25}
+                  cy={25}
+                  r={radius}
+                  stroke={getProgressColor()}
+                  strokeWidth={strokeWidth}
+                  fill="transparent"
+                  strokeDasharray={strokeDasharray}
+                  strokeDashoffset={strokeDashoffset}
+                  strokeLinecap="round"
+                  transform={`rotate(-90 25 25)`}
+                />
+              </Svg>
+              <Text style={[styles.timer, { color: getProgressColor() }]}>
+                {generatedCode?.timeRemaining || 0}s
+              </Text>
+            </View>
           </View>
         </View>
-        <TouchableOpacity style={styles.menuButton}>
-          <MoreVertical size={20} color={colors.textSecondary} />
-        </TouchableOpacity>
-      </View>
 
-      <View style={styles.codeSection}>
-        <TouchableOpacity onPress={handleCopyCode} style={styles.codeContainer}>
-          <Text style={[styles.code, { color: colors.codeText }]}>
-            {generatedCode?.code || '--- ---'}
-          </Text>
-          <Copy size={20} color={colors.textSecondary} />
-        </TouchableOpacity>
-        
-        <View style={styles.timerContainer}>
-          <View style={styles.circularTimer}>
-            <Svg width={50} height={50} style={styles.svgContainer}>
-              {/* Background circle */}
-              <Circle
-                cx={25}
-                cy={25}
-                r={radius}
-                stroke={colors.border}
-                strokeWidth={strokeWidth}
-                fill="transparent"
-              />
-              {/* Progress circle */}
-              <Circle
-                cx={25}
-                cy={25}
-                r={radius}
-                stroke={getProgressColor()}
-                strokeWidth={strokeWidth}
-                fill="transparent"
-                strokeDasharray={strokeDasharray}
-                strokeDashoffset={strokeDashoffset}
-                strokeLinecap="round"
-                transform={`rotate(-90 25 25)`}
-              />
-            </Svg>
-            <Text style={[styles.timer, { color: getProgressColor() }]}>
-              {generatedCode?.timeRemaining || 0}s
-            </Text>
-          </View>
+        {/* Full width progress bar */}
+        <View style={[styles.fullProgressBar, { backgroundColor: colors.border }]}>
+          <Animated.View 
+            style={[
+              styles.fullProgressFill, 
+              { 
+                backgroundColor: getProgressColor(),
+              },
+              animatedProgressStyle
+            ]} 
+          />
         </View>
       </View>
 
-      {/* Full width progress bar */}
-      <View style={[styles.fullProgressBar, { backgroundColor: colors.border }]}>
-        <Animated.View 
-          style={[
-            styles.fullProgressFill, 
-            { 
-              backgroundColor: getProgressColor(),
-            },
-            animatedProgressStyle
-          ]} 
-        />
-      </View>
-    </View>
+      {/* Context Menu */}
+      <ContextMenu
+        visible={showContextMenu}
+        onClose={() => setShowContextMenu(false)}
+        onEditName={handleEditName}
+        onShowQRCode={handleShowQRCode}
+        position={menuPosition}
+      />
+
+      {/* Edit Name Modal */}
+      <EditNameModal
+        visible={showEditNameModal}
+        account={account}
+        onClose={() => setShowEditNameModal(false)}
+        onSave={handleSaveName}
+      />
+
+      {/* QR Code Modal */}
+      <QRCodeModal
+        visible={showQRCodeModal}
+        account={account}
+        onClose={() => setShowQRCodeModal(false)}
+      />
+    </>
   );
 };
 

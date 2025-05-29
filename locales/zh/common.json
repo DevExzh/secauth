@@ -377,5 +377,21 @@
     "retry": "重试",
     "cancel": "取消",
     "instruction": "将二维码对准扫描框"
+  },
+  "accountMenu": {
+    "editName": "编辑名称",
+    "showQRCode": "显示二维码",
+    "editNameTitle": "编辑账户名称",
+    "editNameDescription": "更改此账户的显示名称",
+    "accountName": "账户名称",
+    "accountNamePlaceholder": "输入账户名称",
+    "qrCodeTitle": "二维码",
+    "qrCodeDescription": "扫描此二维码以将账户添加到其他设备",
+    "nameUpdated": "名称已更新",
+    "nameUpdatedMessage": "账户名称已成功更新",
+    "nameRequired": "需要名称",
+    "nameRequiredMessage": "请输入有效的账户名称",
+    "nameUpdateError": "更新失败",
+    "nameUpdateErrorMessage": "更新账户名称失败，请重试"
   }
 } 

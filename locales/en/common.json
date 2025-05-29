@@ -377,5 +377,21 @@
     "retry": "Retry",
     "cancel": "Cancel",
     "instruction": "Align the QR code within the scanning frame"
+  },
+  "accountMenu": {
+    "editName": "Edit Name",
+    "showQRCode": "Show QR Code",
+    "editNameTitle": "Edit Account Name",
+    "editNameDescription": "Change the display name for this account",
+    "accountName": "Account Name",
+    "accountNamePlaceholder": "Enter account name",
+    "qrCodeTitle": "QR Code",
+    "qrCodeDescription": "Scan this QR code to add the account to another device",
+    "nameUpdated": "Name Updated",
+    "nameUpdatedMessage": "Account name has been updated successfully",
+    "nameRequired": "Name Required",
+    "nameRequiredMessage": "Please enter a valid account name",
+    "nameUpdateError": "Update Failed",
+    "nameUpdateErrorMessage": "Failed to update account name. Please try again."
   }
 } 
