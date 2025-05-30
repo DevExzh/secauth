@@ -1,0 +1,51 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "00:00"
+      timezone: "Asia/Shanghai"
+    # Only allow minor and patch updates to avoid breaking changes
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    # Commit message configuration following conventional commits
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    # Group updates by dependency type
+    groups:
+      expo-dependencies:
+        patterns:
+          - "expo*"
+        update-types:
+          - "minor"
+          - "patch"
+      react-dependencies:
+        patterns:
+          - "react*"
+          - "@react*"
+        update-types:
+          - "minor"
+          - "patch"
+      react-native-dependencies:
+        patterns:
+          - "react-native*"
+          - "@react-native*"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
