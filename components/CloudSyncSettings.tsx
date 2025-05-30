@@ -1,24 +1,26 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import {
-    ArrowLeft,
-    Check,
-    Cloud,
-    HardDrive,
-    Server,
-    Wifi
+  ArrowLeft,
+  Check,
+  Cloud,
+  HardDrive,
+  Server,
+  Wifi
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    Alert,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 interface CloudSyncSettingsProps {
@@ -28,9 +30,10 @@ interface CloudSyncSettingsProps {
 export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
+  const { t } = useLanguage();
   
   const [syncEnabled, setSyncEnabled] = useState(false);
-  const [syncMethod, setSyncMethod] = useState<'webdav' | 'icloud' | 'google'>('webdav');
+  const [syncMethod, setSyncMethod] = useState<'webdav' | 'icloud' | 'google' | 'dropbox'>('webdav');
   const [webdavConfig, setWebdavConfig] = useState({
     url: '',
     username: '',
@@ -40,60 +43,66 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
 
   const handleSyncToggle = (enabled: boolean) => {
     setSyncEnabled(enabled);
-    if (enabled && !webdavConfig.url) {
-      Alert.alert('提示', '请先配置同步服务器信息');
+    if (enabled && syncMethod === 'webdav' && !webdavConfig.url) {
+      Alert.alert(t('cloudSync.configureFirst'));
     }
   };
 
   const handleTestConnection = async () => {
     if (!webdavConfig.url || !webdavConfig.username || !webdavConfig.password) {
-      Alert.alert('错误', '请填写完整的服务器信息');
+      Alert.alert(t('cloudSync.error'), t('cloudSync.fillAllFields'));
       return;
     }
 
-    // 模拟连接测试
-    Alert.alert('连接测试', '正在测试连接...', [{ text: '确定' }]);
+    // Simulated connection test
+    Alert.alert(t('cloudSync.testingConnection'), '', [{ text: t('common.confirm') }]);
     
-    // 这里应该实现实际的WebDAV连接测试
+    // Simulated WebDAV connection test with timeout
     setTimeout(() => {
-      Alert.alert('连接成功', 'WebDAV服务器连接正常');
+      Alert.alert(t('cloudSync.connectionSuccessful'), t('cloudSync.webdav.name'));
     }, 1500);
   };
 
   const handleManualSync = async () => {
     if (!syncEnabled) {
-      Alert.alert('提示', '请先启用云同步功能');
+      Alert.alert(t('cloudSync.enableSyncFirst'));
       return;
     }
 
-    Alert.alert('同步中', '正在同步数据...', [{ text: '确定' }]);
+    Alert.alert(t('cloudSync.syncing'), '', [{ text: t('common.confirm') }]);
     
-    // 模拟同步过程
+    // Simulated sync process
     setTimeout(() => {
       setLastSync(new Date());
-      Alert.alert('同步完成', '数据已成功同步到云端');
+      Alert.alert(t('cloudSync.syncComplete'), t('cloudSync.syncCompleteMessage'));
     }, 2000);
   };
 
   const syncMethods = [
     {
       id: 'webdav' as const,
-      name: 'WebDAV',
-      description: '支持Nextcloud、ownCloud等',
+      name: t('cloudSync.webdav.name'),
+      description: t('cloudSync.webdav.description'),
       icon: <Server size={24} color={colors.primary} />,
     },
     {
       id: 'icloud' as const,
-      name: 'iCloud',
-      description: 'Apple iCloud Drive',
+      name: t('cloudSync.icloud.name'),
+      description: t('cloudSync.icloud.description'),
       icon: <Cloud size={24} color={colors.primary} />,
     },
     {
       id: 'google' as const,
-      name: 'Google Drive',
-      description: 'Google云端硬盘',
+      name: t('cloudSync.google.name'),
+      description: t('cloudSync.google.description'),
       icon: <HardDrive size={24} color={colors.primary} />,
     },
+    {
+      id: 'dropbox' as const,
+      name: t('cloudSync.dropbox.name'),
+      description: t('cloudSync.dropbox.description'),
+      icon: <HardDrive size={24} color={colors.primary} />,
+    }
   ];
 
   return (
@@ -103,7 +112,7 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
           <ArrowLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
-          云同步设置
+          {t('cloudSync.title')}
         </Text>
         <View style={styles.placeholder} />
       </View>
@@ -114,10 +123,10 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
           <View style={styles.syncToggle}>
             <View style={styles.syncInfo}>
               <Text style={[styles.syncTitle, { color: colors.text }]}>
-                启用云同步
+                {t('cloudSync.enableSync')}
               </Text>
               <Text style={[styles.syncDescription, { color: colors.textSecondary }]}>
-                自动备份和同步您的验证器数据
+                {t('cloudSync.enableSyncDescription')}
               </Text>
             </View>
             <Switch
@@ -133,10 +142,10 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
         {syncEnabled && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-              同步方式
+              {t('cloudSync.syncMethod')}
             </Text>
             <View style={[styles.methodContainer, { backgroundColor: colors.surface }]}>
-              {syncMethods.map((method, index) => (
+              {syncMethods.map((method) => (
                 <TouchableOpacity
                   key={method.id}
                   style={[
@@ -169,12 +178,12 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
         {syncEnabled && syncMethod === 'webdav' && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-              WebDAV配置
+              {t('cloudSync.webdavConfig')}
             </Text>
             <View style={[styles.configContainer, { backgroundColor: colors.surface }]}>
               <View style={styles.inputGroup}>
                 <Text style={[styles.inputLabel, { color: colors.text }]}>
-                  服务器地址
+                  {t('cloudSync.serverUrl')}
                 </Text>
                 <TextInput
                   style={[styles.input, { 
@@ -184,7 +193,7 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
                   }]}
                   value={webdavConfig.url}
                   onChangeText={(text) => setWebdavConfig({ ...webdavConfig, url: text })}
-                  placeholder="https://your-server.com/remote.php/dav/files/username/"
+                  placeholder={t('cloudSync.serverUrlPlaceholder')}
                   placeholderTextColor={colors.textSecondary}
                   autoCapitalize="none"
                 />
@@ -192,7 +201,7 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
 
               <View style={styles.inputGroup}>
                 <Text style={[styles.inputLabel, { color: colors.text }]}>
-                  用户名
+                  {t('cloudSync.username')}
                 </Text>
                 <TextInput
                   style={[styles.input, { 
@@ -202,7 +211,7 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
                   }]}
                   value={webdavConfig.username}
                   onChangeText={(text) => setWebdavConfig({ ...webdavConfig, username: text })}
-                  placeholder="用户名"
+                  placeholder={t('cloudSync.usernamePlaceholder')}
                   placeholderTextColor={colors.textSecondary}
                   autoCapitalize="none"
                 />
@@ -210,7 +219,7 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
 
               <View style={styles.inputGroup}>
                 <Text style={[styles.inputLabel, { color: colors.text }]}>
-                  密码
+                  {t('cloudSync.password')}
                 </Text>
                 <TextInput
                   style={[styles.input, { 
@@ -220,7 +229,7 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
                   }]}
                   value={webdavConfig.password}
                   onChangeText={(text) => setWebdavConfig({ ...webdavConfig, password: text })}
-                  placeholder="密码或应用专用密码"
+                  placeholder={t('cloudSync.passwordPlaceholder')}
                   placeholderTextColor={colors.textSecondary}
                   secureTextEntry
                 />
@@ -232,7 +241,7 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
               >
                 <Wifi size={20} color={colors.background} />
                 <Text style={[styles.testButtonText, { color: colors.background }]}>
-                  测试连接
+                  {t('cloudSync.testConnection')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -243,15 +252,15 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
         {syncEnabled && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-              同步状态
+              {t('cloudSync.syncStatus')}
             </Text>
             <View style={[styles.statusContainer, { backgroundColor: colors.surface }]}>
               <View style={styles.statusItem}>
                 <Text style={[styles.statusLabel, { color: colors.text }]}>
-                  最后同步时间
+                  {t('cloudSync.lastSyncTime')}
                 </Text>
                 <Text style={[styles.statusValue, { color: colors.textSecondary }]}>
-                  {lastSync ? lastSync.toLocaleString() : '从未同步'}
+                  {lastSync ? lastSync.toLocaleString() : t('cloudSync.neverSynced')}
                 </Text>
               </View>
 
@@ -261,23 +270,20 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
               >
                 <Cloud size={20} color={colors.background} />
                 <Text style={[styles.syncButtonText, { color: colors.background }]}>
-                  立即同步
+                  {t('cloudSync.syncNow')}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
         )}
 
-        {/* Sync Info */}
+        {/* About Cloud Sync */}
         <View style={styles.infoSection}>
           <Text style={[styles.infoTitle, { color: colors.text }]}>
-            关于云同步
+            {t('cloudSync.aboutSync')}
           </Text>
           <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            • 数据将使用AES-256加密后上传到云端{'\n'}
-            • 支持多设备间自动同步{'\n'}
-            • 建议定期备份重要数据{'\n'}
-            • 同步过程需要网络连接
+            {t('cloudSync.aboutSyncDescription')}
           </Text>
         </View>
       </ScrollView>
@@ -295,6 +301,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    paddingTop: Platform.OS === 'android' ? 25 : 12,
   },
   backButton: {
     padding: 8,

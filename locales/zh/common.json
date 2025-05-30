@@ -414,5 +414,53 @@
     "nameRequiredMessage": "请输入有效的账户名称",
     "nameUpdateError": "更新失败",
     "nameUpdateErrorMessage": "更新账户名称失败，请重试"
+  },
+  "cloudSync": {
+    "title": "云同步设置",
+    "enableSync": "启用云同步",
+    "enableSyncDescription": "自动备份和同步您的验证器数据",
+    "syncMethod": "同步方式",
+    "webdav": {
+      "name": "WebDAV",
+      "description": "支持Nextcloud、ownCloud等"
+    },
+    "icloud": {
+      "name": "iCloud",
+      "description": "Apple iCloud Drive"
+    },
+    "google": {
+      "name": "Google Drive",
+      "description": "Google云端硬盘"
+    },
+    "dropbox": {
+      "name": "Dropbox",
+      "description": "Dropbox云存储"
+    },
+    "webdavConfig": "WebDAV配置",
+    "serverUrl": "服务器地址",
+    "serverUrlPlaceholder": "https://your-server.com/remote.php/dav/files/username/",
+    "username": "用户名",
+    "usernamePlaceholder": "用户名",
+    "password": "密码",
+    "passwordPlaceholder": "密码或应用专用密码",
+    "testConnection": "测试连接",
+    "testingConnection": "正在测试连接...",
+    "connectionSuccessful": "连接成功",
+    "connectionFailed": "连接失败",
+    "syncStatus": "同步状态",
+    "lastSyncTime": "最后同步时间",
+    "neverSynced": "从未同步",
+    "syncNow": "立即同步",
+    "syncing": "同步中...",
+    "syncComplete": "同步完成",
+    "syncCompleteMessage": "数据已成功同步到云端",
+    "aboutSync": "关于云同步",
+    "aboutSyncDescription": "• 数据将使用AES-256加密后上传到云端\n• 支持多设备间自动同步\n• 建议定期备份重要数据\n• 同步过程需要网络连接",
+    "configureFirst": "请先配置同步服务器信息",
+    "fillAllFields": "请填写完整的服务器信息",
+    "enableSyncFirst": "请先启用云同步功能",
+    "selectMethod": "选择同步方式",
+    "notConnected": "未连接",
+    "selected": "已选择"
   }
 } 

@@ -80,6 +80,54 @@
     "changePin": "Change PIN",
     "changePinDescription": "Update your current PIN"
   },
+  "cloudSync": {
+    "title": "Cloud Sync Settings",
+    "enableSync": "Enable Cloud Sync",
+    "enableSyncDescription": "Automatically backup and sync your authenticator data",
+    "syncMethod": "Sync Method",
+    "webdav": {
+      "name": "WebDAV",
+      "description": "Supports Nextcloud, ownCloud, etc."
+    },
+    "icloud": {
+      "name": "iCloud",
+      "description": "Apple iCloud Drive"
+    },
+    "google": {
+      "name": "Google Drive",
+      "description": "Google cloud storage"
+    },
+    "dropbox": {
+      "name": "Dropbox",
+      "description": "Dropbox cloud storage"
+    },
+    "webdavConfig": "WebDAV Configuration",
+    "serverUrl": "Server URL",
+    "serverUrlPlaceholder": "https://your-server.com/remote.php/dav/files/username/",
+    "username": "Username",
+    "usernamePlaceholder": "Username",
+    "password": "Password",
+    "passwordPlaceholder": "Password or app-specific password",
+    "testConnection": "Test Connection",
+    "testingConnection": "Testing connection...",
+    "connectionSuccessful": "Connection successful",
+    "connectionFailed": "Connection failed",
+    "syncStatus": "Sync Status",
+    "lastSyncTime": "Last sync time",
+    "neverSynced": "Never synced",
+    "syncNow": "Sync Now",
+    "syncing": "Syncing...",
+    "syncComplete": "Sync complete",
+    "syncCompleteMessage": "Data has been successfully synced to cloud",
+    "aboutSync": "About Cloud Sync",
+    "aboutSyncDescription": "• Data will be encrypted with AES-256 before uploading to cloud\n• Supports automatic sync across multiple devices\n• Regular backups of important data are recommended\n• Sync process requires network connection",
+    "configureFirst": "Please configure server information first",
+    "fillAllFields": "Please fill in all server information",
+    "enableSyncFirst": "Please enable cloud sync first",
+    "selectMethod": "Select Sync Method",
+    "notConnected": "Not connected",
+    "selected": "Selected"
+  },
   "languages": {
     "en": "English",
     "zh": "中文",

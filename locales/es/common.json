@@ -414,5 +414,53 @@
     "nameRequiredMessage": "Por favor, ingrese un nombre de cuenta válido",
     "nameUpdateError": "Error en la Actualización",
     "nameUpdateErrorMessage": "Error al actualizar el nombre de la cuenta. Por favor, inténtelo de nuevo."
+  },
+  "cloudSync": {
+    "title": "Configuración de Sincronización en la Nube",
+    "enableSync": "Habilitar Sincronización en la Nube",
+    "enableSyncDescription": "Respaldar y sincronizar automáticamente los datos de tu autenticador",
+    "syncMethod": "Método de Sincronización",
+    "webdav": {
+      "name": "WebDAV",
+      "description": "Soporta Nextcloud, ownCloud, etc."
+    },
+    "icloud": {
+      "name": "iCloud",
+      "description": "Apple iCloud Drive"
+    },
+    "google": {
+      "name": "Google Drive",
+      "description": "Almacenamiento en la nube de Google"
+    },
+    "dropbox": {
+      "name": "Dropbox",
+      "description": "Almacenamiento en la nube Dropbox"
+    },
+    "webdavConfig": "Configuración WebDAV",
+    "serverUrl": "URL del Servidor",
+    "serverUrlPlaceholder": "https://tu-servidor.com/remote.php/dav/files/usuario/",
+    "username": "Nombre de Usuario",
+    "usernamePlaceholder": "Nombre de usuario",
+    "password": "Contraseña",
+    "passwordPlaceholder": "Contraseña o contraseña específica de la aplicación",
+    "testConnection": "Probar Conexión",
+    "testingConnection": "Probando conexión...",
+    "connectionSuccessful": "Conexión exitosa",
+    "connectionFailed": "Conexión fallida",
+    "syncStatus": "Estado de Sincronización",
+    "lastSyncTime": "Última sincronización",
+    "neverSynced": "Nunca sincronizado",
+    "syncNow": "Sincronizar Ahora",
+    "syncing": "Sincronizando...",
+    "syncComplete": "Sincronización completa",
+    "syncCompleteMessage": "Los datos se han sincronizado exitosamente en la nube",
+    "aboutSync": "Acerca de la Sincronización en la Nube",
+    "aboutSyncDescription": "• Los datos serán encriptados con AES-256 antes de subirlos a la nube\n• Soporta sincronización automática entre múltiples dispositivos\n• Se recomiendan respaldos regulares de datos importantes\n• El proceso de sincronización requiere conexión a red",
+    "configureFirst": "Por favor configura la información del servidor primero",
+    "fillAllFields": "Por favor completa toda la información del servidor",
+    "enableSyncFirst": "Por favor habilita la sincronización en la nube primero",
+    "selectMethod": "Seleccionar Método de Sincronización",
+    "notConnected": "No conectado",
+    "selected": "Seleccionado"
   }
 } 
