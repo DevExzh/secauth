@@ -1,6 +1,5 @@
-import { AccountCard } from '@/components/AccountCard';
-import { CategoryFilter } from '@/components/CategoryFilter';
-import { SearchBar } from '@/components/SearchBar';
+import { AccountCard } from '@/components/account';
+import { CategoryFilter, SearchBar } from '@/components/core';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -35,7 +34,6 @@ export default function HomeScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
-  const touchStartY = useRef<number>(0);
   const scrollViewRef = useRef<FlatList>(null);
 
   // Load accounts on mount

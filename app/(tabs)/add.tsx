@@ -1,6 +1,5 @@
-import { EmailIntegrationScreen } from '@/components/EmailIntegrationScreen';
-import { EmailParsingScreen } from '@/components/EmailParsingScreen';
-import { QRScanner } from '@/components/QRScanner';
+import { QRScanner } from '@/components/account';
+import { EmailIntegrationScreen, EmailParsingScreen } from '@/components/settings';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';

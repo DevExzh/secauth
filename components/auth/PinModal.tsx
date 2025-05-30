@@ -5,13 +5,13 @@ import { BiometricAuthService } from '@/services/biometricAuth';
 import { Delete, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    Vibration,
-    View,
+  Alert,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Vibration,
+  View,
 } from 'react-native';
 
 interface PinModalProps {
@@ -101,6 +101,7 @@ export const PinModal: React.FC<PinModalProps> = ({
               ]);
             } catch (error) {
               Alert.alert(t('common.error'), t('auth.pin.setError'));
+              console.error(error);
             }
           } else {
             Vibration.vibrate(500);
@@ -136,6 +137,7 @@ export const PinModal: React.FC<PinModalProps> = ({
           }
         } catch (error) {
           Alert.alert(t('common.error'), t('auth.pin.verifyError'));
+          console.error(error);
         }
       }
     }

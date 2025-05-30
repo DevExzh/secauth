@@ -3,20 +3,20 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { EmailService } from '@/services/emailService';
 import {
-    ArrowLeft,
-    Mail,
-    Shield,
-    Trash2
+  ArrowLeft,
+  Mail,
+  Shield,
+  Trash2
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    Alert,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 interface EmailIntegrationScreenProps {
@@ -33,7 +33,7 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
   const { t } = useLanguage();
   
   const [isGranting, setIsGranting] = useState(false);
-  const [permissions, setPermissions] = useState({
+  const [permissions] = useState({
     accessInbox: false,
     deleteProcessed: false,
     secureConnection: true,
@@ -52,6 +52,7 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
       }
     } catch (error) {
       Alert.alert(t('emailIntegration.alerts.error'), t('emailIntegration.alerts.errorMessage'));
+      console.error(error);
       setIsGranting(false);
     }
     // 注意：如果成功，不在这里设置 setIsGranting(false)，因为会切换到下一个屏幕

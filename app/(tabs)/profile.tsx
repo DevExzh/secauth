@@ -1,11 +1,7 @@
 import { AutoLockSettingsModal } from '@/components/auth/AutoLockSettingsModal';
 import { PinModal } from '@/components/auth/PinModal';
-import { ConnectedAccountsScreen } from '@/components/ConnectedAccountsScreen';
-import { EmailIntegrationScreen } from '@/components/EmailIntegrationScreen';
-import { EmailParsingScreen } from '@/components/EmailParsingScreen';
-import { EmailSettingsScreen } from '@/components/EmailSettingsScreen';
 import { LoadingModal, ProfileHeader, SettingsGroup } from '@/components/profile';
-import { SyncFrequencyModal } from '@/components/SyncFrequencyModal';
+import { ConnectedAccountsScreen, EmailIntegrationScreen, EmailParsingScreen, EmailSettingsScreen, SyncFrequencyModal } from '@/components/settings';
 import CloudSyncStaticScreen from '@/components/ui/CloudSyncStaticScreen';
 import { ThemeModal } from '@/components/ui/ThemeModal';
 import { Colors } from '@/constants/Colors';
@@ -22,11 +18,11 @@ import { Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, Toucha
 export default function ProfileScreen() {
   const { t } = useLanguage();
   const { currentColorScheme } = useTheme();
-  
+
   // Custom hooks for state management
   const settings = useProfileSettings();
   const modals = useProfileModals();
-  
+
   // Color scheme based on current theme
   const colors = Colors[currentColorScheme];
 
@@ -67,7 +63,7 @@ export default function ProfileScreen() {
         backgroundColor={colors.background}
         translucent={false}
       />
-      
+
       {/* Header */}
       <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 }]}>
         <Text style={[styles.headerTitle, { color: colors.text }]}>

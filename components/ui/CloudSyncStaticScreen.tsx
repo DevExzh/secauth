@@ -1,5 +1,5 @@
+import { CloudSyncSettings } from '@/components/settings/CloudSyncSettings';
 import React from 'react';
-import { CloudSyncSettings } from '../CloudSyncSettings';
 
 interface CloudSyncStaticScreenProps {
   onClose?: () => void; // Optional close handler
