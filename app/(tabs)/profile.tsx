@@ -1,8 +1,7 @@
 import { AutoLockSettingsModal } from '@/components/auth/AutoLockSettingsModal';
 import { PinModal } from '@/components/auth/PinModal';
 import { LoadingModal, ProfileHeader, SettingsGroup } from '@/components/profile';
-import { ConnectedAccountsScreen, EmailIntegrationScreen, EmailParsingScreen, EmailSettingsScreen, SyncFrequencyModal } from '@/components/settings';
-import CloudSyncStaticScreen from '@/components/ui/CloudSyncStaticScreen';
+import { CloudSyncSettings, ConnectedAccountsScreen, EmailIntegrationScreen, EmailParsingScreen, EmailSettingsScreen, SyncFrequencyModal } from '@/components/settings';
 import { ThemeModal } from '@/components/ui/ThemeModal';
 import { Colors } from '@/constants/Colors';
 import { createSettingsGroups } from '@/constants/ProfileSettings';
@@ -162,7 +161,7 @@ export default function ProfileScreen() {
       {/* Cloud Sync Modal */}
       {modals.showCloudSync && (
         <View style={styles.fullScreenModal}>
-          <CloudSyncStaticScreen onClose={modals.closeCloudSync} />
+          <CloudSyncSettings onBack={modals.closeCloudSync} />
           <TouchableOpacity style={styles.closeModalBtn} onPress={modals.closeCloudSync}>
             <Text style={[styles.closeModalText, { color: colors.primary }]}>
               {t('common.cancel')}

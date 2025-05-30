@@ -1,5 +1,4 @@
 export { AutoLockSettings } from './AutoLockSettings';
-export { default as CloudSyncStaticScreen } from './CloudSyncStaticScreen';
 export { ContextMenu } from './ContextMenu';
 export { EditNameModal } from './EditNameModal';
 export { IconSymbol } from './IconSymbol';
