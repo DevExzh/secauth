@@ -1,7 +1,7 @@
 import { AutoLockSettingsModal } from '@/components/auth/AutoLockSettingsModal';
 import { PinModal } from '@/components/auth/PinModal';
 import { LoadingModal, ProfileHeader, SettingsGroup } from '@/components/profile';
-import { CloudSyncSettings, ConnectedAccountsScreen, EmailIntegrationScreen, EmailParsingScreen, EmailSettingsScreen, SyncFrequencyModal } from '@/components/settings';
+import { AboutAppScreen, CloudSyncSettings, ConnectedAccountsScreen, EmailIntegrationScreen, EmailParsingScreen, EmailSettingsScreen, ExportDataScreen, HelpCenterScreen, ImportDataScreen, SyncFrequencyModal } from '@/components/settings';
 import { ThemeModal } from '@/components/ui/ThemeModal';
 import { Colors } from '@/constants/Colors';
 import { createSettingsGroups } from '@/constants/ProfileSettings';
@@ -52,6 +52,10 @@ export default function ProfileScreen() {
       setAutoDeleteEmails: settings.setAutoDeleteEmails,
       setEmailNotifications: settings.setEmailNotifications,
       setShowCloudSync: modals.setShowCloudSync,
+      setShowImportData: modals.setShowImportData,
+      setShowExportData: modals.setShowExportData,
+      setShowHelpCenter: modals.setShowHelpCenter,
+      setShowAboutApp: modals.setShowAboutApp,
     }
   );
 
@@ -186,6 +190,34 @@ export default function ProfileScreen() {
           AutoLockService.updateSettings(autoLockSettings);
         }}
       />
+
+      {/* Import Data Modal */}
+      {modals.showImportData && (
+        <View style={styles.fullScreenModal}>
+          <ImportDataScreen onBack={modals.closeImportData} />
+        </View>
+      )}
+
+      {/* Export Data Modal */}
+      {modals.showExportData && (
+        <View style={styles.fullScreenModal}>
+          <ExportDataScreen onBack={modals.closeExportData} />
+        </View>
+      )}
+
+      {/* Help Center Modal */}
+      {modals.showHelpCenter && (
+        <View style={styles.fullScreenModal}>
+          <HelpCenterScreen onBack={modals.closeHelpCenter} />
+        </View>
+      )}
+
+      {/* About App Modal */}
+      {modals.showAboutApp && (
+        <View style={styles.fullScreenModal}>
+          <AboutAppScreen onBack={modals.closeAboutApp} />
+        </View>
+      )}
     </SafeAreaView>
   );
 }

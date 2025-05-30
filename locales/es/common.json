@@ -462,5 +462,132 @@
     "selectMethod": "Seleccionar Método de Sincronización",
     "notConnected": "No conectado",
     "selected": "Seleccionado"
+  },
+  "dataManagement": {
+    "importData": {
+      "title": "Importar Datos",
+      "description": "Restaurar sus cuentas de autenticador desde un archivo de respaldo",
+      "selectFile": "Seleccionar Archivo de Respaldo",
+      "selectFileDescription": "Elija un archivo de respaldo para restaurar sus cuentas",
+      "supportedFormats": "Formatos Compatibles",
+      "supportedFormatsDescription": "JSON, archivos de respaldo encriptados",
+      "importButton": "Importar Cuentas",
+      "importSuccess": "Importación Exitosa",
+      "importSuccessMessage": "Se importaron exitosamente {{count}} cuentas",
+      "importError": "Error de Importación",
+      "importErrorMessage": "Error al importar datos. Por favor verifique el formato del archivo.",
+      "invalidFile": "Archivo Inválido",
+      "invalidFileMessage": "El archivo seleccionado no es un archivo de respaldo válido",
+      "noAccountsFound": "No se Encontraron Cuentas",
+      "noAccountsFoundMessage": "No se encontraron cuentas válidas en el archivo de respaldo",
+      "overwriteWarning": "Advertencia de Sobrescritura",
+      "overwriteWarningMessage": "Esto reemplazará todas las cuentas existentes. ¿Continuar?",
+      "mergeOption": "Combinar con cuentas existentes",
+      "replaceOption": "Reemplazar todas las cuentas"
+    },
+    "exportData": {
+      "title": "Exportar Datos",
+      "description": "Crear un respaldo de todas sus cuentas de autenticador",
+      "exportFormat": "Formato de Exportación",
+      "exportFormatDescription": "Elija el formato para su archivo de respaldo",
+      "jsonFormat": "JSON (Texto Plano)",
+      "encryptedFormat": "Respaldo Encriptado",
+      "includeSettings": "Incluir Configuraciones de la App",
+      "includeSettingsDescription": "Incluir tema, idioma y otras preferencias",
+      "exportButton": "Exportar Cuentas",
+      "exportSuccess": "Exportación Exitosa",
+      "exportSuccessMessage": "Archivo de respaldo guardado exitosamente",
+      "exportError": "Error de Exportación",
+      "exportErrorMessage": "Error al crear el archivo de respaldo. Por favor inténtelo de nuevo.",
+      "noAccountsToExport": "Sin Cuentas",
+      "noAccountsToExportMessage": "No hay cuentas disponibles para exportar",
+      "encryptionPassword": "Contraseña de Encriptación",
+      "encryptionPasswordDescription": "Establezca una contraseña para encriptar su archivo de respaldo",
+      "confirmPassword": "Confirmar Contraseña",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "passwordRequired": "Se requiere contraseña para respaldos encriptados"
+    }
+  },
+  "helpCenter": {
+    "title": "Centro de Ayuda",
+    "description": "Encuentre respuestas a preguntas comunes y obtenga soporte",
+    "faq": "Preguntas Frecuentes",
+    "gettingStarted": "Primeros Pasos",
+    "troubleshooting": "Solución de Problemas",
+    "contactSupport": "Contactar Soporte",
+    "userGuide": "Guía del Usuario",
+    "videoTutorials": "Tutoriales en Video",
+    "searchPlaceholder": "Buscar artículos de ayuda...",
+    "noResults": "No se encontraron resultados",
+    "noResultsMessage": "Pruebe con palabras clave diferentes o navegue por las categorías a continuación",
+    "categories": {
+      "setup": {
+        "title": "Configuración e Instalación",
+        "description": "Aprenda cómo configurar e instalar SecAuth"
+      },
+      "accounts": {
+        "title": "Gestión de Cuentas",
+        "description": "Agregar, editar y organizar sus cuentas 2FA"
+      },
+      "security": {
+        "title": "Características de Seguridad",
+        "description": "Desbloqueo biométrico, PIN y configuraciones de bloqueo automático"
+      },
+      "sync": {
+        "title": "Sincronización y Respaldo",
+        "description": "Sincronización en la nube, importar/exportar y gestión de datos"
+      },
+      "troubleshooting": {
+        "title": "Solución de Problemas",
+        "description": "Problemas comunes y soluciones"
+      }
+    },
+    "articles": {
+      "howToAddAccount": "Cómo agregar una nueva cuenta 2FA",
+      "biometricSetup": "Configurar autenticación biométrica",
+      "cloudSyncSetup": "Configurar sincronización en la nube",
+      "importExportData": "Importar y exportar sus datos",
+      "troubleshootCodes": "Solucionar problemas de generación de códigos"
+    }
+  },
+  "aboutApp": {
+    "title": "Acerca de SecAuth",
+    "description": "Aprenda más sobre SecAuth y sus características",
+    "version": "Versión",
+    "buildNumber": "Número de Compilación",
+    "developer": "Desarrollador",
+    "website": "Sitio Web",
+    "support": "Soporte",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "licenses": "Licencias de Código Abierto",
+    "acknowledgments": "Reconocimientos",
+    "features": {
+      "title": "Características Principales",
+      "totp": "Soporte TOTP y HOTP",
+      "totpDescription": "Generar códigos de autenticación basados en tiempo y contador",
+      "biometric": "Seguridad Biométrica",
+      "biometricDescription": "Acceso seguro a la app con huella dactilar o Face ID",
+      "cloudSync": "Sincronización en la Nube",
+      "cloudSyncDescription": "Sincronizar sus cuentas entre múltiples dispositivos",
+      "emailIntegration": "Integración de Email",
+      "emailIntegrationDescription": "Detectar automáticamente emails de configuración 2FA",
+      "backup": "Respaldo y Restauración",
+      "backupDescription": "Exportar e importar sus datos de cuenta de forma segura"
+    },
+    "security": {
+      "title": "Seguridad y Privacidad",
+      "localStorage": "Todos los datos se almacenan localmente en su dispositivo",
+      "encryption": "Los secretos de cuenta se encriptan usando métodos estándar de la industria",
+      "noTracking": "Sin seguimiento de usuario o análisis",
+      "openSource": "Código fuente abierto disponible para revisión"
+    },
+    "contact": {
+      "title": "Póngase en Contacto",
+      "email": "support@secauth.app",
+      "github": "Repositorio de GitHub",
+      "reportBug": "Reportar un Error",
+      "requestFeature": "Solicitar una Característica"
+    }
   }
 } 

@@ -1,20 +1,20 @@
 import {
-    Bell,
-    Clock,
-    Download,
-    Globe,
-    HelpCircle,
-    Info,
-    Link,
-    Lock,
-    Mail,
-    MailCheck,
-    Moon,
-    RefreshCw,
-    Shield,
-    Trash2,
-    Upload,
-    Wifi,
+  Bell,
+  Clock,
+  Download,
+  Globe,
+  HelpCircle,
+  Info,
+  Link,
+  Lock,
+  Mail,
+  MailCheck,
+  Moon,
+  RefreshCw,
+  Shield,
+  Trash2,
+  Upload,
+  Wifi,
 } from 'lucide-react-native';
 import React from 'react';
 
@@ -61,6 +61,10 @@ export const createSettingsGroups = (
     setAutoDeleteEmails: (value: boolean) => void;
     setEmailNotifications: (value: boolean) => void;
     setShowCloudSync: (show: boolean) => void;
+    setShowImportData: (show: boolean) => void;
+    setShowExportData: (show: boolean) => void;
+    setShowHelpCenter: (show: boolean) => void;
+    setShowAboutApp: (show: boolean) => void;
   }
 ): SettingsGroup[] => [
   {
@@ -175,14 +179,14 @@ export const createSettingsGroups = (
         title: t('settings.exportData'),
         subtitle: t('settings.exportDataDescription'),
         type: 'navigation',
-        onPress: () => console.log('Export Data'),
+        onPress: () => handlers.setShowExportData(true),
       },
       {
         icon: React.createElement(Download, { size: 20, color: colors.primary }),
         title: t('settings.importData'),
         subtitle: t('settings.importDataDescription'),
         type: 'navigation',
-        onPress: () => console.log('Import Data'),
+        onPress: () => handlers.setShowImportData(true),
       },
       {
         icon: React.createElement(Wifi, { size: 20, color: colors.primary }),
@@ -201,14 +205,14 @@ export const createSettingsGroups = (
         title: t('settings.helpCenter'),
         subtitle: t('settings.helpCenterDescription'),
         type: 'navigation',
-        onPress: () => console.log('Help Center'),
+        onPress: () => handlers.setShowHelpCenter(true),
       },
       {
         icon: React.createElement(Info, { size: 20, color: colors.primary }),
         title: t('settings.aboutApp'),
         subtitle: t('settings.aboutAppDescription'),
         type: 'navigation',
-        onPress: () => console.log('About App'),
+        onPress: () => handlers.setShowAboutApp(true),
       },
     ],
   },

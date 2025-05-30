@@ -11,6 +11,10 @@ export const useProfileModals = () => {
   const [showConnectedAccounts, setShowConnectedAccounts] = useState(false);
   const [showSyncFrequency, setShowSyncFrequency] = useState(false);
   const [showCloudSync, setShowCloudSync] = useState(false);
+  const [showImportData, setShowImportData] = useState(false);
+  const [showExportData, setShowExportData] = useState(false);
+  const [showHelpCenter, setShowHelpCenter] = useState(false);
+  const [showAboutApp, setShowAboutApp] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
 
   // Modal handlers
@@ -40,6 +44,18 @@ export const useProfileModals = () => {
   
   const openCloudSync = useCallback(() => setShowCloudSync(true), []);
   const closeCloudSync = useCallback(() => setShowCloudSync(false), []);
+
+  const openImportData = useCallback(() => setShowImportData(true), []);
+  const closeImportData = useCallback(() => setShowImportData(false), []);
+
+  const openExportData = useCallback(() => setShowExportData(true), []);
+  const closeExportData = useCallback(() => setShowExportData(false), []);
+
+  const openHelpCenter = useCallback(() => setShowHelpCenter(true), []);
+  const closeHelpCenter = useCallback(() => setShowHelpCenter(false), []);
+
+  const openAboutApp = useCallback(() => setShowAboutApp(true), []);
+  const closeAboutApp = useCallback(() => setShowAboutApp(false), []);
   
   const startScanning = useCallback(() => setIsScanning(true), []);
   const stopScanning = useCallback(() => setIsScanning(false), []);
@@ -83,6 +99,10 @@ export const useProfileModals = () => {
     showConnectedAccounts,
     showSyncFrequency,
     showCloudSync,
+    showImportData,
+    showExportData,
+    showHelpCenter,
+    showAboutApp,
     isScanning,
     
     // Individual setters
@@ -93,6 +113,10 @@ export const useProfileModals = () => {
     setShowConnectedAccounts,
     setShowSyncFrequency,
     setShowCloudSync,
+    setShowImportData,
+    setShowExportData,
+    setShowHelpCenter,
+    setShowAboutApp,
     
     // Modal handlers
     openPinModal,
@@ -113,6 +137,14 @@ export const useProfileModals = () => {
     closeSyncFrequency,
     openCloudSync,
     closeCloudSync,
+    openImportData,
+    closeImportData,
+    openExportData,
+    closeExportData,
+    openHelpCenter,
+    closeHelpCenter,
+    openAboutApp,
+    closeAboutApp,
     startScanning,
     stopScanning,
     

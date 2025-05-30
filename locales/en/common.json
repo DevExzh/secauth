@@ -462,5 +462,132 @@
     "nameRequiredMessage": "Please enter a valid account name",
     "nameUpdateError": "Update Failed",
     "nameUpdateErrorMessage": "Failed to update account name. Please try again."
+  },
+  "dataManagement": {
+    "importData": {
+      "title": "Import Data",
+      "description": "Restore your authenticator accounts from a backup file",
+      "selectFile": "Select Backup File",
+      "selectFileDescription": "Choose a backup file to restore your accounts",
+      "supportedFormats": "Supported Formats",
+      "supportedFormatsDescription": "JSON, encrypted backup files",
+      "importButton": "Import Accounts",
+      "importSuccess": "Import Successful",
+      "importSuccessMessage": "Successfully imported {{count}} accounts",
+      "importError": "Import Failed",
+      "importErrorMessage": "Failed to import data. Please check the file format.",
+      "invalidFile": "Invalid File",
+      "invalidFileMessage": "The selected file is not a valid backup file",
+      "noAccountsFound": "No Accounts Found",
+      "noAccountsFoundMessage": "No valid accounts found in the backup file",
+      "overwriteWarning": "Overwrite Warning",
+      "overwriteWarningMessage": "This will replace all existing accounts. Continue?",
+      "mergeOption": "Merge with existing accounts",
+      "replaceOption": "Replace all accounts"
+    },
+    "exportData": {
+      "title": "Export Data",
+      "description": "Create a backup of all your authenticator accounts",
+      "exportFormat": "Export Format",
+      "exportFormatDescription": "Choose the format for your backup file",
+      "jsonFormat": "JSON (Plain Text)",
+      "encryptedFormat": "Encrypted Backup",
+      "includeSettings": "Include App Settings",
+      "includeSettingsDescription": "Include theme, language, and other preferences",
+      "exportButton": "Export Accounts",
+      "exportSuccess": "Export Successful",
+      "exportSuccessMessage": "Backup file saved successfully",
+      "exportError": "Export Failed",
+      "exportErrorMessage": "Failed to create backup file. Please try again.",
+      "noAccountsToExport": "No Accounts",
+      "noAccountsToExportMessage": "No accounts available to export",
+      "encryptionPassword": "Encryption Password",
+      "encryptionPasswordDescription": "Set a password to encrypt your backup file",
+      "confirmPassword": "Confirm Password",
+      "passwordMismatch": "Passwords do not match",
+      "passwordRequired": "Password is required for encrypted backups"
+    }
+  },
+  "helpCenter": {
+    "title": "Help Center",
+    "description": "Find answers to common questions and get support",
+    "faq": "Frequently Asked Questions",
+    "gettingStarted": "Getting Started",
+    "troubleshooting": "Troubleshooting",
+    "contactSupport": "Contact Support",
+    "userGuide": "User Guide",
+    "videoTutorials": "Video Tutorials",
+    "searchPlaceholder": "Search help articles...",
+    "noResults": "No results found",
+    "noResultsMessage": "Try different keywords or browse categories below",
+    "categories": {
+      "setup": {
+        "title": "Setup & Configuration",
+        "description": "Learn how to set up and configure SecAuth"
+      },
+      "accounts": {
+        "title": "Managing Accounts",
+        "description": "Add, edit, and organize your 2FA accounts"
+      },
+      "security": {
+        "title": "Security Features",
+        "description": "Biometric unlock, PIN, and auto-lock settings"
+      },
+      "sync": {
+        "title": "Sync & Backup",
+        "description": "Cloud sync, import/export, and data management"
+      },
+      "troubleshooting": {
+        "title": "Troubleshooting",
+        "description": "Common issues and solutions"
+      }
+    },
+    "articles": {
+      "howToAddAccount": "How to add a new 2FA account",
+      "biometricSetup": "Setting up biometric authentication",
+      "cloudSyncSetup": "Configuring cloud synchronization",
+      "importExportData": "Importing and exporting your data",
+      "troubleshootCodes": "Troubleshooting code generation issues"
+    }
+  },
+  "aboutApp": {
+    "title": "About SecAuth",
+    "description": "Learn more about SecAuth and its features",
+    "version": "Version",
+    "buildNumber": "Build",
+    "developer": "Developer",
+    "website": "Website",
+    "support": "Support",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "licenses": "Open Source Licenses",
+    "acknowledgments": "Acknowledgments",
+    "features": {
+      "title": "Key Features",
+      "totp": "TOTP & HOTP Support",
+      "totpDescription": "Generate time-based and counter-based authentication codes",
+      "biometric": "Biometric Security",
+      "biometricDescription": "Secure app access with fingerprint or Face ID",
+      "cloudSync": "Cloud Synchronization",
+      "cloudSyncDescription": "Sync your accounts across multiple devices",
+      "emailIntegration": "Email Integration",
+      "emailIntegrationDescription": "Automatically detect 2FA setup emails",
+      "backup": "Backup & Restore",
+      "backupDescription": "Export and import your account data safely"
+    },
+    "security": {
+      "title": "Security & Privacy",
+      "localStorage": "All data is stored locally on your device",
+      "encryption": "Account secrets are encrypted using industry-standard methods",
+      "noTracking": "No user tracking or analytics",
+      "openSource": "Open source code available for review"
+    },
+    "contact": {
+      "title": "Get in Touch",
+      "email": "support@secauth.app",
+      "github": "GitHub Repository",
+      "reportBug": "Report a Bug",
+      "requestFeature": "Request a Feature"
+    }
   }
 } 

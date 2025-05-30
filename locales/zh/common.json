@@ -462,5 +462,132 @@
     "selectMethod": "选择同步方式",
     "notConnected": "未连接",
     "selected": "已选择"
+  },
+  "dataManagement": {
+    "importData": {
+      "title": "导入数据",
+      "description": "从备份文件恢复您的身份验证器账户",
+      "selectFile": "选择备份文件",
+      "selectFileDescription": "选择一个备份文件来恢复您的账户",
+      "supportedFormats": "支持的格式",
+      "supportedFormatsDescription": "JSON、加密备份文件",
+      "importButton": "导入账户",
+      "importSuccess": "导入成功",
+      "importSuccessMessage": "成功导入 {{count}} 个账户",
+      "importError": "导入失败",
+      "importErrorMessage": "导入数据失败。请检查文件格式。",
+      "invalidFile": "无效文件",
+      "invalidFileMessage": "所选文件不是有效的备份文件",
+      "noAccountsFound": "未找到账户",
+      "noAccountsFoundMessage": "备份文件中未找到有效账户",
+      "overwriteWarning": "覆盖警告",
+      "overwriteWarningMessage": "这将替换所有现有账户。继续吗？",
+      "mergeOption": "与现有账户合并",
+      "replaceOption": "替换所有账户"
+    },
+    "exportData": {
+      "title": "导出数据",
+      "description": "创建所有身份验证器账户的备份",
+      "exportFormat": "导出格式",
+      "exportFormatDescription": "选择备份文件的格式",
+      "jsonFormat": "JSON（纯文本）",
+      "encryptedFormat": "加密备份",
+      "includeSettings": "包含应用设置",
+      "includeSettingsDescription": "包含主题、语言和其他偏好设置",
+      "exportButton": "导出账户",
+      "exportSuccess": "导出成功",
+      "exportSuccessMessage": "备份文件保存成功",
+      "exportError": "导出失败",
+      "exportErrorMessage": "创建备份文件失败。请重试。",
+      "noAccountsToExport": "无账户",
+      "noAccountsToExportMessage": "没有可导出的账户",
+      "encryptionPassword": "加密密码",
+      "encryptionPasswordDescription": "设置密码来加密您的备份文件",
+      "confirmPassword": "确认密码",
+      "passwordMismatch": "密码不匹配",
+      "passwordRequired": "加密备份需要密码"
+    }
+  },
+  "helpCenter": {
+    "title": "帮助中心",
+    "description": "查找常见问题的答案并获得支持",
+    "faq": "常见问题",
+    "gettingStarted": "入门指南",
+    "troubleshooting": "故障排除",
+    "contactSupport": "联系支持",
+    "userGuide": "用户指南",
+    "videoTutorials": "视频教程",
+    "searchPlaceholder": "搜索帮助文章...",
+    "noResults": "未找到结果",
+    "noResultsMessage": "尝试不同的关键词或浏览下面的分类",
+    "categories": {
+      "setup": {
+        "title": "设置和配置",
+        "description": "学习如何设置和配置 SecAuth"
+      },
+      "accounts": {
+        "title": "管理账户",
+        "description": "添加、编辑和组织您的 2FA 账户"
+      },
+      "security": {
+        "title": "安全功能",
+        "description": "生物识别解锁、PIN 和自动锁定设置"
+      },
+      "sync": {
+        "title": "同步和备份",
+        "description": "云同步、导入/导出和数据管理"
+      },
+      "troubleshooting": {
+        "title": "故障排除",
+        "description": "常见问题和解决方案"
+      }
+    },
+    "articles": {
+      "howToAddAccount": "如何添加新的 2FA 账户",
+      "biometricSetup": "设置生物识别认证",
+      "cloudSyncSetup": "配置云同步",
+      "importExportData": "导入和导出您的数据",
+      "troubleshootCodes": "验证码生成问题故障排除"
+    }
+  },
+  "aboutApp": {
+    "title": "关于 SecAuth",
+    "description": "了解更多关于 SecAuth 及其功能",
+    "version": "版本",
+    "buildNumber": "构建版本",
+    "developer": "开发者",
+    "website": "网站",
+    "support": "支持",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "licenses": "开源许可证",
+    "acknowledgments": "致谢",
+    "features": {
+      "title": "主要功能",
+      "totp": "TOTP 和 HOTP 支持",
+      "totpDescription": "生成基于时间和计数器的身份验证码",
+      "biometric": "生物识别安全",
+      "biometricDescription": "使用指纹或 Face ID 安全访问应用",
+      "cloudSync": "云同步",
+      "cloudSyncDescription": "在多个设备间同步您的账户",
+      "emailIntegration": "邮箱集成",
+      "emailIntegrationDescription": "自动检测 2FA 设置邮件",
+      "backup": "备份和恢复",
+      "backupDescription": "安全地导出和导入您的账户数据"
+    },
+    "security": {
+      "title": "安全和隐私",
+      "localStorage": "所有数据都存储在您的设备本地",
+      "encryption": "账户密钥使用行业标准方法加密",
+      "noTracking": "无用户跟踪或分析",
+      "openSource": "开源代码可供审查"
+    },
+    "contact": {
+      "title": "联系我们",
+      "email": "support@secauth.app",
+      "github": "GitHub 仓库",
+      "reportBug": "报告错误",
+      "requestFeature": "功能请求"
+    }
   }
 } 
