@@ -4,33 +4,33 @@ import { QRCodeModal } from '@/components/ui/QRCodeModal';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { BrandIconService } from '@/services/brandIconService';
-import { TOTPService } from '@/services/totpService';
+import { OTPService } from '@/services/otpService';
 import type { Account, GeneratedCode } from '@/types/auth';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import {
-    Building2,
-    Copy,
-    CreditCard,
-    Gamepad2,
-    Github,
-    Mail,
-    MessageCircle,
-    MoreVertical,
-    Shield
+  Building2,
+  Copy,
+  CreditCard,
+  Gamepad2,
+  Github,
+  Mail,
+  MessageCircle,
+  MoreVertical,
+  Shield
 } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Alert,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -62,7 +62,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
 
   const updateCode = useCallback(() => {
     try {
-      const code = TOTPService.generateCode(currentAccount);
+      const code = OTPService.generateCode(currentAccount);
       setGeneratedCode(code);
       progressValue.value = withTiming(code.timeRemaining / code.period, { duration: 100 });
     } catch (error) {

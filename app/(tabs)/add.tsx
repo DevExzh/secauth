@@ -3,30 +3,31 @@ import { EmailIntegrationScreen, EmailParsingScreen } from '@/components/setting
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { OTPService } from '@/services/otpService';
 import type { Account, AccountCategory, AuthType } from '@/types/auth';
-import { parseTOTPUrl } from '@/utils/totpParser';
+import { determineCategory } from '@/utils/totpParser';
 import {
-  ArrowLeft,
-  Camera,
-  Check,
-  ChevronDown,
-  Mail,
-  Plus,
-  QrCode,
-  Shield,
-  Type
+    ArrowLeft,
+    Camera,
+    Check,
+    ChevronDown,
+    Mail,
+    Plus,
+    QrCode,
+    Shield,
+    Type
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  Alert,
-  Modal,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    Modal,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 export default function AddScreen() {
@@ -61,20 +62,20 @@ export default function AddScreen() {
   const handleQRScanResult = (data: string) => {
     setShowQRScanner(false);
     
-    const parsedData = parseTOTPUrl(data);
+    const parsedData = OTPService.parseOTPUri(data);
     if (parsedData) {
       // Auto-fill form with scanned data
       setFormData({
-        name: parsedData.name,
-        email: parsedData.email,
-        secret: parsedData.secret,
-        type: parsedData.type,
-        category: 'Other', // Will be determined automatically
-        pin: '',
-        counter: '0',
-        algorithm: 'SHA1',
-        digits: '6',
-        period: '30',
+        name: parsedData.name || '',
+        email: parsedData.email || '',
+        secret: parsedData.secret || '',
+        type: parsedData.type || 'TOTP',
+        category: determineCategory(parsedData.name || ''),
+        pin: parsedData.pin || '',
+        counter: parsedData.counter?.toString() || '0',
+        algorithm: parsedData.algorithm || 'SHA1',
+        digits: parsedData.digits?.toString() || '6',
+        period: parsedData.period?.toString() || '30',
       });
       setShowManualForm(true);
       

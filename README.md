@@ -99,12 +99,30 @@ SecAuth is a modern, feature-rich two-factor authentication (2FA) app built with
 - **Styling**: NativeWind (Tailwind CSS) ~4.1.23
 - **Animations**: React Native Reanimated ~3.17.4
 - **State Management**: React Hooks + Context API
+- **OTP Generation**: Native C++/Swift implementation for high performance
 
 ### Key Dependencies
 - **Camera & QR**: `expo-camera`
 - **Security**: `expo-secure-store`
 - **UI Components**: `lucide-react-native`, `react-native-svg`
 - **Utilities**: `expo-clipboard`, `expo-haptics`, `expo-linking`
+- **Native Modules**: Custom C++/Swift modules for cryptography and OTP generation
+
+### Native OTP Implementation
+
+SecAuth uses a high-performance native implementation for OTP generation:
+
+- **Multi-Algorithm Support**: TOTP, HOTP, mOTP, and Steam Guard
+- **Cross-Platform**: Native C++ (Android) and Swift (iOS) implementations
+- **Secure**: Hardware-accelerated cryptographic operations
+- **Fast**: Sub-millisecond code generation
+- **Standards Compliant**: RFC 4226 (HOTP) and RFC 6238 (TOTP)
+
+**Supported OTP Types:**
+- **TOTP** (Time-based): Standard 30-second time-based codes
+- **HOTP** (Counter-based): Counter-incremented codes
+- **mOTP** (Mobile OTP): PIN-based mobile OTP with configurable periods
+- **Steam Guard**: Steam's proprietary 5-character alphanumeric codes
 
 ### Project Structure
 ```
@@ -124,9 +142,12 @@ secauth/
 │   ├── CloudSyncSettings.tsx   # Cloud sync configuration
 │   └── ui/                     # Basic UI components
 ├── services/                    # Business logic services
-│   ├── totpService.ts          # TOTP code generation
+│   ├── otpService.ts           # Native OTP code generation (TOTP/HOTP/mOTP/Steam)
 │   ├── emailService.ts         # Email integration
-│   └── simpleTotpService.ts    # Simplified TOTP service
+│   └── accountService.ts       # Account management
+├── modules/                     # Native modules
+│   ├── crypto-native/          # Native cryptography module
+│   └── otp-native/             # Native OTP generation module
 ├── utils/                      # Utility functions
 │   └── totpParser.ts          # TOTP URL parsing
 ├── types/                      # TypeScript type definitions

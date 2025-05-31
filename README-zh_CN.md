@@ -99,12 +99,30 @@ SecAuth 是一款基于 React Native 和 Expo 构建的现代化、功能丰富�
 - **样式**：NativeWind (Tailwind CSS) ~4.1.23
 - **动画**：React Native Reanimated ~3.17.4
 - **状态管理**：React Hooks + Context API
+- **OTP 生成**：高性能原生 C++/Swift 实现
 
 ### 核心依赖
 - **相机与二维码**：`expo-camera`
 - **安全存储**：`expo-secure-store`
 - **UI 组件**：`lucide-react-native`、`react-native-svg`
 - **实用工具**：`expo-clipboard`、`expo-haptics`、`expo-linking`
+- **原生模块**：自定义 C++/Swift 加密和 OTP 生成模块
+
+### 原生 OTP 实现
+
+SecAuth 使用高性能的原生实现进行 OTP 生成：
+
+- **多算法支持**：TOTP、HOTP、mOTP 和 Steam Guard
+- **跨平台**：原生 C++（Android）和 Swift（iOS）实现
+- **安全**：硬件加速的加密运算
+- **快速**：亚毫秒级验证码生成
+- **标准兼容**：符合 RFC 4226（HOTP）和 RFC 6238（TOTP）
+
+**支持的 OTP 类型：**
+- **TOTP**（基于时间）：标准 30 秒时间基础验证码
+- **HOTP**（基于计数器）：计数器递增验证码
+- **mOTP**（移动 OTP）：基于 PIN 的移动 OTP，支持可配置周期
+- **Steam Guard**：Steam 专有的 5 字符字母数字验证码
 
 ### 项目结构
 ```
@@ -124,9 +142,12 @@ secauth/
 │   ├── CloudSyncSettings.tsx   # 云同步配置
 │   └── ui/                     # 基础 UI 组件
 ├── services/                    # 业务逻辑服务
-│   ├── totpService.ts          # TOTP 验证码生成
+│   ├── otpService.ts           # 原生 OTP 验证码生成（TOTP/HOTP/mOTP/Steam）
 │   ├── emailService.ts         # 邮件集成
-│   └── simpleTotpService.ts    # 简化 TOTP 服务
+│   └── accountService.ts       # 账户管理
+├── modules/                     # 原生模块
+│   ├── crypto-native/          # 原生加密模块
+│   └── otp-native/             # 原生 OTP 生成模块
 ├── utils/                      # 工具函数
 │   └── totpParser.ts          # TOTP URL 解析
 ├── types/                      # TypeScript 类型定义
