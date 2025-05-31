@@ -1,117 +1,248 @@
 import { mockAccounts } from '@/constants/mockData';
-import type { Account } from '@/types/auth';
+import type { Account, AccountCategory } from '@/types/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { InteractionManager } from 'react-native';
+
+const STORAGE_KEY = 'secauth_accounts';
+const BATCH_SIZE = 10; // Process accounts in batches to avoid blocking
 
 export class AccountService {
-  private static readonly ACCOUNTS_KEY = 'accounts';
-  private static accountsCache: Account[] | null = null;
+  private static cache: Account[] | null = null;
+  private static isLoading = false;
+  private static loadPromise: Promise<Account[]> | null = null;
 
   /**
-   * Get all accounts
+   * Get all accounts with performance optimization
    */
   static async getAccounts(): Promise<Account[]> {
-    try {
-      if (this.accountsCache) {
-        return this.accountsCache;
-      }
+    // Return cached data if available
+    if (this.cache) {
+      return this.cache;
+    }
 
-      const stored = await AsyncStorage.getItem(this.ACCOUNTS_KEY);
-      if (stored) {
-        const accounts = JSON.parse(stored);
-        // Convert date strings back to Date objects
-        const parsedAccounts = accounts.map((account: any) => ({
-          ...account,
-          createdAt: new Date(account.createdAt),
-          updatedAt: new Date(account.updatedAt),
-        }));
-        this.accountsCache = parsedAccounts;
-        return parsedAccounts;
-      } else {
-        // First time, use mock data
-        await this.saveAccounts(mockAccounts);
-        this.accountsCache = mockAccounts;
-        return mockAccounts;
-      }
-    } catch (error) {
-      console.error('Error loading accounts:', error);
-      return mockAccounts;
+    // Return existing promise if already loading
+    if (this.isLoading && this.loadPromise) {
+      return this.loadPromise;
+    }
+
+    this.isLoading = true;
+    this.loadPromise = this.loadAccountsInternal();
+    
+    try {
+      const accounts = await this.loadPromise;
+      this.cache = accounts;
+      return accounts;
+    } finally {
+      this.isLoading = false;
+      this.loadPromise = null;
     }
   }
 
   /**
-   * Save accounts to storage
+   * Internal method to load accounts with batching and async delays
    */
-  private static async saveAccounts(accounts: Account[]): Promise<void> {
+  private static async loadAccountsInternal(): Promise<Account[]> {
     try {
-      await AsyncStorage.setItem(this.ACCOUNTS_KEY, JSON.stringify(accounts));
-      this.accountsCache = accounts;
+      // Wait for interactions to complete to avoid blocking UI
+      await new Promise<void>(resolve => {
+        InteractionManager.runAfterInteractions(() => resolve());
+      });
+
+      // Add small delay to ensure UI is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Try to load from storage first
+      const storedData = await AsyncStorage.getItem(STORAGE_KEY);
+      
+      if (storedData) {
+        const accounts = JSON.parse(storedData) as Account[];
+        // Validate and process in batches
+        return await this.processBatches(accounts);
+      }
+
+      // If no stored data, use mock data and save it
+      const processedMockData = await this.processBatches(mockAccounts);
+      
+      // Save to storage asynchronously (don't wait)
+      this.saveAccountsAsync(processedMockData).catch(error => {
+        console.warn('Failed to save accounts to storage:', error);
+      });
+
+      return processedMockData;
+    } catch (error) {
+      console.error('Error loading accounts:', error);
+      // Return empty array as fallback
+      return [];
+    }
+  }
+
+  /**
+   * Process accounts in batches to avoid blocking the main thread
+   */
+  private static async processBatches(accounts: Account[]): Promise<Account[]> {
+    const processedAccounts: Account[] = [];
+    
+    for (let i = 0; i < accounts.length; i += BATCH_SIZE) {
+      const batch = accounts.slice(i, i + BATCH_SIZE);
+      
+      // Process batch
+      const processedBatch = batch.map(account => ({
+        ...account,
+        // Ensure all required fields are present
+        id: account.id || `account_${Date.now()}_${Math.random()}`,
+        category: account.category || 'Other' as AccountCategory,
+        createdAt: account.createdAt ? new Date(account.createdAt) : new Date(),
+        updatedAt: account.updatedAt ? new Date(account.updatedAt) : new Date(),
+      }));
+      
+      processedAccounts.push(...processedBatch);
+      
+      // Yield control back to the main thread between batches
+      if (i + BATCH_SIZE < accounts.length) {
+        await new Promise<void>(resolve => {
+          InteractionManager.runAfterInteractions(() => resolve());
+        });
+      }
+    }
+    
+    return processedAccounts;
+  }
+
+  /**
+   * Save accounts asynchronously without blocking
+   */
+  private static async saveAccountsAsync(accounts: Account[]): Promise<void> {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
     } catch (error) {
       console.error('Error saving accounts:', error);
+    }
+  }
+
+  /**
+   * Add a new account with optimization
+   */
+  static async addAccount(account: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>): Promise<Account> {
+    try {
+      const newAccount: Account = {
+        ...account,
+        id: `account_${Date.now()}_${Math.random()}`,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        category: account.category || 'Other',
+      };
+
+      const accounts = await this.getAccounts();
+      const updatedAccounts = [...accounts, newAccount];
+      
+      // Update cache immediately
+      this.cache = updatedAccounts;
+      
+      // Save to storage asynchronously
+      this.saveAccountsAsync(updatedAccounts).catch(error => {
+        console.warn('Failed to save new account:', error);
+      });
+
+      return newAccount;
+    } catch (error) {
+      console.error('Error adding account:', error);
       throw error;
     }
   }
 
   /**
-   * Add a new account
-   */
-  static async addAccount(account: Account): Promise<void> {
-    const accounts = await this.getAccounts();
-    const newAccounts = [...accounts, account];
-    await this.saveAccounts(newAccounts);
-  }
-
-  /**
-   * Update an existing account
-   */
-  static async updateAccount(accountId: string, updates: Partial<Account>): Promise<Account> {
-    const accounts = await this.getAccounts();
-    const accountIndex = accounts.findIndex(acc => acc.id === accountId);
-    
-    if (accountIndex === -1) {
-      throw new Error('Account not found');
-    }
-
-    const updatedAccount = {
-      ...accounts[accountIndex],
-      ...updates,
-      updatedAt: new Date(),
-    };
-
-    const newAccounts = [...accounts];
-    newAccounts[accountIndex] = updatedAccount;
-    
-    await this.saveAccounts(newAccounts);
-    return updatedAccount;
-  }
-
-  /**
-   * Update account name
+   * Update account name with optimization
    */
   static async updateAccountName(accountId: string, newName: string): Promise<Account> {
-    return this.updateAccount(accountId, { name: newName });
+    try {
+      const accounts = await this.getAccounts();
+      const accountIndex = accounts.findIndex(acc => acc.id === accountId);
+      
+      if (accountIndex === -1) {
+        throw new Error('Account not found');
+      }
+
+      const updatedAccount = {
+        ...accounts[accountIndex],
+        name: newName,
+        updatedAt: new Date(),
+      };
+
+      const updatedAccounts = [...accounts];
+      updatedAccounts[accountIndex] = updatedAccount;
+      
+      // Update cache immediately
+      this.cache = updatedAccounts;
+      
+      // Save to storage asynchronously
+      this.saveAccountsAsync(updatedAccounts).catch(error => {
+        console.warn('Failed to save updated account:', error);
+      });
+
+      return updatedAccount;
+    } catch (error) {
+      console.error('Error updating account name:', error);
+      throw error;
+    }
   }
 
   /**
-   * Delete an account
+   * Delete an account with optimization
    */
   static async deleteAccount(accountId: string): Promise<void> {
-    const accounts = await this.getAccounts();
-    const newAccounts = accounts.filter(acc => acc.id !== accountId);
-    await this.saveAccounts(newAccounts);
+    try {
+      const accounts = await this.getAccounts();
+      const updatedAccounts = accounts.filter(acc => acc.id !== accountId);
+      
+      // Update cache immediately
+      this.cache = updatedAccounts;
+      
+      // Save to storage asynchronously
+      this.saveAccountsAsync(updatedAccounts).catch(error => {
+        console.warn('Failed to save after deletion:', error);
+      });
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      throw error;
+    }
   }
 
   /**
-   * Get a specific account by ID
+   * Get accounts by category with caching
    */
-  static async getAccountById(accountId: string): Promise<Account | null> {
+  static async getAccountsByCategory(category: AccountCategory): Promise<Account[]> {
     const accounts = await this.getAccounts();
-    return accounts.find(acc => acc.id === accountId) || null;
+    return accounts.filter(account => account.category === category);
   }
 
   /**
-   * Clear cache to force reload from storage
+   * Search accounts with optimization
+   */
+  static async searchAccounts(query: string): Promise<Account[]> {
+    const accounts = await this.getAccounts();
+    const lowercaseQuery = query.toLowerCase();
+    
+    return accounts.filter(account =>
+      account.name.toLowerCase().includes(lowercaseQuery) ||
+      account.email.toLowerCase().includes(lowercaseQuery) ||
+      (account.issuer && account.issuer.toLowerCase().includes(lowercaseQuery))
+    );
+  }
+
+  /**
+   * Clear cache (useful for testing or force refresh)
    */
   static clearCache(): void {
-    this.accountsCache = null;
+    this.cache = null;
+  }
+
+  /**
+   * Preload accounts (call this early in app lifecycle)
+   */
+  static preloadAccounts(): void {
+    // Start loading accounts in background without waiting
+    this.getAccounts().catch(error => {
+      console.warn('Failed to preload accounts:', error);
+    });
   }
 } 

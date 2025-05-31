@@ -1,11 +1,9 @@
 #include <jni.h>
-#include <fbjni/fbjni.h>
 #include <android/log.h>
 #include "CryptoEngine.h"
 #include <map>
 #include <string>
 
-using namespace facebook::jni;
 using namespace crypto_native;
 
 #define LOG_TAG "CryptoNative"
@@ -100,15 +98,21 @@ void putByteArrayInMap(JNIEnv* env, jobject map, const char* key, const std::vec
 extern "C" {
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
-    return facebook::jni::initialize(vm, [] {
-        // Initialize crypto engine
-        try {
-            g_cryptoEngine = std::make_unique<CryptoEngine>();
-            LOGI("CryptoEngine initialized successfully");
-        } catch (const std::exception& e) {
-            LOGE("Failed to initialize CryptoEngine: %s", e.what());
-        }
-    });
+    JNIEnv* env;
+    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
+        return JNI_ERR;
+    }
+    
+    // Initialize crypto engine
+    try {
+        g_cryptoEngine = std::make_unique<CryptoEngine>();
+        LOGI("CryptoEngine initialized successfully");
+    } catch (const std::exception& e) {
+        LOGE("Failed to initialize CryptoEngine: %s", e.what());
+        return JNI_ERR;
+    }
+    
+    return JNI_VERSION_1_6;
 }
 
 JNIEXPORT jobject JNICALL

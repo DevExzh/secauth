@@ -9,6 +9,7 @@ import { Bell, Settings, Shield } from 'lucide-react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
+  InteractionManager,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -21,110 +22,259 @@ import {
   View,
 } from 'react-native';
 
+// Error Boundary for AccountCard
+class AccountCardErrorBoundary extends React.Component<
+  { children: React.ReactNode; account: Account },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; account: Account }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('AccountCard Error:', error, 'Account:', this.props.account.id);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={styles.errorCard}>
+          <Text style={styles.errorText}>Error loading account</Text>
+        </View>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
   
+  // State management with performance optimization
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredAccounts, setFilteredAccounts] = useState<Account[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<AccountCategory>('All');
-  const [hasScrolled, setHasScrolled] = useState(false);
-  const [showSearchBar, setShowSearchBar] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  const scrollViewRef = useRef<FlatList>(null);
+  // Refs for performance optimization
+  const flatListRef = useRef<FlatList>(null);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const isUnmountedRef = useRef(false);
 
-  // Load accounts on mount
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isUnmountedRef.current = true;
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Load accounts with performance optimization
+  const loadAccounts = useCallback(async (showRefreshIndicator = false) => {
+    if (isUnmountedRef.current) return;
+    
+    try {
+      if (showRefreshIndicator) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
+      setError(null);
+
+      // Use InteractionManager to avoid blocking UI
+      await new Promise<void>(resolve => {
+        const task = InteractionManager.runAfterInteractions(() => {
+          resolve();
+        });
+      });
+
+      const loadedAccounts = await AccountService.getAccounts();
+      
+      if (!isUnmountedRef.current) {
+        setAccounts(loadedAccounts);
+      }
+    } catch (err) {
+      console.error('Error loading accounts:', err);
+      if (!isUnmountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to load accounts');
+      }
+    } finally {
+      if (!isUnmountedRef.current) {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
+    }
+  }, []);
+
+  // Initial load
   useEffect(() => {
     loadAccounts();
-  }, []);
+  }, [loadAccounts]);
 
-  const loadAccounts = async () => {
-    try {
-      setIsLoading(true);
-      const loadedAccounts = await AccountService.getAccounts();
-      setAccounts(loadedAccounts);
-    } catch (error) {
-      console.error('Error loading accounts:', error);
-    } finally {
-      setIsLoading(false);
+  // Filter accounts with debouncing and memoization
+  const filterAccounts = useCallback((accountsList: Account[], category: AccountCategory, query: string) => {
+    let filtered = accountsList;
+
+    // Filter by category
+    if (category !== 'All') {
+      filtered = filtered.filter(account => account.category === category);
     }
-  };
 
-  const handleAccountUpdate = useCallback(async (accountId: string, newName: string) => {
-    try {
-      const updatedAccount = await AccountService.updateAccountName(accountId, newName);
-      
-      // Update local state
-      setAccounts(prevAccounts => 
-        prevAccounts.map(account => 
-          account.id === accountId ? updatedAccount : account
-        )
+    // Filter by search query
+    if (query.trim()) {
+      const lowercaseQuery = query.toLowerCase().trim();
+      filtered = filtered.filter(account =>
+        account.name.toLowerCase().includes(lowercaseQuery) ||
+        account.email.toLowerCase().includes(lowercaseQuery) ||
+        (account.issuer && account.issuer.toLowerCase().includes(lowercaseQuery))
       );
-    } catch (error) {
-      console.error('Error updating account:', error);
-      throw error; // Re-throw to let the modal handle the error
     }
+
+    return filtered;
   }, []);
 
-  const filteredAccounts = useMemo(() => {
-    return accounts.filter(account => {
-      const matchesSearch = searchQuery === '' || 
-        account.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        account.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (account.issuer && account.issuer.toLowerCase().includes(searchQuery.toLowerCase()));
-      
-      const matchesCategory = selectedCategory === 'All' || account.category === selectedCategory;
-      
-      return matchesSearch && matchesCategory;
-    });
-  }, [accounts, searchQuery, selectedCategory]);
-
-  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const scrollY = event.nativeEvent.contentOffset.y;
-    
-    // 如果滚动位置大于20，标记为已滚动，隐藏Welcome Section
-    if (scrollY > 20 && !hasScrolled) {
-      setHasScrolled(true);
-      setShowSearchBar(false); // 滚动时隐藏搜索框
+  // Debounced search
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
-  }, [hasScrolled]);
 
-  const handleRefresh = useCallback(async () => {
-    // 下拉刷新时显示搜索框并重新加载数据
-    setIsRefreshing(true);
-    setShowSearchBar(true);
-    
-    try {
-      await loadAccounts();
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, []);
+    searchTimeoutRef.current = setTimeout(() => {
+      if (!isUnmountedRef.current) {
+        const filtered = filterAccounts(accounts, selectedCategory, searchQuery);
+        setFilteredAccounts(filtered);
+      }
+    }, 300); // 300ms debounce
 
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [accounts, selectedCategory, searchQuery, filterAccounts]);
+
+  // Memoized handlers
   const handleCategoryChange = useCallback((category: AccountCategory) => {
     setSelectedCategory(category);
-    // 重置搜索查询，因为用户改变了分类
-    setSearchQuery('');
   }, []);
 
-  const renderAccount = useCallback(({ item }: { item: Account }) => (
-    <AccountCard 
-      account={item} 
-      onAccountUpdate={handleAccountUpdate}
-    />
-  ), [handleAccountUpdate]);
+  const handleSearchChange = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
 
-  if (isLoading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.loadingContainer}>
-          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
-            {t('common.loading')}
+  const handleRefresh = useCallback(() => {
+    loadAccounts(true);
+  }, [loadAccounts]);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    // Optional: Add scroll-based optimizations here
+  }, []);
+
+  // Memoized render functions
+  const renderAccountCard = useCallback(({ item }: { item: Account }) => (
+    <AccountCardErrorBoundary account={item}>
+      <AccountCard account={item} />
+    </AccountCardErrorBoundary>
+  ), []);
+
+  const keyExtractor = useCallback((item: Account) => item.id, []);
+
+  const getItemLayout = useCallback((data: any, index: number) => ({
+    length: 120, // Approximate height of AccountCard
+    offset: 120 * index,
+    index,
+  }), []);
+
+  // Memoized components
+  const headerComponent = useMemo(() => (
+    <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 }]}>
+      <View style={styles.headerTop}>
+        <View style={styles.headerLeft}>
+          <Shield size={32} color={colors.primary} />
+          <Text style={[styles.headerTitle, { color: colors.text }]}>
+            {t('app.name')}
           </Text>
         </View>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.headerButton}>
+            <Bell size={24} color={colors.text} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerButton}>
+            <Settings size={24} color={colors.text} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <SearchBar
+        value={searchQuery}
+        onChangeText={handleSearchChange}
+        placeholder={t('search.placeholder')}
+      />
+
+      <CategoryFilter
+        selectedCategory={selectedCategory}
+        onCategoryChange={handleCategoryChange}
+      />
+    </View>
+  ), [colors, t, searchQuery, selectedCategory, handleSearchChange, handleCategoryChange]);
+
+  const emptyComponent = useMemo(() => (
+    <View style={styles.emptyContainer}>
+      <Shield size={64} color={colors.textSecondary} />
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>
+        {searchQuery || selectedCategory !== 'All' 
+          ? t('accounts.noResults') 
+          : t('accounts.empty')}
+      </Text>
+      <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+        {searchQuery || selectedCategory !== 'All'
+          ? t('accounts.tryDifferentSearch')
+          : t('accounts.addFirst')}
+      </Text>
+    </View>
+  ), [colors, t, searchQuery, selectedCategory]);
+
+  const errorComponent = useMemo(() => (
+    <View style={styles.errorContainer}>
+      <Text style={[styles.errorTitle, { color: colors.error }]}>
+        {t('error.title')}
+      </Text>
+      <Text style={[styles.errorMessage, { color: colors.textSecondary }]}>
+        {error}
+      </Text>
+      <TouchableOpacity 
+        style={[styles.retryButton, { backgroundColor: colors.primary }]}
+        onPress={() => loadAccounts()}
+      >
+        <Text style={[styles.retryButtonText, { color: colors.background }]}>
+          {t('error.retry')}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  ), [colors, t, error, loadAccounts]);
+
+  if (error) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar
+          barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={colors.background}
+          translucent={false}
+        />
+        {errorComponent}
       </SafeAreaView>
     );
   }
@@ -137,87 +287,32 @@ export default function HomeScreen() {
         translucent={false}
       />
       
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 }]}>
-        <View style={styles.headerLeft}>
-          <View style={[styles.appIconContainer, { backgroundColor: colors.primary }]}>
-            <Shield size={24} color={colors.background} />
-          </View>
-          <Text style={[styles.appTitle, { color: colors.text }]}>
-            {t('home.subtitle')}
-          </Text>
-        </View>
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.headerButton}>
-            <Bell size={24} color={colors.textSecondary} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton}>
-            <Settings size={24} color={colors.textSecondary} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Welcome Section - 只在未滚动时显示 */}
-      {!hasScrolled && (
-        <View style={styles.welcomeSection}>
-          <Text style={[styles.welcomeTitle, { color: colors.text }]}>
-            {t('home.title')}
-          </Text>
-          <Text style={[styles.welcomeDescription, { color: colors.textSecondary }]}>
-            {t('home.description')}
-          </Text>
-        </View>
-      )}
-
-      {/* Search Bar - 只在下拉时显示 */}
-      {showSearchBar && (
-        <View style={styles.searchContainer}>
-          <SearchBar
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder={t('common.search')}
+      <FlatList
+        ref={flatListRef}
+        data={filteredAccounts}
+        renderItem={renderAccountCard}
+        keyExtractor={keyExtractor}
+        getItemLayout={getItemLayout}
+        ListHeaderComponent={headerComponent}
+        ListEmptyComponent={isLoading ? null : emptyComponent}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
           />
-        </View>
-      )}
-
-      {/* Category Filter - 始终显示 */}
-      <CategoryFilter
-        selectedCategory={selectedCategory}
-        onCategoryChange={handleCategoryChange}
+        }
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={10}
+        windowSize={10}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
       />
-
-      {/* Accounts List */}
-      <View style={styles.listWrapper}>
-        <FlatList
-          ref={scrollViewRef}
-          data={filteredAccounts}
-          renderItem={renderAccount}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.listContainer,
-            filteredAccounts.length === 0 && styles.emptyListContainer
-          ]}
-          style={styles.flatList}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              tintColor={colors.primary}
-              colors={[colors.primary]}
-            />
-          }
-          onMomentumScrollBegin={() => {
-            // 当开始滚动时，标记为已滚动
-            if (!hasScrolled) {
-              setHasScrolled(true);
-              setShowSearchBar(false);
-            }
-          }}
-        />
-      </View>
     </SafeAreaView>
   );
 }
@@ -226,38 +321,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  listContainer: {
+    flexGrow: 1,
   },
   header: {
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  },
+  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    minHeight: 56,
+    marginBottom: 20,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  appIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  appTitle: {
-    fontSize: 20,
+  headerTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
+    marginLeft: 12,
   },
   headerRight: {
     flexDirection: 'row',
@@ -267,36 +351,61 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 8,
   },
-  welcomeSection: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  welcomeTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  welcomeDescription: {
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  listWrapper: {
-    flex: 1,
-  },
-  listContainer: {
-    paddingBottom: Platform.OS === 'ios' ? 100 : 90,
-    flexGrow: 1,
-  },
-  emptyListContainer: {
+  emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 60,
   },
-  flatList: {
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  errorContainer: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  errorMessage: {
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+  retryButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  errorCard: {
+    padding: 16,
+    margin: 8,
+    borderRadius: 8,
+    backgroundColor: '#ffebee',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#c62828',
+    fontSize: 14,
   },
 });

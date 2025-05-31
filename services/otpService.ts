@@ -1,162 +1,268 @@
 import OtpNative from '@/modules/otp-native';
 import type { Account, AuthType, GeneratedCode } from '@/types/auth';
+import { InteractionManager } from 'react-native';
+
+// Cache for generated codes to avoid frequent recalculation
+interface CodeCache {
+  [accountId: string]: {
+    code: GeneratedCode;
+    generatedAt: number;
+  };
+}
 
 export class OTPService {
+  private static codeCache: CodeCache = {};
+  private static readonly CACHE_DURATION = 5000; // Increased to 5 seconds cache
+  private static readonly MAX_CACHE_SIZE = 100; // Limit cache size
+  private static readonly NATIVE_CALL_TIMEOUT = 50; // 50ms timeout for native calls
+
   /**
-   * Generate OTP code for an account using native implementation
+   * Generate OTP code for an account using native implementation with enhanced caching
    */
-  static generateCode(account: Account): GeneratedCode {
+  static async generateCode(account: Account): Promise<GeneratedCode> {
+    // Check cache first
+    const cached = this.getCachedCode(account.id);
+    if (cached) {
+      return cached;
+    }
+
+    // Use InteractionManager for better performance
+    return new Promise((resolve) => {
+      InteractionManager.runAfterInteractions(() => {
+        try {
+          const code = this.generateCodeSync(account);
+          this.setCachedCode(account.id, code);
+          resolve(code);
+        } catch (error) {
+          console.error('Error generating OTP code:', error);
+          
+          // Fallback to simple generation
+          const fallbackCode = this.generateSimpleCode(account, Date.now());
+          const result = {
+            code: this.formatCode(fallbackCode, account.type),
+            timeRemaining: this.calculateTimeRemaining(account, Date.now()),
+            period: this.getPeriod(account),
+          };
+          this.setCachedCode(account.id, result);
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  /**
+   * Synchronous code generation (called within InteractionManager)
+   */
+  private static generateCodeSync(account: Account): GeneratedCode {
     const now = Date.now();
     const period = account.period || 30;
     
     let code: string;
     
-    try {
-      switch (account.type) {
-        case 'TOTP':
-          code = OtpNative.generateTOTP(
-            account.secret,
-            Math.floor(now / 1000),
-            account.digits || 6,
-            account.algorithm || 'SHA1'
-          );
-          break;
-        case 'HOTP':
-          code = OtpNative.generateHOTP(
-            account.secret,
-            account.counter || 0,
-            account.digits || 6,
-            account.algorithm || 'SHA1'
-          );
-          break;
-        case 'mOTP':
-          // mOTP requires a PIN, use default or account PIN
-          code = OtpNative.generateMOTP(
-            account.secret,
-            account.pin || '0000',
-            Math.floor(now / 1000)
-          );
-          break;
-        case 'Steam':
-          // Steam Guard always uses 30-second period, cannot be changed
-          code = OtpNative.generateSteamGuard(
-            account.secret,
-            Math.floor(now / 1000)
-          );
-          break;
-        default:
-          code = OtpNative.generateTOTP(
-            account.secret,
-            Math.floor(now / 1000),
-            account.digits || 6,
-            account.algorithm || 'SHA1'
-          );
-      }
-    } catch (error) {
-      console.error('Error generating OTP code:', error);
-      // Fallback to simple implementation if native fails
-      code = this.generateSimpleCode(account, now);
-    }
-    
-    // Calculate time remaining based on account type
-    let timeRemaining: number;
-    if (account.type === 'HOTP') {
-      // HOTP doesn't use time-based periods
-      timeRemaining = period;
-    } else if (account.type === 'Steam') {
-      // Steam Guard always uses 30-second period
-      timeRemaining = 30 - Math.floor((now / 1000) % 30);
-    } else if (account.type === 'mOTP') {
-      // mOTP uses configurable period (default 10 seconds)
-      const motpPeriod = account.period || 10;
-      timeRemaining = motpPeriod - Math.floor((now / 1000) % motpPeriod);
-    } else {
-      // TOTP and other time-based OTP use configurable period
-      timeRemaining = period - Math.floor((now / 1000) % period);
+    switch (account.type) {
+      case 'TOTP':
+        const timeSlot = Math.floor(now / 1000 / period);
+        code = OtpNative.generateTOTP(
+          account.secret,
+          timeSlot,
+          account.digits || 6,
+          account.algorithm || 'SHA1'
+        );
+        break;
+      case 'HOTP':
+        code = OtpNative.generateHOTP(
+          account.secret,
+          account.counter || 0,
+          account.digits || 6,
+          account.algorithm || 'SHA1'
+        );
+        break;
+      case 'mOTP':
+        const motpTimeSlot = Math.floor(now / 1000);
+        code = OtpNative.generateMOTP(
+          account.secret,
+          account.pin || '0000',
+          motpTimeSlot
+        );
+        break;
+      case 'Steam':
+        const steamTimeSlot = Math.floor(now / 1000 / 30);
+        code = OtpNative.generateSteamGuard(
+          account.secret,
+          steamTimeSlot
+        );
+        break;
+      default:
+        const defaultTimeSlot = Math.floor(now / 1000 / period);
+        code = OtpNative.generateTOTP(
+          account.secret,
+          defaultTimeSlot,
+          account.digits || 6,
+          account.algorithm || 'SHA1'
+        );
     }
     
     return {
       code: this.formatCode(code, account.type),
-      timeRemaining,
-      period: account.type === 'Steam' ? 30 : (account.type === 'mOTP' ? (account.period || 10) : period),
+      timeRemaining: this.calculateTimeRemaining(account, now),
+      period: this.getPeriod(account),
     };
   }
-  
+
+  /**
+   * Get cached code if still valid
+   */
+  private static getCachedCode(accountId: string): GeneratedCode | null {
+    const cached = this.codeCache[accountId];
+    if (!cached) return null;
+
+    const now = Date.now();
+    if (now - cached.generatedAt < this.CACHE_DURATION) {
+      // Update time remaining
+      const account = { period: cached.code.period } as Account;
+      return {
+        ...cached.code,
+        timeRemaining: this.calculateTimeRemaining(account, now),
+      };
+    }
+
+    // Cache expired
+    delete this.codeCache[accountId];
+    return null;
+  }
+
+  /**
+   * Set cached code
+   */
+  private static setCachedCode(accountId: string, code: GeneratedCode): void {
+    this.codeCache[accountId] = {
+      code,
+      generatedAt: Date.now(),
+    };
+  }
+
+  /**
+   * Calculate time remaining for account
+   */
+  private static calculateTimeRemaining(account: Account, now: number): number {
+    if (account.type === 'HOTP') {
+      return this.getPeriod(account);
+    } else if (account.type === 'Steam') {
+      return 30 - Math.floor((now / 1000) % 30);
+    } else if (account.type === 'mOTP') {
+      const motpPeriod = account.period || 10;
+      return motpPeriod - Math.floor((now / 1000) % motpPeriod);
+    } else {
+      const period = account.period || 30;
+      return period - Math.floor((now / 1000) % period);
+    }
+  }
+
+  /**
+   * Get period for account type
+   */
+  private static getPeriod(account: Account): number {
+    if (account.type === 'Steam') return 30;
+    if (account.type === 'mOTP') return account.period || 10;
+    return account.period || 30;
+  }
+
   /**
    * Generate mOTP code using native implementation with configurable time period
    */
-  static generateMOTP(account: Account, pin: string, customPeriod?: number): GeneratedCode {
-    const now = Date.now();
-    const period = customPeriod || account.period || 10; // mOTP default is 10 seconds
-    
-    let code: string;
-    
-    try {
-      // Use the new native method with custom period if available
-      if (customPeriod && customPeriod !== 10) {
-        code = OtpNative.generateMOTPWithPeriod(
-          account.secret,
-          pin,
-          Math.floor(now / 1000),
-          period
-        );
-      } else {
-        code = OtpNative.generateMOTP(
-          account.secret,
-          pin,
-          Math.floor(now / 1000)
-        );
-      }
-    } catch (error) {
-      console.error('Error generating mOTP code:', error);
-      // Fallback to simple implementation
-      code = this.generateSimpleMOTP(account.secret, pin, now, period);
-    }
-    
-    const timeRemaining = period - Math.floor((now / 1000) % period);
-    
-    return {
-      code: code.toLowerCase(),
-      timeRemaining,
-      period,
-    };
+  static async generateMOTP(account: Account, pin: string, customPeriod?: number): Promise<GeneratedCode> {
+    return new Promise((resolve) => {
+      InteractionManager.runAfterInteractions(() => {
+        try {
+          const now = Date.now();
+          const period = customPeriod || account.period || 10;
+          
+          let code: string;
+          const timeSlot = Math.floor(now / 1000);
+          
+          if (customPeriod && customPeriod !== 10) {
+            code = OtpNative.generateMOTPWithPeriod(
+              account.secret,
+              pin,
+              timeSlot,
+              period
+            );
+          } else {
+            code = OtpNative.generateMOTP(
+              account.secret,
+              pin,
+              timeSlot
+            );
+          }
+          
+          const timeRemaining = period - Math.floor((now / 1000) % period);
+          
+          resolve({
+            code: code.toLowerCase(),
+            timeRemaining,
+            period,
+          });
+        } catch (error) {
+          console.error('Error generating mOTP code:', error);
+          const fallbackCode = this.generateSimpleMOTP(account.secret, pin, Date.now(), customPeriod || account.period || 10);
+          resolve({
+            code: fallbackCode.toLowerCase(),
+            timeRemaining: (customPeriod || account.period || 10) - Math.floor((Date.now() / 1000) % (customPeriod || account.period || 10)),
+            period: customPeriod || account.period || 10,
+          });
+        }
+      });
+    });
   }
-  
+
   /**
    * Generate TOTP code with custom time period
    */
-  static generateTOTPWithPeriod(account: Account, customPeriod: number): GeneratedCode {
-    const now = Date.now();
-    const period = customPeriod;
-    
-    let code: string;
-    
-    try {
-      // Calculate time slot based on custom period
-      const timeSlot = Math.floor(now / 1000 / period);
-      
-      // Use HOTP with time slot as counter for custom period
-      code = OtpNative.generateHOTP(
-        account.secret,
-        timeSlot,
-        account.digits || 6,
-        account.algorithm || 'SHA1'
-      );
-    } catch (error) {
-      console.error('Error generating TOTP with custom period:', error);
-      // Fallback to simple implementation
-      code = this.generateSimpleCodeWithPeriod(account, now, period);
-    }
-    
-    const timeRemaining = period - Math.floor((now / 1000) % period);
-    
-    return {
-      code: this.formatCode(code, account.type),
-      timeRemaining,
-      period,
-    };
+  static async generateTOTPWithPeriod(account: Account, customPeriod: number): Promise<GeneratedCode> {
+    return new Promise((resolve) => {
+      InteractionManager.runAfterInteractions(() => {
+        try {
+          const now = Date.now();
+          const timeSlot = Math.floor(now / 1000 / customPeriod);
+          
+          const code = OtpNative.generateHOTP(
+            account.secret,
+            timeSlot,
+            account.digits || 6,
+            account.algorithm || 'SHA1'
+          );
+          
+          const timeRemaining = customPeriod - Math.floor((now / 1000) % customPeriod);
+          
+          resolve({
+            code: this.formatCode(code, account.type),
+            timeRemaining,
+            period: customPeriod,
+          });
+        } catch (error) {
+          console.error('Error generating TOTP with custom period:', error);
+          const fallbackCode = this.generateSimpleCodeWithPeriod(account, Date.now(), customPeriod);
+          resolve({
+            code: this.formatCode(fallbackCode, account.type),
+            timeRemaining: customPeriod - Math.floor((Date.now() / 1000) % customPeriod),
+            period: customPeriod,
+          });
+        }
+      });
+    });
   }
-  
+
+  /**
+   * Clear cache for specific account or all accounts
+   */
+  static clearCache(accountId?: string): void {
+    if (accountId) {
+      delete this.codeCache[accountId];
+    } else {
+      this.codeCache = {};
+    }
+  }
+
   /**
    * Fallback simple demo code generation
    */
@@ -361,21 +467,22 @@ export class OTPService {
   }
   
   /**
-   * Validate period value for OTP type
+   * Validate period for specific OTP type
    */
   static validatePeriod(type: AuthType, period: number): boolean {
-    if (type === 'Steam') {
-      return period === 30; // Steam must be 30 seconds
-    }
+    if (period <= 0) return false;
     
-    if (type === 'TOTP') {
-      return period >= 15 && period <= 300; // 15 seconds to 5 minutes
+    switch (type) {
+      case 'TOTP':
+        return period >= 15 && period <= 300; // 15 seconds to 5 minutes
+      case 'Steam':
+        return period === 30; // Steam is always 30 seconds
+      case 'mOTP':
+        return period >= 10 && period <= 60; // 10 seconds to 1 minute
+      case 'HOTP':
+        return true; // HOTP doesn't use time periods
+      default:
+        return period >= 15 && period <= 300;
     }
-    
-    if (type === 'mOTP') {
-      return period >= 5 && period <= 60; // 5 seconds to 1 minute
-    }
-    
-    return true; // HOTP doesn't use periods
   }
 } 

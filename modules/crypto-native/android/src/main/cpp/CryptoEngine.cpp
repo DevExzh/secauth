@@ -1,4 +1,17 @@
 #include "CryptoEngine.h"
+#include <algorithm>
+#include <random>
+#include <cstring>
+#include <iomanip>
+#include <sstream>
+#include <cstdlib>
+
+#ifdef NO_OPENSSL
+// Simple implementations without OpenSSL
+#include <android/log.h>
+#define LOG_TAG "CryptoEngine"
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#else
 #include <openssl/evp.h>
 #include <openssl/aes.h>
 #include <openssl/rand.h>
@@ -9,11 +22,7 @@
 #include <openssl/err.h>
 #include <openssl/chacha.h>
 #include <openssl/poly1305.h>
-#include <algorithm>
-#include <random>
-#include <cstring>
-#include <iomanip>
-#include <sstream>
+#endif
 
 namespace crypto_native {
 
@@ -27,15 +36,22 @@ static const char base64_chars[] =
 class CryptoEngine::Impl {
 public:
     Impl() {
+#ifdef NO_OPENSSL
+        // Initialize random number generator
+        rng.seed(std::random_device{}());
+#else
         // Initialize OpenSSL
         OpenSSL_add_all_algorithms();
         ERR_load_crypto_strings();
+#endif
     }
 
     ~Impl() {
+#ifndef NO_OPENSSL
         // Cleanup OpenSSL
         EVP_cleanup();
         ERR_free_strings();
+#endif
     }
 
     std::mt19937_64 rng{std::random_device{}()};
@@ -210,22 +226,46 @@ bool CryptoEngine::secureCompare(const std::vector<uint8_t>& a, const std::vecto
 
 void CryptoEngine::secureZero(std::vector<uint8_t>& data) {
     if (!data.empty()) {
+#ifdef NO_OPENSSL
+        // Use volatile to prevent compiler optimization
+        volatile uint8_t* ptr = data.data();
+        for (size_t i = 0; i < data.size(); ++i) {
+            ptr[i] = 0;
+        }
+#else
         OPENSSL_cleanse(data.data(), data.size());
+#endif
     }
 }
 
 void CryptoEngine::secureZero(void* ptr, size_t size) {
     if (ptr && size > 0) {
+#ifdef NO_OPENSSL
+        // Use volatile to prevent compiler optimization
+        volatile uint8_t* vptr = static_cast<volatile uint8_t*>(ptr);
+        for (size_t i = 0; i < size; ++i) {
+            vptr[i] = 0;
+        }
+#else
         OPENSSL_cleanse(ptr, size);
+#endif
     }
 }
 
 // Random number generation
 std::vector<uint8_t> CryptoEngine::randomBytes(size_t length) {
     std::vector<uint8_t> buffer(length);
+#ifdef NO_OPENSSL
+    // Use C++ random number generator
+    std::uniform_int_distribution<uint8_t> dist(0, 255);
+    for (size_t i = 0; i < length; ++i) {
+        buffer[i] = dist(pImpl->rng);
+    }
+#else
     if (RAND_bytes(buffer.data(), static_cast<int>(length)) != 1) {
         throw CryptoOperationException("Failed to generate random bytes");
     }
+#endif
     return buffer;
 }
 
@@ -340,6 +380,12 @@ std::vector<uint8_t> CryptoEngine::hash(
     const std::vector<uint8_t>& data,
     HashAlgorithm algorithm
 ) {
+#ifdef NO_OPENSSL
+    // Simplified hash implementation - just return a simple checksum for now
+    // In a real implementation, you would use a proper hash library
+    LOGE("Hash function not implemented without OpenSSL");
+    throw CryptoOperationException("Hash function not available in simplified mode");
+#else
     const EVP_MD* md = nullptr;
     
     switch (algorithm) {
@@ -380,6 +426,7 @@ std::vector<uint8_t> CryptoEngine::hash(
     EVP_MD_CTX_free(ctx);
     result.resize(resultLength);
     return result;
+#endif
 }
 
 // HMAC implementation
@@ -388,6 +435,11 @@ std::vector<uint8_t> CryptoEngine::hmac(
     const std::vector<uint8_t>& key,
     HashAlgorithm algorithm
 ) {
+#ifdef NO_OPENSSL
+    // Simplified HMAC implementation - not cryptographically secure
+    LOGE("HMAC function not implemented without OpenSSL");
+    throw CryptoOperationException("HMAC function not available in simplified mode");
+#else
     const EVP_MD* md = nullptr;
     
     switch (algorithm) {
@@ -414,13 +466,13 @@ std::vector<uint8_t> CryptoEngine::hmac(
     unsigned int resultLength = 0;
 
     if (HMAC(md, key.data(), static_cast<int>(key.size()),
-             data.data(), data.size(),
-             result.data(), &resultLength) == nullptr) {
+             data.data(), data.size(), result.data(), &resultLength) == nullptr) {
         throw CryptoOperationException("HMAC operation failed");
     }
 
     result.resize(resultLength);
     return result;
+#endif
 }
 
 // Main encryption function
@@ -474,6 +526,11 @@ EncryptionResult CryptoEngine::encryptAES(
     const std::vector<uint8_t>& iv,
     const std::vector<uint8_t>& aad
 ) {
+#ifdef NO_OPENSSL
+    // Simplified encryption - just return the data XORed with key (NOT SECURE!)
+    LOGE("AES encryption not implemented without OpenSSL");
+    throw CryptoOperationException("AES encryption not available in simplified mode");
+#else
     const EVP_CIPHER* cipher = nullptr;
     
     // Select cipher
@@ -567,6 +624,7 @@ EncryptionResult CryptoEngine::encryptAES(
 
     EVP_CIPHER_CTX_free(ctx);
     return EncryptionResult(std::move(ciphertext), iv, std::move(tag));
+#endif
 }
 
 // Main decryption function
@@ -622,6 +680,11 @@ std::vector<uint8_t> CryptoEngine::decryptAES(
     const std::vector<uint8_t>& aad,
     const std::vector<uint8_t>& tag
 ) {
+#ifdef NO_OPENSSL
+    // Simplified decryption - not implemented
+    LOGE("AES decryption not implemented without OpenSSL");
+    throw CryptoOperationException("AES decryption not available in simplified mode");
+#else
     const EVP_CIPHER* cipher = nullptr;
     
     // Select cipher (same as encryption)
@@ -713,6 +776,7 @@ std::vector<uint8_t> CryptoEngine::decryptAES(
 
     EVP_CIPHER_CTX_free(ctx);
     return plaintext;
+#endif
 }
 
 // ChaCha20 encryption (simplified implementation)
@@ -777,6 +841,11 @@ std::vector<uint8_t> CryptoEngine::pbkdf2(
     uint32_t keyLength,
     HashAlgorithm hashAlg
 ) {
+#ifdef NO_OPENSSL
+    // Simplified PBKDF2 implementation - not cryptographically secure
+    LOGE("PBKDF2 not implemented without OpenSSL");
+    throw CryptoOperationException("PBKDF2 not available in simplified mode");
+#else
     const EVP_MD* md = nullptr;
     
     switch (hashAlg) {
@@ -806,6 +875,7 @@ std::vector<uint8_t> CryptoEngine::pbkdf2(
     }
 
     return key;
+#endif
 }
 
 // Scrypt implementation (simplified)
@@ -877,7 +947,11 @@ void SecureBuffer::resize(size_t newSize) {
 
 void SecureBuffer::allocate(size_t size) {
     if (size > 0) {
+#ifdef NO_OPENSSL
+        data_ = static_cast<uint8_t*>(malloc(size));
+#else
         data_ = static_cast<uint8_t*>(OPENSSL_secure_malloc(size));
+#endif
         if (!data_) {
             throw std::bad_alloc();
         }
@@ -887,7 +961,11 @@ void SecureBuffer::allocate(size_t size) {
 
 void SecureBuffer::deallocate() {
     if (data_) {
+#ifdef NO_OPENSSL
+        free(data_);
+#else
         OPENSSL_secure_clear_free(data_, size_);
+#endif
         data_ = nullptr;
         size_ = 0;
     }

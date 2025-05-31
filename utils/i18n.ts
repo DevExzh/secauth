@@ -108,33 +108,53 @@ const initI18n = () => {
   }
 
   initPromise = new Promise<void>((resolve, reject) => {
-    i18n
-      .use(languageDetector)
-      .use(initReactI18next)
-      .init({
-        resources,
-        fallbackLng: 'en',
-        defaultNS: 'common',
-        ns: ['common'],
-        
-        interpolation: {
-          escapeValue: false, // React already escapes values
-        },
-        
-        react: {
-          useSuspense: false, // Disable suspense for React Native
-        },
-        
-        debug: __DEV__, // Enable debug in development
-      })
-      .then(() => {
-        isInitialized = true;
-        resolve();
-      })
-      .catch((error) => {
-        console.error('i18n initialization failed:', error);
-        reject(error);
-      });
+    try {
+      i18n
+        .use(languageDetector)
+        .use(initReactI18next)
+        .init({
+          resources,
+          fallbackLng: 'en',
+          defaultNS: 'common',
+          ns: ['common'],
+          
+          interpolation: {
+            escapeValue: false, // React already escapes values
+          },
+          
+          react: {
+            useSuspense: false, // Disable suspense for React Native
+          },
+          
+          debug: false, // Disable debug to prevent excessive logging
+          
+          // Reduce logging
+          saveMissing: false,
+          missingKeyHandler: false,
+          
+          // Optimize performance
+          load: 'languageOnly',
+          cleanCode: true,
+          
+          // Prevent excessive interpolation calls
+          returnObjects: false,
+          returnEmptyString: true,
+          returnNull: false,
+        })
+        .then(() => {
+          isInitialized = true;
+          resolve();
+        })
+        .catch((error) => {
+          console.error('i18n initialization failed:', error);
+          isInitialized = true; // Set to true to prevent infinite loading
+          resolve(); // Resolve instead of reject to prevent app crash
+        });
+    } catch (error) {
+      console.error('i18n initialization error:', error);
+      isInitialized = true;
+      resolve();
+    }
   });
 
   return initPromise;

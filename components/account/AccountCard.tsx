@@ -60,9 +60,9 @@ export const AccountCard: React.FC<AccountCardProps> = ({
     setCurrentAccount(account);
   }, [account]);
 
-  const updateCode = useCallback(() => {
+  const updateCode = useCallback(async () => {
     try {
-      const code = OTPService.generateCode(currentAccount);
+      const code = await OTPService.generateCode(currentAccount);
       setGeneratedCode(code);
       progressValue.value = withTiming(code.timeRemaining / code.period, { duration: 100 });
     } catch (error) {
