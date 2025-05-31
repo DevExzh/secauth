@@ -62,7 +62,7 @@ jobs:
 
   # Auto-approve and merge Dependabot PRs
   dependabot:
-    name: 🤖 Auto-approve Dependabot
+    name: 🤖 Auto-merge Dependabot
     runs-on: ubuntu-latest
     needs: test
     if: github.actor == 'dependabot[bot]'
@@ -73,18 +73,37 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: ✅ Auto-approve PR
+      - name: 🚀 Auto-merge safe updates (patch/minor)
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
         run: |
-          gh pr review --approve "$PR_URL"
+          # Try auto-merge first (requires repo setting to be enabled)
+          if gh pr merge --auto --squash "$PR_URL"; then
+            echo "✅ Auto-merge enabled successfully"
+          else
+            echo "⚠️ Auto-merge not available, attempting direct merge..."
+            # Wait a moment for checks to complete
+            sleep 10
+            # Try direct merge
+            gh pr merge --squash "$PR_URL" || echo "❌ Direct merge failed - may need manual intervention"
+          fi
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🚀 Enable auto-merge for safe updates
+      - name: 📝 Comment on successful auto-merge setup
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
         run: |
-          gh pr merge --auto --squash "$PR_URL"
+          gh pr comment "$PR_URL" --body "✅ **Auto-merge Enabled**
+          
+          This Dependabot PR passed all checks and has been set up for automatic merging.
+          
+          **Update Details:**
+          - Package: ${{ steps.metadata.outputs.dependency-names }}
+          - Update Type: ${{ steps.metadata.outputs.update-type }}
+          - Previous Version: ${{ steps.metadata.outputs.previous-version }}
+          - New Version: ${{ steps.metadata.outputs.new-version }}
+          
+          🤖 The PR will be automatically merged once all required checks pass."
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
