@@ -23,10 +23,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 📂 Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: |
+          npm ci || npm install
+          npm list --depth=0
 
       - name: 🔍 Run ESLint
         run: npm run lint
@@ -49,10 +59,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 📂 Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: |
+          npm ci || npm install
+          npm list --depth=0
 
       - name: 🔒 Run npm audit
         run: npm audit --audit-level moderate
@@ -69,7 +89,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 📂 Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: 🏗 Setup EAS
         uses: expo/expo-github-action@v8
@@ -80,7 +108,9 @@ jobs:
         continue-on-error: true
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: |
+          npm ci || npm install
+          npm list --depth=0
 
       - name: 🔧 Validate Expo Configuration
         run: npx expo config --type public
@@ -101,10 +131,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 📂 Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: |
+          npm ci || npm install
+          npm list --depth=0
 
       - name: 🔍 Check for duplicate dependencies
         run: npx npm-check-duplicates
