@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["CryptoNativeModule"]
+  },
+  "android": {
+    "modules": ["dev.exzh.expo.crypto.CryptoNativeModule"]
+  }
+}
