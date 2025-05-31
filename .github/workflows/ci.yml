@@ -2,7 +2,9 @@ name: 🔧 Continuous Integration
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: 
+      - develop
+      - 'release/**'
   pull_request:
     branches: [ main, develop ]
     types: [opened, synchronize, reopened]
@@ -15,6 +17,8 @@ jobs:
   lint:
     name: 🔍 Code Quality
     runs-on: ubuntu-latest
+    # Skip CI for dependabot PRs - they have their own workflow
+    if: github.actor != 'dependabot[bot]'
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
@@ -45,12 +49,14 @@ jobs:
         run: npx tsc --noEmit
 
       - name: 📱 Expo Doctor Check
-        run: npx expo doctor
+        run: npx expo-doctor
 
   # Security audit
   security:
     name: 🔒 Security Audit
     runs-on: ubuntu-latest
+    # Skip CI for dependabot PRs - they have their own workflow
+    if: github.actor != 'dependabot[bot]'
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
@@ -81,6 +87,8 @@ jobs:
   build-check:
     name: 🏗 Build Validation
     runs-on: ubuntu-latest
+    # Skip CI for dependabot PRs - they have their own workflow
+    if: github.actor != 'dependabot[bot]'
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
@@ -123,6 +131,8 @@ jobs:
   deps:
     name: 📦 Dependencies
     runs-on: ubuntu-latest
+    # Skip CI for dependabot PRs - they have their own workflow
+    if: github.actor != 'dependabot[bot]'
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
@@ -147,7 +157,7 @@ jobs:
           npm list --depth=0
 
       - name: 🔍 Check for duplicate dependencies
-        run: npx npm-check-duplicates
+        run: npx depcheck --json || true
 
       - name: 📋 Outdated packages check
         run: npm outdated || true

@@ -36,22 +36,29 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: 📦 Install dependencies
+      - name: 📦 Install dependencies (with updated lock file)
         run: |
-          npm ci || npm install
+          # Use npm install to update the lock file with new dependencies
+          npm install
+          # Verify installation
           npm list --depth=0
+        continue-on-error: false
+
+      - name: 🔧 TypeScript Check
+        run: npx tsc --noEmit
+        continue-on-error: false
 
       - name: 🔍 Run ESLint
         run: npm run lint
         continue-on-error: false
 
       - name: 📱 Expo Doctor Check
-        run: npx expo doctor
+        run: npx expo-doctor
         continue-on-error: true
 
-      - name: 🔧 TypeScript Check
-        run: npx tsc --noEmit
-        continue-on-error: false
+      - name: 🔒 Quick Security Check
+        run: npm audit --audit-level high
+        continue-on-error: true
 
   # Auto-approve and merge Dependabot PRs
   dependabot:
@@ -105,7 +112,7 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Security check for Dependabot PRs
+  # Simplified security check for Dependabot PRs
   security-check:
     name: 🔒 Security Check
     runs-on: ubuntu-latest
@@ -123,20 +130,14 @@ jobs:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: 📂 Cache node modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: 📦 Install dependencies
+      - name: 📦 Install dependencies (with updated lock file)
         run: |
-          npm ci || npm install
+          # Use npm install to update the lock file with new dependencies
+          npm install
+          # Verify installation
           npm list --depth=0
 
-      - name: 🔒 Run npm audit
+      - name: 🔒 Run comprehensive security audit
         run: |
           npm audit --audit-level high
           if [ $? -ne 0 ]; then
