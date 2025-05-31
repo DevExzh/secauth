@@ -1,5 +1,4 @@
-// Reexport the native module. On web, it will be resolved to OtpNativeModule.web.ts
-// and on native platforms to OtpNativeModule.ts
-export * from './src/OtpNative.types';
-export { default } from './src/OtpNativeModule';
+// Reexport everything from src/index.ts which provides a comprehensive API
+export * from './src/index';
+export { default } from './src/index';
 

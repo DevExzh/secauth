@@ -43,18 +43,5 @@ public class OtpNativeModule: Module {
     Function("base32Encode") { (data: Data) -> String in
       return OtpGenerator.base32Encode(data: data)
     }
-
-    // Enables the module to be used as a native view. Definition components that are accepted as part of the
-    // view definition: Prop, Events.
-    View(OtpNativeView.self) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { (view: OtpNativeView, url: URL) in
-        if view.webView.url != url {
-          view.webView.load(URLRequest(url: url))
-        }
-      }
-
-      Events("onLoad")
-    }
   }
 }
