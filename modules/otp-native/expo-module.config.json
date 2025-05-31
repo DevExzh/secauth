@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["OtpNativeModule"]
+  },
+  "android": {
+    "modules": ["dev.exzh.expo.otp.OtpNativeModule"]
+  }
+}
