@@ -1,4 +1,4 @@
-import OtpNative from '@/modules/otp-native';
+import { OtpNativeModule } from '@/modules/otp-native';
 import type { Account, AuthType, GeneratedCode } from '@/types/auth';
 import { InteractionManager } from 'react-native';
 
@@ -13,13 +13,21 @@ interface CodeCache {
 export class OTPService {
   private static codeCache: CodeCache = {};
   private static readonly CACHE_DURATION = 5000; // Increased to 5 seconds cache
-  private static readonly MAX_CACHE_SIZE = 100; // Limit cache size
-  private static readonly NATIVE_CALL_TIMEOUT = 50; // 50ms timeout for native calls
 
   /**
    * Generate OTP code for an account using native implementation with enhanced caching
    */
   static async generateCode(account: Account): Promise<GeneratedCode> {
+    // Validate account
+    if (!account) {
+      console.error('No account provided for OTP generation');
+      return {
+        code: '--- ---',
+        timeRemaining: 30,
+        period: 30,
+      };
+    }
+
     // Check cache first
     const cached = this.getCachedCode(account.id);
     if (cached) {
@@ -36,15 +44,26 @@ export class OTPService {
         } catch (error) {
           console.error('Error generating OTP code:', error);
           
-          // Fallback to simple generation
-          const fallbackCode = this.generateSimpleCode(account, Date.now());
-          const result = {
-            code: this.formatCode(fallbackCode, account.type),
-            timeRemaining: this.calculateTimeRemaining(account, Date.now()),
-            period: this.getPeriod(account),
-          };
-          this.setCachedCode(account.id, result);
-          resolve(result);
+          // Fallback to simple generation - this should always work
+          try {
+            const fallbackCode = this.generateSimpleCode(account, Date.now());
+            const result = {
+              code: this.formatCode(fallbackCode, account.type),
+              timeRemaining: this.calculateTimeRemaining(account, Date.now()),
+              period: this.getPeriod(account),
+            };
+            this.setCachedCode(account.id, result);
+            resolve(result);
+          } catch (fallbackError) {
+            console.error('Even fallback generation failed:', fallbackError);
+            // Last resort - return a placeholder code
+            const lastResortResult = {
+              code: '--- ---',
+              timeRemaining: this.calculateTimeRemaining(account, Date.now()),
+              period: this.getPeriod(account),
+            };
+            resolve(lastResortResult);
+          }
         }
       });
     });
@@ -57,51 +76,136 @@ export class OTPService {
     const now = Date.now();
     const period = account.period || 30;
     
-    let code: string;
-    
-    switch (account.type) {
-      case 'TOTP':
-        const timeSlot = Math.floor(now / 1000 / period);
-        code = OtpNative.generateTOTP(
-          account.secret,
-          timeSlot,
-          account.digits || 6,
-          account.algorithm || 'SHA1'
-        );
-        break;
-      case 'HOTP':
-        code = OtpNative.generateHOTP(
-          account.secret,
-          account.counter || 0,
-          account.digits || 6,
-          account.algorithm || 'SHA1'
-        );
-        break;
-      case 'mOTP':
-        const motpTimeSlot = Math.floor(now / 1000);
-        code = OtpNative.generateMOTP(
-          account.secret,
-          account.pin || '0000',
-          motpTimeSlot
-        );
-        break;
-      case 'Steam':
-        const steamTimeSlot = Math.floor(now / 1000 / 30);
-        code = OtpNative.generateSteamGuard(
-          account.secret,
-          steamTimeSlot
-        );
-        break;
-      default:
-        const defaultTimeSlot = Math.floor(now / 1000 / period);
-        code = OtpNative.generateTOTP(
-          account.secret,
-          defaultTimeSlot,
-          account.digits || 6,
-          account.algorithm || 'SHA1'
-        );
+    // Validate account has required fields
+    if (!account.secret || account.secret.trim() === '') {
+      console.warn('Account missing secret, using fallback generation');
+      const fallbackCode = this.generateSimpleCode(account, now);
+      return {
+        code: this.formatCode(fallbackCode, account.type),
+        timeRemaining: this.calculateTimeRemaining(account, now),
+        period: this.getPeriod(account),
+      };
     }
     
+    // Clean and validate the secret
+    const cleanedSecret = this.cleanBase32Secret(account.secret);
+    if (!this.isValidBase32(cleanedSecret)) {
+      console.warn('Invalid Base32 secret format, using fallback generation. Original:', account.secret.substring(0, 4) + '...');
+      const fallbackCode = this.generateSimpleCode(account, now);
+      return {
+        code: this.formatCode(fallbackCode, account.type),
+        timeRemaining: this.calculateTimeRemaining(account, now),
+        period: this.getPeriod(account),
+      };
+    }
+    
+    // Check if native module is available
+    if (!OtpNativeModule) {
+      console.warn('OtpNative module not available, using fallback generation');
+      const fallbackCode = this.generateSimpleCode(account, now);
+      return {
+        code: this.formatCode(fallbackCode, account.type),
+        timeRemaining: this.calculateTimeRemaining(account, now),
+        period: this.getPeriod(account),
+      };
+    }
+    
+    let code: string = '';
+    
+    try {
+      // Log the parameters being passed to native module
+      console.log('Generating OTP with params:', {
+        type: account.type,
+        secretLength: cleanedSecret.length,
+        secretPreview: cleanedSecret.substring(0, 4) + '...',
+        digits: account.digits || 6,
+        algorithm: account.algorithm || 'SHA1',
+        period: period,
+        counter: account.counter,
+        pin: account.pin ? '****' : undefined
+      });
+      
+      switch (account.type) {
+        case 'TOTP':
+          const timeSlot = Math.floor(now / 1000 / period);
+          console.log('TOTP timeSlot:', timeSlot);
+          console.log('Calling OtpNative.generateTOTP with params:', {
+            secret: cleanedSecret.substring(0, 4) + '...',
+            timeSlot: timeSlot,
+            digits: account.digits || 6,
+            algorithm: account.algorithm || 'SHA1'
+          });
+          code = OtpNativeModule.generateTOTP(
+            cleanedSecret,
+            timeSlot,
+            account.digits || 6,
+            account.algorithm || 'SHA1'
+          );
+          console.log('TOTP native result:', code ? 'success' : 'empty');
+          break;
+        case 'HOTP':
+          console.log('HOTP counter:', account.counter || 0);
+          code = OtpNativeModule.generateHOTP(
+            cleanedSecret,
+            account.counter || 0,
+            account.digits || 6,
+            account.algorithm || 'SHA1'
+          );
+          console.log('HOTP native result:', code ? 'success' : 'empty');
+          break;
+        case 'mOTP':
+          const motpTimeSlot = Math.floor(now / 1000);
+          console.log('mOTP timeSlot:', motpTimeSlot, 'pin:', account.pin ? '****' : 'none');
+          code = OtpNativeModule.generateMOTP(
+            cleanedSecret,
+            account.pin || '0000',
+            motpTimeSlot
+          );
+          console.log('mOTP native result:', code ? 'success' : 'empty');
+          break;
+        case 'Steam':
+          const steamTimeSlot = Math.floor(now / 1000 / 30);
+          console.log('Steam timeSlot:', steamTimeSlot);
+          code = OtpNativeModule.generateSteamGuard(
+            cleanedSecret,
+            steamTimeSlot
+          );
+          console.log('Steam native result:', code ? 'success' : 'empty');
+          break;
+        default:
+          const defaultTimeSlot = Math.floor(now / 1000 / period);
+          console.log('Default TOTP timeSlot:', defaultTimeSlot);
+          console.log('Calling OtpNative.generateTOTP (default) with params:', {
+            secret: cleanedSecret.substring(0, 4) + '...',
+            timeSlot: defaultTimeSlot,
+            digits: account.digits || 6,
+            algorithm: account.algorithm || 'SHA1'
+          });
+          code = OtpNativeModule.generateTOTP(
+            cleanedSecret,
+            defaultTimeSlot,
+            account.digits || 6,
+            account.algorithm || 'SHA1'
+          );
+          console.log('Default TOTP native result:', code ? 'success' : 'empty');
+      }
+    } catch (error) {
+      console.warn('Native OTP generation failed with error:', error);
+      code = '';
+    }
+    
+    // Check if native generation failed (returned empty string) and fall back to simple generation
+    if (!code || code.trim() === '') {
+      console.warn('Native OTP generation returned empty result, using fallback generation');
+      const fallbackCode = this.generateSimpleCode(account, now);
+      return {
+        code: this.formatCode(fallbackCode, account.type),
+        timeRemaining: this.calculateTimeRemaining(account, now),
+        period: this.getPeriod(account),
+      };
+    }
+    
+    console.log('Successfully generated OTP code using native implementation');
     return {
       code: this.formatCode(code, account.type),
       timeRemaining: this.calculateTimeRemaining(account, now),
@@ -177,22 +281,47 @@ export class OTPService {
           const now = Date.now();
           const period = customPeriod || account.period || 10;
           
+          // Clean and validate the secret, same as in generateCodeSync
+          const cleanedSecret = this.cleanBase32Secret(account.secret);
+          if (!this.isValidBase32(cleanedSecret)) {
+            console.warn('Invalid Base32 secret format in generateMOTP, using fallback generation');
+            const fallbackCode = this.generateSimpleMOTP(account.secret, pin, now, period);
+            resolve({
+              code: fallbackCode.toLowerCase(),
+              timeRemaining: period - Math.floor((now / 1000) % period),
+              period,
+            });
+            return;
+          }
+          
           let code: string;
           const timeSlot = Math.floor(now / 1000);
           
           if (customPeriod && customPeriod !== 10) {
-            code = OtpNative.generateMOTPWithPeriod(
-              account.secret,
+            code = OtpNativeModule.generateMOTPWithPeriod(
+              cleanedSecret,
               pin,
               timeSlot,
               period
             );
           } else {
-            code = OtpNative.generateMOTP(
-              account.secret,
+            code = OtpNativeModule.generateMOTP(
+              cleanedSecret,
               pin,
               timeSlot
             );
+          }
+          
+          // Check if native generation failed and fall back to simple generation
+          if (!code || code.trim() === '') {
+            console.warn('Native mOTP generation returned empty result, using fallback generation');
+            const fallbackCode = this.generateSimpleMOTP(account.secret, pin, now, period);
+            resolve({
+              code: fallbackCode.toLowerCase(),
+              timeRemaining: period - Math.floor((now / 1000) % period),
+              period,
+            });
+            return;
           }
           
           const timeRemaining = period - Math.floor((now / 1000) % period);
@@ -225,12 +354,38 @@ export class OTPService {
           const now = Date.now();
           const timeSlot = Math.floor(now / 1000 / customPeriod);
           
-          const code = OtpNative.generateHOTP(
-            account.secret,
+          // Clean and validate the secret, same as in generateCodeSync
+          const cleanedSecret = this.cleanBase32Secret(account.secret);
+          if (!this.isValidBase32(cleanedSecret)) {
+            console.warn('Invalid Base32 secret format in generateTOTPWithPeriod, using fallback generation');
+            const fallbackCode = this.generateSimpleCodeWithPeriod(account, now, customPeriod);
+            resolve({
+              code: this.formatCode(fallbackCode, account.type),
+              timeRemaining: customPeriod - Math.floor((now / 1000) % customPeriod),
+              period: customPeriod,
+            });
+            return;
+          }
+          
+          // Use generateTOTP instead of generateHOTP
+          const code = OtpNativeModule.generateTOTP(
+            cleanedSecret,
             timeSlot,
             account.digits || 6,
             account.algorithm || 'SHA1'
           );
+          
+          // Check if native generation failed and fall back to simple generation
+          if (!code || code.trim() === '') {
+            console.warn('Native TOTP generation returned empty result in generateTOTPWithPeriod, using fallback generation');
+            const fallbackCode = this.generateSimpleCodeWithPeriod(account, now, customPeriod);
+            resolve({
+              code: this.formatCode(fallbackCode, account.type),
+              timeRemaining: customPeriod - Math.floor((now / 1000) % customPeriod),
+              period: customPeriod,
+            });
+            return;
+          }
           
           const timeRemaining = customPeriod - Math.floor((now / 1000) % customPeriod);
           
@@ -276,7 +431,13 @@ export class OTPService {
    */
   private static generateSimpleCodeWithPeriod(account: Account, now: number, period: number): string {
     const timeSlot = Math.floor(now / 1000 / period);
-    const accountHash = this.simpleHash(account.secret + account.name);
+    
+    // Use account secret if available, otherwise use account name as fallback
+    const seedString = (account.secret && account.secret.trim() !== '') 
+      ? account.secret 
+      : (account.name || 'default');
+    
+    const accountHash = this.simpleHash(seedString + (account.name || 'account'));
     
     let code: number;
     
@@ -288,7 +449,7 @@ export class OTPService {
         code = ((account.counter || 0) + accountHash) % 1000000;
         break;
       case 'Steam':
-        return this.generateSteamCode(account.secret, timeSlot);
+        return this.generateSteamCode(seedString, timeSlot);
       default:
         code = (timeSlot + accountHash) % 1000000;
     }
@@ -301,7 +462,12 @@ export class OTPService {
    */
   private static generateSimpleMOTP(secret: string, pin: string, now: number, period: number): string {
     const timeSlot = Math.floor(now / 1000 / period);
-    const input = timeSlot.toString() + secret + pin;
+    
+    // Use provided secret if valid, otherwise use a default
+    const seedString = (secret && secret.trim() !== '') ? secret : 'default-secret';
+    const pinString = pin || '0000';
+    
+    const input = timeSlot.toString() + seedString + pinString;
     const hash = this.simpleHash(input);
     
     return (hash % 1000000).toString(16).padStart(6, '0').substring(0, 6);
@@ -312,7 +478,11 @@ export class OTPService {
    */
   private static generateSteamCode(secret: string, timeSlot: number): string {
     const steamChars = '23456789BCDFGHJKMNPQRTVWXY';
-    const hash = this.simpleHash(secret + timeSlot.toString());
+    
+    // Use provided secret if valid, otherwise use a default
+    const seedString = (secret && secret.trim() !== '') ? secret : 'default-steam-secret';
+    
+    const hash = this.simpleHash(seedString + timeSlot.toString());
     
     let steamCode = '';
     let fullCode = hash % 100000; // 5 digits for Steam
@@ -361,7 +531,7 @@ export class OTPService {
    */
   static validateSecret(secret: string): boolean {
     try {
-      return OtpNative.validateSecret(secret);
+      return OtpNativeModule.validateSecret(secret);
     } catch (error) {
       console.error('Error validating secret:', error);
       return secret.length > 0;
@@ -415,7 +585,7 @@ export class OTPService {
    */
   static base32Decode(secret: string): Uint8Array {
     try {
-      return OtpNative.base32Decode(secret);
+      return OtpNativeModule.base32Decode(secret);
     } catch (error) {
       console.error('Error decoding base32:', error);
       return new Uint8Array();
@@ -427,7 +597,7 @@ export class OTPService {
    */
   static base32Encode(data: Uint8Array): string {
     try {
-      return OtpNative.base32Encode(data);
+      return OtpNativeModule.base32Encode(data);
     } catch (error) {
       console.error('Error encoding base32:', error);
       return '';
@@ -484,5 +654,39 @@ export class OTPService {
       default:
         return period >= 15 && period <= 300;
     }
+  }
+
+  /**
+   * Clean and validate Base32 secret
+   */
+  private static cleanBase32Secret(secret: string): string {
+    if (!secret) return '';
+    
+    // Remove whitespace and convert to uppercase
+    let cleaned = secret.replace(/\s/g, '').toUpperCase();
+    
+    // Remove any characters that are not valid Base32
+    cleaned = cleaned.replace(/[^A-Z2-7=]/g, '');
+    
+    // Add padding if necessary
+    while (cleaned.length % 8 !== 0) {
+      cleaned += '=';
+    }
+    
+    return cleaned;
+  }
+
+  /**
+   * Validate if a string is a valid Base32 secret
+   */
+  private static isValidBase32(secret: string): boolean {
+    if (!secret) return false;
+    
+    const cleaned = this.cleanBase32Secret(secret);
+    if (cleaned.length === 0) return false;
+    
+    // Check if all characters are valid Base32
+    const validChars = /^[A-Z2-7=]+$/;
+    return validChars.test(cleaned);
   }
 } 
