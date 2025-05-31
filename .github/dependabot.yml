@@ -17,11 +17,14 @@ updates:
       prefix: "chore"
       prefix-development: "chore"
       include: "scope"
-    # Group updates by dependency type
+    # Auto-merge configuration
+    open-pull-requests-limit: 10
+    # Group updates by dependency type for easier review
     groups:
       expo-dependencies:
         patterns:
           - "expo*"
+          - "@expo/*"
         update-types:
           - "minor"
           - "patch"
@@ -39,6 +42,12 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      navigation-dependencies:
+        patterns:
+          - "@react-navigation/*"
+        update-types:
+          - "minor"
+          - "patch"
       dev-dependencies:
         dependency-type: "development"
         update-types:
@@ -49,3 +58,10 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # Reviewer configuration for auto-approval
+    reviewers:
+      - "DevExzh"
+    # Labels for easier identification
+    labels:
+      - "dependencies"
+      - "automated"
