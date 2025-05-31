@@ -180,6 +180,14 @@
     "other": "Otros"
   },
   "emailParsing": {
+    "title": "Análisis de Email",
+    "description": "Hemos escaneado tu email en busca de cuentas que puedan asegurarse con autenticación de dos factores. Revisa la lista a continuación y activa 2FA para cada cuenta.",
+    "scanning": "Escaneando emails...",
+    "foundAccounts": "{{count}} cuentas encontradas",
+    "deleteProcessedEmails": "Eliminar emails procesados",
+    "activate2FA": "Activar 2FA",
+    "activating": "Activando...",
+    "secureConnection": "Conexión Segura",
     "alerts": {
       "error": "Error",
       "errorMessage": "Error al escanear emails",
@@ -190,6 +198,23 @@
       "activationError": "Error durante la activación",
       "securityConnection": "Conexión Segura",
       "securityConnectionSettings": "Configuración de conexión segura"
+    }
+  },
+  "emailInput": {
+    "title": "Entrada de Email",
+    "subtitle": "Ingresa tu Dirección de Email",
+    "description": "Por favor ingresa la dirección de email que quieres escanear en busca de emails de configuración de autenticación de dos factores.",
+    "emailLabel": "Dirección de Email",
+    "emailPlaceholder": "Ingresa tu dirección de email",
+    "continue": "Continuar",
+    "validating": "Validando...",
+    "infoTitle": "Lo que Haremos",
+    "infoDescription": "• Escanear tu email en busca de mensajes de configuración 2FA\n• Extraer información de cuenta automáticamente\n• Mantener privados tus emails personales\n• Usar solo conexiones seguras y encriptadas",
+    "alerts": {
+      "error": "Error",
+      "emailRequired": "La dirección de email es requerida",
+      "invalidEmail": "Por favor ingresa una dirección de email válida",
+      "validationError": "Error al validar la dirección de email"
     }
   },
   "emailIntegration": {

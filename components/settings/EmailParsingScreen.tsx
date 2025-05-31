@@ -4,29 +4,31 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { EmailService } from '@/services/emailService';
 import { Account } from '@/types/auth';
 import {
-    ArrowLeft,
-    Check,
-    Shield
+  ArrowLeft,
+  Check,
+  Shield
 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 interface EmailParsingScreenProps {
   onBack: () => void;
   onActivate2FA: (accounts: Account[]) => void;
+  userEmail?: string;
 }
 
 export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({ 
   onBack, 
-  onActivate2FA 
+  onActivate2FA,
+  userEmail
 }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
@@ -45,12 +47,80 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
   const loadAccounts = async () => {
     setIsLoading(true);
     try {
-      const connectedAccounts = EmailService.getConnectedAccounts();
-      if (connectedAccounts.length > 0) {
-        const scannedAccounts = await EmailService.scanEmailsForAccounts(connectedAccounts[0]);
-        setAccounts(scannedAccounts);
-        setSelectedAccounts(new Set(scannedAccounts.map(account => account.id)));
-      }
+      // 模拟加载过程
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Mock data - 模拟从邮件中解析出的账户
+      const mockAccounts: Account[] = [
+        {
+          id: 'google-1',
+          name: 'Google',
+          email: userEmail || 'user@example.com',
+          secret: 'JBSWY3DPEHPK3PXP',
+          type: 'TOTP',
+          category: 'Social',
+          algorithm: 'SHA1',
+          digits: 6,
+          period: 30,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 'github-1',
+          name: 'GitHub',
+          email: userEmail || 'user@example.com',
+          secret: 'HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ',
+          type: 'TOTP',
+          category: 'Work',
+          algorithm: 'SHA1',
+          digits: 6,
+          period: 30,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 'apple-1',
+          name: 'Apple ID',
+          email: userEmail || 'user@example.com',
+          secret: 'KRMVATZTJFZUC53FONXW2ZJB',
+          type: 'TOTP',
+          category: 'Other',
+          algorithm: 'SHA1',
+          digits: 6,
+          period: 30,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 'discord-1',
+          name: 'Discord',
+          email: userEmail || 'user@example.com',
+          secret: 'NB2HI4DTHIXS653XO4XHG5UKN4',
+          type: 'TOTP',
+          category: 'Social',
+          algorithm: 'SHA1',
+          digits: 6,
+          period: 30,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 'microsoft-1',
+          name: 'Microsoft',
+          email: userEmail || 'user@example.com',
+          secret: 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ',
+          type: 'TOTP',
+          category: 'Work',
+          algorithm: 'SHA1',
+          digits: 6,
+          period: 30,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ];
+      
+      setAccounts(mockAccounts);
+      setSelectedAccounts(new Set(mockAccounts.map(account => account.id)));
     } catch (error) {
       Alert.alert(t('emailParsing.alerts.error'), t('emailParsing.alerts.errorMessage'));
     } finally {
@@ -87,7 +157,6 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
       }
       
       onActivate2FA(selectedAccountsList);
-      Alert.alert(t('emailParsing.alerts.success'), t('emailParsing.alerts.successMessage'));
     } catch (error) {
       Alert.alert(t('emailParsing.alerts.error'), t('emailParsing.alerts.activationError'));
     } finally {
@@ -135,7 +204,7 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
           <ArrowLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
-          Email Parsing
+          {t('emailParsing.title')}
         </Text>
         <View style={styles.placeholder} />
       </View>
@@ -143,18 +212,21 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
       <ScrollView style={styles.content}>
         <View style={styles.descriptionSection}>
           <Text style={[styles.description, { color: colors.textSecondary }]}>
-            We&apos;ve scanned your email for accounts that can be secured with two-factor authentication. Review the list below and activate 2FA for each account.
+            {t('emailParsing.description')}
           </Text>
         </View>
 
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
-              Scanning emails...
+              {t('emailParsing.scanning')}
             </Text>
           </View>
         ) : (
           <View style={styles.accountsList}>
+            <Text style={[styles.accountsTitle, { color: colors.text }]}>
+              {t('emailParsing.foundAccounts', { count: accounts.length })}
+            </Text>
             {accounts.map(renderAccountItem)}
           </View>
         )}
@@ -174,7 +246,7 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
               {deleteProcessedEmails && <Check size={16} color={colors.background} />}
             </View>
             <Text style={[styles.deleteOptionText, { color: colors.text }]}>
-              Delete processed emails
+              {t('emailParsing.deleteProcessedEmails')}
             </Text>
           </TouchableOpacity>
         )}
@@ -187,7 +259,7 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
               disabled={isActivating || selectedAccounts.size === 0}
             >
               <Text style={[styles.activateButtonText, { color: colors.background }]}>
-                {isActivating ? 'Activating...' : 'Activate 2FA'}
+                {isActivating ? t('emailParsing.activating') : t('emailParsing.activate2FA')}
               </Text>
             </TouchableOpacity>
             
@@ -198,7 +270,7 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
               }}
             >
               <Text style={[styles.secureButtonText, { color: colors.primary }]}>
-                Secure Connection
+                {t('emailParsing.secureConnection')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -251,6 +323,11 @@ const styles = StyleSheet.create({
   },
   accountsList: {
     marginBottom: 24,
+  },
+  accountsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 16,
   },
   accountItem: {
     flexDirection: 'row',

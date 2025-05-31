@@ -1,6 +1,7 @@
 export { AboutAppScreen } from './AboutAppScreen';
 export { CloudSyncSettings } from './CloudSyncSettings';
 export { ConnectedAccountsScreen } from './ConnectedAccountsScreen';
+export { EmailInputScreen } from './EmailInputScreen';
 export { EmailIntegrationScreen } from './EmailIntegrationScreen';
 export { EmailParsingScreen } from './EmailParsingScreen';
 export { EmailSettingsScreen } from './EmailSettingsScreen';

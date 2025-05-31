@@ -228,6 +228,14 @@
     "other": "Other"
   },
   "emailParsing": {
+    "title": "Email Parsing",
+    "description": "We've scanned your email for accounts that can be secured with two-factor authentication. Review the list below and activate 2FA for each account.",
+    "scanning": "Scanning emails...",
+    "foundAccounts": "Found {{count}} accounts",
+    "deleteProcessedEmails": "Delete processed emails",
+    "activate2FA": "Activate 2FA",
+    "activating": "Activating...",
+    "secureConnection": "Secure Connection",
     "alerts": {
       "error": "Error",
       "errorMessage": "Error occurred while scanning emails",
@@ -238,6 +246,23 @@
       "activationError": "Error occurred during activation",
       "securityConnection": "Secure Connection",
       "securityConnectionSettings": "Secure connection settings"
+    }
+  },
+  "emailInput": {
+    "title": "Email Input",
+    "subtitle": "Enter Your Email Address",
+    "description": "Please enter the email address you want to scan for two-factor authentication setup emails.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "Enter your email address",
+    "continue": "Continue",
+    "validating": "Validating...",
+    "infoTitle": "What We'll Do",
+    "infoDescription": "• Scan your email for 2FA setup messages\n• Extract account information automatically\n• Keep your personal emails private\n• Use secure, encrypted connections only",
+    "alerts": {
+      "error": "Error",
+      "emailRequired": "Email address is required",
+      "invalidEmail": "Please enter a valid email address",
+      "validationError": "Failed to validate email address"
     }
   },
   "emailIntegration": {

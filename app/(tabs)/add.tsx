@@ -1,5 +1,5 @@
 import { QRScanner } from '@/components/account';
-import { EmailIntegrationScreen, EmailParsingScreen } from '@/components/settings';
+import { EmailInputScreen, EmailIntegrationScreen, EmailParsingScreen } from '@/components/settings';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -37,8 +37,10 @@ export default function AddScreen() {
   
   const [showManualForm, setShowManualForm] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [showEmailInput, setShowEmailInput] = useState(false);
   const [showEmailIntegration, setShowEmailIntegration] = useState(false);
   const [showEmailParsing, setShowEmailParsing] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>('');
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -102,6 +104,12 @@ export default function AddScreen() {
   };
 
   const handleEmailImport = () => {
+    setShowEmailInput(true);
+  };
+
+  const handleEmailInputContinue = (email: string) => {
+    setUserEmail(email);
+    setShowEmailInput(false);
     setShowEmailIntegration(true);
   };
 
@@ -504,6 +512,18 @@ export default function AddScreen() {
         />
       </Modal>
 
+      {/* Email Input Modal */}
+      <Modal
+        visible={showEmailInput}
+        animationType="slide"
+        presentationStyle="fullScreen"
+      >
+        <EmailInputScreen
+          onBack={() => setShowEmailInput(false)}
+          onContinue={handleEmailInputContinue}
+        />
+      </Modal>
+
       {/* Email Integration Modal */}
       <Modal
         visible={showEmailIntegration}
@@ -525,6 +545,7 @@ export default function AddScreen() {
         <EmailParsingScreen
           onBack={() => setShowEmailParsing(false)}
           onActivate2FA={handleEmailParsingComplete}
+          userEmail={userEmail}
         />
       </Modal>
     </>

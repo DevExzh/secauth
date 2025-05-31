@@ -180,16 +180,41 @@
     "other": "其他"
   },
   "emailParsing": {
+    "title": "邮件解析",
+    "description": "我们已扫描您的邮箱，找到可以启用两步验证的账户。请查看下面的列表并为每个账户激活2FA。",
+    "scanning": "正在扫描邮件...",
+    "foundAccounts": "找到 {{count}} 个账户",
+    "deleteProcessedEmails": "删除已处理的邮件",
+    "activate2FA": "激活2FA",
+    "activating": "正在激活...",
+    "secureConnection": "安全连接",
     "alerts": {
       "error": "错误",
       "errorMessage": "扫描邮件时发生错误",
       "hint": "提示",
       "selectAccountMessage": "请至少选择一个账户",
       "success": "成功",
-      "successMessage": "已成功激活选中账户的两步验证",
+      "successMessage": "已成功为所选账户激活两步验证",
       "activationError": "激活过程中发生错误",
       "securityConnection": "安全连接",
       "securityConnectionSettings": "安全连接设置"
+    }
+  },
+  "emailInput": {
+    "title": "邮箱输入",
+    "subtitle": "输入您的邮箱地址",
+    "description": "请输入您要扫描两步验证设置邮件的邮箱地址。",
+    "emailLabel": "邮箱地址",
+    "emailPlaceholder": "输入您的邮箱地址",
+    "continue": "继续",
+    "validating": "正在验证...",
+    "infoTitle": "我们将做什么",
+    "infoDescription": "• 扫描您的邮箱以查找2FA设置消息\n• 自动提取账户信息\n• 保护您的个人邮件隐私\n• 仅使用安全加密连接",
+    "alerts": {
+      "error": "错误",
+      "emailRequired": "邮箱地址是必需的",
+      "invalidEmail": "请输入有效的邮箱地址",
+      "validationError": "验证邮箱地址失败"
     }
   },
   "emailIntegration": {
