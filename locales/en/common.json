@@ -1,8 +1,14 @@
 {
+  "app": {
+    "name": "SecAuth"
+  },
   "navigation": {
     "home": "Home",
     "add": "Add",
     "profile": "Profile"
+  },
+  "search": {
+    "placeholder": "Search accounts"
   },
   "common": {
     "save": "Save",
@@ -589,5 +595,15 @@
       "reportBug": "Report a Bug",
       "requestFeature": "Request a Feature"
     }
+  },
+  "accounts": {
+    "empty": "No accounts yet",
+    "addFirst": "Add your first authentication account to get started",
+    "noResults": "No accounts found",
+    "tryDifferentSearch": "Try different search terms or adjust filters"
+  },
+  "error": {
+    "title": "Error",
+    "retry": "Retry"
   }
 } 

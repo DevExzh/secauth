@@ -1,8 +1,14 @@
 {
+  "app": {
+    "name": "SecAuth"
+  },
   "navigation": {
     "home": "首页",
     "add": "添加",
     "profile": "个人资料"
+  },
+  "search": {
+    "placeholder": "搜索账户"
   },
   "common": {
     "save": "保存",
@@ -589,5 +595,15 @@
       "reportBug": "报告错误",
       "requestFeature": "功能请求"
     }
+  },
+  "accounts": {
+    "empty": "还没有账户",
+    "addFirst": "添加您的第一个身份验证账户开始使用",
+    "noResults": "未找到账户",
+    "tryDifferentSearch": "尝试不同的搜索词或调整筛选条件"
+  },
+  "error": {
+    "title": "错误",
+    "retry": "重试"
   }
 } 

@@ -1,8 +1,14 @@
 {
+  "app": {
+    "name": "SecAuth"
+  },
   "navigation": {
     "home": "Inicio",
-    "add": "Agregar",
+    "add": "Añadir",
     "profile": "Perfil"
+  },
+  "search": {
+    "placeholder": "Buscar cuentas"
   },
   "common": {
     "save": "Guardar",
@@ -10,7 +16,7 @@
     "delete": "Eliminar",
     "edit": "Editar",
     "confirm": "Confirmar",
-    "back": "Atrás",
+    "back": "Volver",
     "next": "Siguiente",
     "done": "Hecho",
     "loading": "Cargando...",
@@ -589,5 +595,15 @@
       "reportBug": "Reportar un Error",
       "requestFeature": "Solicitar una Característica"
     }
+  },
+  "accounts": {
+    "empty": "Aún no hay cuentas",
+    "addFirst": "Añade tu primera cuenta de autenticación para comenzar",
+    "noResults": "No se encontraron cuentas",
+    "tryDifferentSearch": "Prueba términos de búsqueda diferentes o ajusta los filtros"
+  },
+  "error": {
+    "title": "Error",
+    "retry": "Reintentar"
   }
 } 
