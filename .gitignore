@@ -185,5 +185,8 @@ yarn.lock
 pnpm-lock.yaml
 
 # Builds
-android/
-ios/
+/android/
+/ios/
+.cxx/
+.gradle/
+build/
