@@ -41,6 +41,16 @@ export default function AddScreen() {
   const [showEmailIntegration, setShowEmailIntegration] = useState(false);
   const [showEmailParsing, setShowEmailParsing] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
+  const [emailConfig, setEmailConfig] = useState<{
+    email: string;
+    password: string;
+    protocol: 'IMAP' | 'POP3';
+    imapServer: string;
+    imapPort: string;
+    smtpServer: string;
+    smtpPort: string;
+    useSsl: boolean;
+  } | undefined>(undefined);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -107,8 +117,18 @@ export default function AddScreen() {
     setShowEmailInput(true);
   };
 
-  const handleEmailInputContinue = (email: string) => {
-    setUserEmail(email);
+  const handleEmailInputContinue = (config: {
+    email: string;
+    password: string;
+    protocol: 'IMAP' | 'POP3';
+    imapServer: string;
+    imapPort: string;
+    smtpServer: string;
+    smtpPort: string;
+    useSsl: boolean;
+  }) => {
+    setEmailConfig(config);
+    setUserEmail(config.email);
     setShowEmailInput(false);
     setShowEmailIntegration(true);
   };
@@ -533,6 +553,7 @@ export default function AddScreen() {
         <EmailIntegrationScreen
           onBack={() => setShowEmailIntegration(false)}
           onGrantAccess={handleEmailIntegrationComplete}
+          emailConfig={emailConfig}
         />
       </Modal>
 

@@ -249,28 +249,73 @@
     }
   },
   "emailInput": {
-    "title": "Email Input",
-    "subtitle": "Enter Your Email Address",
-    "description": "Please enter the email address you want to scan for two-factor authentication setup emails.",
+    "title": "Email Configuration",
+    "subtitle": "Configure Your Email Account",
+    "description": "Please enter your email credentials and server settings to scan for two-factor authentication setup emails.",
     "emailLabel": "Email Address",
     "emailPlaceholder": "Enter your email address",
+    "passwordLabel": "Email Password",
+    "passwordPlaceholder": "Enter your email password",
+    "passwordHint": "Use your regular email password or app-specific password if 2FA is enabled on your email account",
+    "advancedSettings": "Advanced Settings",
+    "protocol": "Email Protocol",
+    "protocolHint": "IMAP is recommended for most accounts. POP3 downloads emails locally.",
+    "serverSettings": "Server Settings",
+    "incomingServer": "Incoming Mail Server",
+    "incomingPort": "Incoming Port",
+    "outgoingServer": "Outgoing Mail Server",
+    "outgoingPort": "Outgoing Port",
+    "useSsl": "Use SSL/TLS encryption",
     "continue": "Continue",
-    "validating": "Validating...",
+    "connecting": "Connecting...",
     "infoTitle": "What We'll Do",
-    "infoDescription": "• Scan your email for 2FA setup messages\n• Extract account information automatically\n• Keep your personal emails private\n• Use secure, encrypted connections only",
+    "infoDescription": "• Securely connect to your email server\n• Scan only for 2FA setup messages\n• Extract account information automatically\n• Keep your personal emails private\n• Use encrypted connections only",
     "alerts": {
       "error": "Error",
       "emailRequired": "Email address is required",
       "invalidEmail": "Please enter a valid email address",
-      "validationError": "Failed to validate email address"
+      "passwordRequired": "Email password is required",
+      "serverConfigRequired": "Please configure all server settings",
+      "connectionError": "Failed to connect to email server. Please check your credentials and server settings."
     }
   },
   "emailIntegration": {
+    "title": "Email Integration",
+    "configSummary": "Email Configuration Summary",
+    "email": "Email",
+    "protocol": "Protocol",
+    "server": "Server",
+    "encryption": "Encryption",
+    "noEncryption": "None",
+    "connectionProgress": "Connection Progress",
+    "grantAccessTitle": "Grant Access to Your Email",
+    "grantAccessDesc": "We'll now connect to your email server using the provided credentials to scan for two-factor authentication setup emails.",
+    "permissionsTitle": "Permissions",
+    "permissions": {
+      "accessInbox": "Access Email Inbox",
+      "accessInboxDesc": "Read and parse emails for account information",
+      "deleteProcessed": "Delete Processed Emails",
+      "deleteProcessedDesc": "Delete processed emails after extracting information",
+      "secureConnection": "Secure Connection",
+      "sslEnabled": "SSL/TLS encryption enabled",
+      "sslDisabled": "SSL/TLS encryption disabled"
+    },
+    "steps": {
+      "testing": "Testing connection to mail server...",
+      "authenticating": "Authenticating with credentials...",
+      "verifying": "Verifying server capabilities...",
+      "establishing": "Establishing secure connection...",
+      "success": "Connection successful!"
+    },
+    "active": "Active",
+    "inactive": "Inactive",
+    "grantAccess": "Connect to Email",
+    "connecting": "Connecting...",
     "alerts": {
-      "permissionDenied": "Permission Denied",
-      "permissionDeniedMessage": "Unable to obtain email access permission",
+      "permissionDenied": "Connection Failed",
+      "permissionDeniedMessage": "Unable to connect to email server",
       "error": "Error",
-      "errorMessage": "Error occurred during authorization"
+      "errorMessage": "Error occurred during email server connection"
     }
   },
   "emailSettings": {

@@ -201,28 +201,73 @@
     }
   },
   "emailInput": {
-    "title": "Entrada de Email",
-    "subtitle": "Ingresa tu Dirección de Email",
-    "description": "Por favor ingresa la dirección de email que quieres escanear en busca de emails de configuración de autenticación de dos factores.",
+    "title": "Configuración de Email",
+    "subtitle": "Configure Su Cuenta de Email",
+    "description": "Por favor ingrese sus credenciales de email y configuración del servidor para escanear emails de configuración de autenticación de dos factores.",
     "emailLabel": "Dirección de Email",
-    "emailPlaceholder": "Ingresa tu dirección de email",
+    "emailPlaceholder": "Ingrese su dirección de email",
+    "passwordLabel": "Contraseña de Email",
+    "passwordPlaceholder": "Ingrese su contraseña de email",
+    "passwordHint": "Use su contraseña regular de email o contraseña específica de aplicación si 2FA está habilitado en su cuenta de email",
+    "advancedSettings": "Configuración Avanzada",
+    "protocol": "Protocolo de Email",
+    "protocolHint": "IMAP es recomendado para la mayoría de cuentas. POP3 descarga emails localmente.",
+    "serverSettings": "Configuración del Servidor",
+    "incomingServer": "Servidor de Correo Entrante",
+    "incomingPort": "Puerto Entrante",
+    "outgoingServer": "Servidor de Correo Saliente",
+    "outgoingPort": "Puerto Saliente",
+    "useSsl": "Usar encriptación SSL/TLS",
     "continue": "Continuar",
-    "validating": "Validando...",
+    "connecting": "Conectando...",
     "infoTitle": "Lo que Haremos",
-    "infoDescription": "• Escanear tu email en busca de mensajes de configuración 2FA\n• Extraer información de cuenta automáticamente\n• Mantener privados tus emails personales\n• Usar solo conexiones seguras y encriptadas",
+    "infoDescription": "• Conectar de forma segura a su servidor de email\n• Escanear solo mensajes de configuración 2FA\n• Extraer información de cuenta automáticamente\n• Mantener privados sus emails personales\n• Usar solo conexiones encriptadas",
     "alerts": {
       "error": "Error",
       "emailRequired": "La dirección de email es requerida",
-      "invalidEmail": "Por favor ingresa una dirección de email válida",
-      "validationError": "Error al validar la dirección de email"
+      "invalidEmail": "Por favor ingrese una dirección de email válida",
+      "passwordRequired": "La contraseña de email es requerida",
+      "serverConfigRequired": "Por favor configure todas las configuraciones del servidor",
+      "connectionError": "Error al conectar al servidor de email. Por favor verifique sus credenciales y configuración del servidor."
     }
   },
   "emailIntegration": {
+    "title": "Integración de Email",
+    "configSummary": "Resumen de Configuración de Email",
+    "email": "Email",
+    "protocol": "Protocolo",
+    "server": "Servidor",
+    "encryption": "Encriptación",
+    "noEncryption": "Ninguna",
+    "connectionProgress": "Progreso de Conexión",
+    "grantAccessTitle": "Conceder Acceso a Su Email",
+    "grantAccessDesc": "Ahora nos conectaremos a su servidor de email usando las credenciales proporcionadas para escanear emails de configuración de autenticación de dos factores.",
+    "permissionsTitle": "Permisos",
+    "permissions": {
+      "accessInbox": "Acceder a Bandeja de Entrada",
+      "accessInboxDesc": "Leer y analizar emails para información de cuenta",
+      "deleteProcessed": "Eliminar Emails Procesados",
+      "deleteProcessedDesc": "Eliminar emails procesados después de extraer información",
+      "secureConnection": "Conexión Segura",
+      "sslEnabled": "Encriptación SSL/TLS habilitada",
+      "sslDisabled": "Encriptación SSL/TLS deshabilitada"
+    },
+    "steps": {
+      "testing": "Probando conexión al servidor de correo...",
+      "authenticating": "Autenticando con credenciales...",
+      "verifying": "Verificando capacidades del servidor...",
+      "establishing": "Estableciendo conexión segura...",
+      "success": "¡Conexión exitosa!"
+    },
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "grantAccess": "Conectar a Email",
+    "connecting": "Conectando...",
     "alerts": {
-      "permissionDenied": "Permiso Denegado",
-      "permissionDeniedMessage": "No se puede obtener permiso de acceso al email",
+      "permissionDenied": "Conexión Fallida",
+      "permissionDeniedMessage": "No se puede conectar al servidor de email",
       "error": "Error",
-      "errorMessage": "Error durante la autorización"
+      "errorMessage": "Error durante la conexión al servidor de email"
     }
   },
   "emailSettings": {

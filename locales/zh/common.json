@@ -201,28 +201,73 @@
     }
   },
   "emailInput": {
-    "title": "邮箱输入",
-    "subtitle": "输入您的邮箱地址",
-    "description": "请输入您要扫描两步验证设置邮件的邮箱地址。",
+    "title": "邮箱配置",
+    "subtitle": "配置您的邮箱账户",
+    "description": "请输入您的邮箱凭据和服务器设置，以扫描两步验证设置邮件。",
     "emailLabel": "邮箱地址",
     "emailPlaceholder": "输入您的邮箱地址",
+    "passwordLabel": "邮箱密码",
+    "passwordPlaceholder": "输入您的邮箱密码",
+    "passwordHint": "使用您的常规邮箱密码，如果邮箱账户启用了2FA，请使用应用专用密码",
+    "advancedSettings": "高级设置",
+    "protocol": "邮件协议",
+    "protocolHint": "建议大多数账户使用IMAP。POP3会将邮件下载到本地。",
+    "serverSettings": "服务器设置",
+    "incomingServer": "收件服务器",
+    "incomingPort": "收件端口",
+    "outgoingServer": "发件服务器",
+    "outgoingPort": "发件端口",
+    "useSsl": "使用SSL/TLS加密",
     "continue": "继续",
-    "validating": "正在验证...",
+    "connecting": "正在连接...",
     "infoTitle": "我们将做什么",
-    "infoDescription": "• 扫描您的邮箱以查找2FA设置消息\n• 自动提取账户信息\n• 保护您的个人邮件隐私\n• 仅使用安全加密连接",
+    "infoDescription": "• 安全连接到您的邮件服务器\n• 仅扫描2FA设置消息\n• 自动提取账户信息\n• 保护您的个人邮件隐私\n• 仅使用加密连接",
     "alerts": {
       "error": "错误",
       "emailRequired": "邮箱地址是必需的",
       "invalidEmail": "请输入有效的邮箱地址",
-      "validationError": "验证邮箱地址失败"
+      "passwordRequired": "邮箱密码是必需的",
+      "serverConfigRequired": "请配置所有服务器设置",
+      "connectionError": "连接邮件服务器失败。请检查您的凭据和服务器设置。"
     }
   },
   "emailIntegration": {
+    "title": "邮箱集成",
+    "configSummary": "邮箱配置摘要",
+    "email": "邮箱",
+    "protocol": "协议",
+    "server": "服务器",
+    "encryption": "加密",
+    "noEncryption": "无",
+    "connectionProgress": "连接进度",
+    "grantAccessTitle": "授权访问您的邮箱",
+    "grantAccessDesc": "我们现在将使用提供的凭据连接到您的邮件服务器，以扫描两步验证设置邮件。",
+    "permissionsTitle": "权限",
+    "permissions": {
+      "accessInbox": "访问邮件收件箱",
+      "accessInboxDesc": "读取和解析邮件中的账户信息",
+      "deleteProcessed": "删除已处理邮件",
+      "deleteProcessedDesc": "提取信息后删除已处理的邮件",
+      "secureConnection": "安全连接",
+      "sslEnabled": "SSL/TLS加密已启用",
+      "sslDisabled": "SSL/TLS加密已禁用"
+    },
+    "steps": {
+      "testing": "正在测试邮件服务器连接...",
+      "authenticating": "正在使用凭据进行身份验证...",
+      "verifying": "正在验证服务器功能...",
+      "establishing": "正在建立安全连接...",
+      "success": "连接成功！"
+    },
+    "active": "活跃",
+    "inactive": "非活跃",
+    "grantAccess": "连接到邮箱",
+    "connecting": "正在连接...",
     "alerts": {
-      "permissionDenied": "权限被拒绝",
-      "permissionDeniedMessage": "无法获取邮箱访问权限",
+      "permissionDenied": "连接失败",
+      "permissionDeniedMessage": "无法连接到邮件服务器",
       "error": "错误",
-      "errorMessage": "授权过程中发生错误"
+      "errorMessage": "邮件服务器连接过程中发生错误"
     }
   },
   "emailSettings": {

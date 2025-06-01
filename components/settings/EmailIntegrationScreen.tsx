@@ -1,81 +1,102 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import { EmailService } from '@/services/emailService';
 import {
-  ArrowLeft,
-  Mail,
-  Shield,
-  Trash2
+    ArrowLeft,
+    Mail,
+    Shield,
+    Trash2
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 interface EmailIntegrationScreenProps {
   onBack: () => void;
   onGrantAccess: () => void;
+  emailConfig?: {
+    email: string;
+    password: string;
+    protocol: 'IMAP' | 'POP3';
+    imapServer: string;
+    imapPort: string;
+    smtpServer: string;
+    smtpPort: string;
+    useSsl: boolean;
+  };
 }
 
 export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({ 
   onBack, 
-  onGrantAccess 
+  onGrantAccess,
+  emailConfig
 }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
   
   const [isGranting, setIsGranting] = useState(false);
-  const [permissions] = useState({
-    accessInbox: false,
-    deleteProcessed: false,
-    secureConnection: true,
-  });
+  const [connectionStep, setConnectionStep] = useState(0);
 
   const handleGrantAccess = async () => {
     setIsGranting(true);
+    setConnectionStep(0);
+    
     try {
-      const granted = await EmailService.requestEmailPermissions();
-      if (granted) {
-        // 直接调用 onGrantAccess，不显示 Alert
-        onGrantAccess();
-      } else {
-        Alert.alert(t('emailIntegration.alerts.permissionDenied'), t('emailIntegration.alerts.permissionDeniedMessage'));
-        setIsGranting(false);
+      // 模拟连接步骤
+      const steps = [
+        t('emailIntegration.steps.testing'),
+        t('emailIntegration.steps.authenticating'),
+        t('emailIntegration.steps.verifying'),
+        t('emailIntegration.steps.establishing'),
+        t('emailIntegration.steps.success')
+      ];
+      
+      for (let i = 0; i < steps.length; i++) {
+        setConnectionStep(i);
+        await new Promise(resolve => setTimeout(resolve, 1500));
       }
+      
+      onGrantAccess();
     } catch (error) {
       Alert.alert(t('emailIntegration.alerts.error'), t('emailIntegration.alerts.errorMessage'));
-      console.error(error);
       setIsGranting(false);
     }
-    // 注意：如果成功，不在这里设置 setIsGranting(false)，因为会切换到下一个屏幕
   };
+
+  const connectionSteps = [
+    t('emailIntegration.steps.testing'),
+    t('emailIntegration.steps.authenticating'),
+    t('emailIntegration.steps.verifying'),
+    t('emailIntegration.steps.establishing'),
+    t('emailIntegration.steps.success')
+  ];
 
   const permissionItems = [
     {
       icon: <Mail size={24} color={colors.primary} />,
-      title: 'Access Email Inbox',
-      description: 'Read and parse emails for account information',
-      granted: permissions.accessInbox,
+      title: t('emailIntegration.permissions.accessInbox'),
+      description: t('emailIntegration.permissions.accessInboxDesc'),
+      granted: true,
     },
     {
       icon: <Trash2 size={24} color={colors.primary} />,
-      title: 'Delete Processed Emails',
-      description: 'Delete processed emails after extracting information',
-      granted: permissions.deleteProcessed,
+      title: t('emailIntegration.permissions.deleteProcessed'),
+      description: t('emailIntegration.permissions.deleteProcessedDesc'),
+      granted: false,
     },
     {
       icon: <Shield size={24} color={colors.primary} />,
-      title: 'Secure Connection',
-      description: 'Active',
-      granted: permissions.secureConnection,
+      title: t('emailIntegration.permissions.secureConnection'),
+      description: emailConfig?.useSsl ? t('emailIntegration.permissions.sslEnabled') : t('emailIntegration.permissions.sslDisabled'),
+      granted: emailConfig?.useSsl || false,
       isStatus: true,
     },
   ];
@@ -87,26 +108,94 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
           <ArrowLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
-          Email Integration
+          {t('emailIntegration.title')}
         </Text>
         <View style={styles.placeholder} />
       </View>
 
       <ScrollView style={styles.content}>
+        {/* Email Configuration Summary */}
+        {emailConfig && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              {t('emailIntegration.configSummary')}
+            </Text>
+            <View style={[styles.configContainer, { backgroundColor: colors.surface }]}>
+              <View style={styles.configItem}>
+                <Text style={[styles.configLabel, { color: colors.textSecondary }]}>
+                  {t('emailIntegration.email')}
+                </Text>
+                <Text style={[styles.configValue, { color: colors.text }]}>
+                  {emailConfig.email}
+                </Text>
+              </View>
+              <View style={styles.configItem}>
+                <Text style={[styles.configLabel, { color: colors.textSecondary }]}>
+                  {t('emailIntegration.protocol')}
+                </Text>
+                <Text style={[styles.configValue, { color: colors.text }]}>
+                  {emailConfig.protocol}
+                </Text>
+              </View>
+              <View style={styles.configItem}>
+                <Text style={[styles.configLabel, { color: colors.textSecondary }]}>
+                  {t('emailIntegration.server')}
+                </Text>
+                <Text style={[styles.configValue, { color: colors.text }]}>
+                  {emailConfig.imapServer}:{emailConfig.imapPort}
+                </Text>
+              </View>
+              <View style={styles.configItem}>
+                <Text style={[styles.configLabel, { color: colors.textSecondary }]}>
+                  {t('emailIntegration.encryption')}
+                </Text>
+                <Text style={[styles.configValue, { color: colors.text }]}>
+                  {emailConfig.useSsl ? 'SSL/TLS' : t('emailIntegration.noEncryption')}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Connection Progress */}
+        {isGranting && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              {t('emailIntegration.connectionProgress')}
+            </Text>
+            <View style={[styles.progressContainer, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.progressText, { color: colors.text }]}>
+                {connectionSteps[connectionStep]}
+              </Text>
+              <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
+                <View 
+                  style={[
+                    styles.progressFill, 
+                    { 
+                      backgroundColor: colors.primary,
+                      width: `${((connectionStep + 1) / connectionSteps.length) * 100}%`
+                    }
+                  ]} 
+                />
+              </View>
+            </View>
+          </View>
+        )}
+
         {/* Title Section */}
         <View style={styles.titleSection}>
           <Text style={[styles.title, { color: colors.text }]}>
-            Grant Access to Your Email
+            {t('emailIntegration.grantAccessTitle')}
           </Text>
           <Text style={[styles.description, { color: colors.textSecondary }]}>
-            To automatically extract account information from your emails, we need your permission to access your inbox. This will allow us to identify and display relevant account details for your security.
+            {t('emailIntegration.grantAccessDesc')}
           </Text>
         </View>
 
         {/* Permissions Section */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Permissions
+            {t('emailIntegration.permissionsTitle')}
           </Text>
           <View style={[styles.permissionsContainer, { backgroundColor: colors.surface }]}>
             {permissionItems.map((item, index) => (
@@ -124,9 +213,15 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
                     </Text>
                   </View>
                   {item.isStatus && (
-                    <View style={styles.statusContainer}>
-                      <Text style={[styles.statusText, { color: colors.primary }]}>
-                        Active
+                    <View style={[
+                      styles.statusContainer,
+                      { backgroundColor: item.granted ? 'rgba(0, 122, 255, 0.1)' : 'rgba(255, 149, 0, 0.1)' }
+                    ]}>
+                      <Text style={[
+                        styles.statusText, 
+                        { color: item.granted ? colors.primary : '#FF9500' }
+                      ]}>
+                        {item.granted ? t('emailIntegration.active') : t('emailIntegration.inactive')}
                       </Text>
                     </View>
                   )}
@@ -142,12 +237,18 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
         {/* Grant Access Button */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[styles.grantButton, { backgroundColor: colors.primary }]}
+            style={[
+              styles.grantButton, 
+              { 
+                backgroundColor: isGranting ? colors.border : colors.primary,
+                opacity: isGranting ? 0.7 : 1
+              }
+            ]}
             onPress={handleGrantAccess}
             disabled={isGranting}
           >
             <Text style={[styles.grantButtonText, { color: colors.background }]}>
-              {isGranting ? 'Granting Access...' : 'Grant Access'}
+              {isGranting ? t('emailIntegration.connecting') : t('emailIntegration.grantAccess')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -182,6 +283,42 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
+  },
+  configContainer: {
+    borderRadius: 12,
+    padding: 16,
+  },
+  configItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  configLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  configValue: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  progressContainer: {
+    borderRadius: 12,
+    padding: 16,
+  },
+  progressText: {
+    fontSize: 16,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  progressBar: {
+    height: 8,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 4,
   },
   titleSection: {
     paddingVertical: 24,
@@ -237,7 +374,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
   },
   statusText: {
     fontSize: 14,
