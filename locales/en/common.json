@@ -196,6 +196,7 @@
       "scanSuccessMessage": "Account identified: {{name}}",
       "scanFailed": "Scan Failed",
       "scanFailedMessage": "Unrecognized QR code format, please enter account information manually.",
+      "incompleteData": "Incomplete account data from QR code. Please complete the information manually.",
       "manualInput": "Manual Input",
       "rescan": "Rescan",
       "cancel": "Cancel",
@@ -205,6 +206,7 @@
       "addSuccessMessage": "Account {{name}} has been added successfully!",
       "error": "Error",
       "errorMessage": "Please fill in all required fields",
+      "unknownError": "An unknown error occurred. Please try again.",
       "ok": "OK"
     }
   },

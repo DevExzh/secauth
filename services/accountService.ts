@@ -138,10 +138,8 @@ export class AccountService {
       // Update cache immediately
       this.cache = updatedAccounts;
       
-      // Save to storage asynchronously
-      this.saveAccountsAsync(updatedAccounts).catch(error => {
-        console.warn('Failed to save new account:', error);
-      });
+      // Save to storage and wait for completion to ensure persistence
+      await this.saveAccountsAsync(updatedAccounts);
 
       return newAccount;
     } catch (error) {
@@ -174,10 +172,8 @@ export class AccountService {
       // Update cache immediately
       this.cache = updatedAccounts;
       
-      // Save to storage asynchronously
-      this.saveAccountsAsync(updatedAccounts).catch(error => {
-        console.warn('Failed to save updated account:', error);
-      });
+      // Save to storage and wait for completion
+      await this.saveAccountsAsync(updatedAccounts);
 
       return updatedAccount;
     } catch (error) {
@@ -197,10 +193,8 @@ export class AccountService {
       // Update cache immediately
       this.cache = updatedAccounts;
       
-      // Save to storage asynchronously
-      this.saveAccountsAsync(updatedAccounts).catch(error => {
-        console.warn('Failed to save after deletion:', error);
-      });
+      // Save to storage and wait for completion
+      await this.saveAccountsAsync(updatedAccounts);
     } catch (error) {
       console.error('Error deleting account:', error);
       throw error;
@@ -244,5 +238,13 @@ export class AccountService {
     this.getAccounts().catch(error => {
       console.warn('Failed to preload accounts:', error);
     });
+  }
+
+  /**
+   * Force refresh accounts from storage (bypass cache)
+   */
+  static async refreshAccounts(): Promise<Account[]> {
+    this.clearCache();
+    return await this.getAccounts();
   }
 } 

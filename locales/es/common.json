@@ -148,6 +148,7 @@
       "scanSuccessMessage": "Cuenta identificada: {{name}}",
       "scanFailed": "Escaneo Fallido",
       "scanFailedMessage": "Formato de código QR no reconocido, por favor ingresa la información de la cuenta manualmente.",
+      "incompleteData": "Datos de cuenta incompletos del código QR. Por favor completa la información manualmente.",
       "manualInput": "Entrada Manual",
       "rescan": "Reescanear",
       "cancel": "Cancelar",
@@ -157,6 +158,7 @@
       "addSuccessMessage": "¡La cuenta {{name}} se ha agregado exitosamente!",
       "error": "Error",
       "errorMessage": "Por favor completa todos los campos requeridos",
+      "unknownError": "Ocurrió un error desconocido. Por favor intenta de nuevo.",
       "ok": "OK"
     }
   },

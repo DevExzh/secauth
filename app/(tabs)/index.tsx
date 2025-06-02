@@ -5,6 +5,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AccountService } from '@/services/accountService';
 import type { Account, AccountCategory } from '@/types/auth';
+import { useFocusEffect } from '@react-navigation/native';
 import { Bell, Settings, Shield } from 'lucide-react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -123,6 +124,23 @@ export default function HomeScreen() {
   useEffect(() => {
     loadAccounts();
   }, [loadAccounts]);
+
+  // Listen for focus events to refresh accounts when returning from other screens
+  useFocusEffect(
+    useCallback(() => {
+      // Refresh accounts when this screen is focused
+      const refreshOnFocus = async () => {
+        try {
+          await AccountService.refreshAccounts();
+          await loadAccounts();
+        } catch (error) {
+          console.warn('Failed to refresh accounts on focus:', error);
+        }
+      };
+      
+      refreshOnFocus();
+    }, [loadAccounts])
+  );
 
   // Filter accounts with debouncing and memoization
   const filterAccounts = useCallback((accountsList: Account[], category: AccountCategory, query: string) => {

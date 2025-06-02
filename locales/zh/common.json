@@ -148,6 +148,7 @@
       "scanSuccessMessage": "已识别账户：{{name}}",
       "scanFailed": "扫描失败",
       "scanFailedMessage": "无法识别的二维码格式，请手动输入账户信息。",
+      "incompleteData": "二维码中的账户数据不完整。请手动完成信息。",
       "manualInput": "手动输入",
       "rescan": "重新扫描",
       "cancel": "取消",
@@ -157,6 +158,7 @@
       "addSuccessMessage": "账户 {{name}} 已添加成功！",
       "error": "错误",
       "errorMessage": "请填写所有必填字段",
+      "unknownError": "发生未知错误。请重试。",
       "ok": "确定"
     }
   },

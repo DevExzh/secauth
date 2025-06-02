@@ -3,31 +3,32 @@ import { EmailInputScreen, EmailIntegrationScreen, EmailParsingScreen } from '@/
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { AccountService } from '@/services/accountService';
 import { OTPService } from '@/services/otpService';
 import type { Account, AccountCategory, AuthType } from '@/types/auth';
 import { determineCategory } from '@/utils/totpParser';
 import {
-    ArrowLeft,
-    Camera,
-    Check,
-    ChevronDown,
-    Mail,
-    Plus,
-    QrCode,
-    Shield,
-    Type
+  ArrowLeft,
+  Camera,
+  Check,
+  ChevronDown,
+  Mail,
+  Plus,
+  QrCode,
+  Shield,
+  Type
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Modal,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 export default function AddScreen() {
@@ -71,40 +72,80 @@ export default function AddScreen() {
     setShowQRScanner(true);
   };
 
-  const handleQRScanResult = (data: string) => {
+  const handleQRScanResult = async (data: string) => {
     setShowQRScanner(false);
     
-    const parsedData = OTPService.parseOTPUri(data);
-    if (parsedData) {
-      // Auto-fill form with scanned data
-      setFormData({
-        name: parsedData.name || '',
-        email: parsedData.email || '',
-        secret: parsedData.secret || '',
-        type: parsedData.type || 'TOTP',
-        category: determineCategory(parsedData.name || ''),
-        pin: parsedData.pin || '',
-        counter: parsedData.counter?.toString() || '0',
-        algorithm: parsedData.algorithm || 'SHA1',
-        digits: parsedData.digits?.toString() || '6',
-        period: parsedData.period?.toString() || '30',
-      });
-      setShowManualForm(true);
-      
+    try {
+      const parsedData = OTPService.parseOTPUri(data);
+      if (parsedData) {
+        // Create a complete account object
+        const newAccount = {
+          name: parsedData.name || '',
+          email: parsedData.email || '',
+          secret: parsedData.secret || '',
+          type: parsedData.type || 'TOTP' as AuthType,
+          category: determineCategory(parsedData.name || ''),
+          issuer: parsedData.issuer,
+          algorithm: parsedData.algorithm || 'SHA1' as 'SHA1' | 'SHA256' | 'SHA512',
+          digits: parsedData.digits || 6,
+          period: parsedData.period || 30,
+          counter: parsedData.counter || 0,
+          pin: parsedData.pin || undefined,
+        };
+
+        // Validate required fields
+        if (!newAccount.name || !newAccount.email || !newAccount.secret) {
+          Alert.alert(
+            t('add.alerts.scanFailed'),
+            t('add.alerts.incompleteData'),
+            [
+              { text: t('add.alerts.manualInput'), onPress: () => {
+                // Auto-fill form with scanned data
+                setFormData({
+                  name: newAccount.name,
+                  email: newAccount.email,
+                  secret: newAccount.secret,
+                  type: newAccount.type,
+                  category: newAccount.category,
+                  pin: newAccount.pin || '',
+                  counter: newAccount.counter.toString(),
+                  algorithm: newAccount.algorithm,
+                  digits: newAccount.digits.toString(),
+                  period: newAccount.period.toString(),
+                });
+                setShowManualForm(true);
+              }},
+              { text: t('add.alerts.cancel') }
+            ]
+          );
+          return;
+        }
+
+        // Save the account using AccountService
+        const savedAccount = await AccountService.addAccount(newAccount);
+        
+        Alert.alert(
+          t('add.alerts.scanSuccess'),
+          t('add.alerts.scanSuccessMessage', { name: savedAccount.name }),
+          [{ text: t('add.alerts.ok') }]
+        );
+      } else {
+        Alert.alert(
+          t('add.alerts.scanFailed'),
+          t('add.alerts.scanFailedMessage'),
+          [
+            { text: t('add.alerts.manualInput'), onPress: () => setShowManualForm(true) },
+            { text: t('add.alerts.rescan'), onPress: () => setShowQRScanner(true) },
+            { text: t('add.alerts.cancel') }
+          ]
+        );
+      }
+    } catch (error) {
+      console.error('Error processing QR scan result:', error);
       Alert.alert(
-        t('add.alerts.scanSuccess'),
-        t('add.alerts.scanSuccessMessage', { name: parsedData.name }),
+        t('add.alerts.error'),
+        error instanceof Error ? error.message : t('add.alerts.unknownError'),
         [{ text: t('add.alerts.ok') }]
-      );
-    } else {
-      Alert.alert(
-        t('add.alerts.scanFailed'),
-        t('add.alerts.scanFailedMessage'),
-        [
-          { text: t('add.alerts.manualInput'), onPress: () => setShowManualForm(true) },
-          { text: t('add.alerts.rescan'), onPress: () => setShowQRScanner(true) },
-          { text: t('add.alerts.cancel') }
-        ]
       );
     }
   };
@@ -138,52 +179,127 @@ export default function AddScreen() {
     setShowEmailParsing(true);
   };
 
-  const handleEmailParsingComplete = (accounts: Account[]) => {
-    setShowEmailParsing(false);
-    Alert.alert(
-      t('add.alerts.importSuccess'),
-      t('add.alerts.importSuccessMessage', { count: accounts.length }),
-      [{ text: t('add.alerts.ok') }]
-    );
+  const handleEmailParsingComplete = async (accounts: Account[]) => {
+    try {
+      setShowEmailParsing(false);
+      
+      // Save all accounts using AccountService
+      const savedAccounts = [];
+      for (const account of accounts) {
+        try {
+          const savedAccount = await AccountService.addAccount(account);
+          savedAccounts.push(savedAccount);
+        } catch (error) {
+          console.error('Error saving account:', account.name, error);
+        }
+      }
+      
+      Alert.alert(
+        t('add.alerts.importSuccess'),
+        t('add.alerts.importSuccessMessage', { count: savedAccounts.length }),
+        [{ text: t('add.alerts.ok') }]
+      );
+    } catch (error) {
+      console.error('Error importing accounts:', error);
+      Alert.alert(
+        t('add.alerts.error'),
+        error instanceof Error ? error.message : t('add.alerts.unknownError'),
+        [{ text: t('add.alerts.ok') }]
+      );
+    }
   };
 
-  const handleManualAdd = () => {
-    // Basic validation
-    if (!formData.name || !formData.email || !formData.secret) {
-      Alert.alert(t('add.alerts.error'), t('add.alerts.errorMessage'));
-      return;
-    }
-    
-    // Type-specific validation
-    if (formData.type === 'mOTP' && !formData.pin) {
-      Alert.alert(t('add.alerts.error'), 'PIN is required for mOTP');
-      return;
-    }
-    
-    Alert.alert(
-      t('add.alerts.addSuccess'),
-      t('add.alerts.addSuccessMessage', { name: formData.name }),
-      [
-        {
-          text: t('add.alerts.ok'),
-          onPress: () => {
-            setFormData({
-              name: '',
-              email: '',
-              secret: '',
-              type: 'TOTP',
-              category: 'Other',
-              pin: '',
-              counter: '0',
-              algorithm: 'SHA1',
-              digits: '6',
-              period: '30',
-            });
-            setShowManualForm(false);
-          }
+  const handleManualAdd = async () => {
+    try {
+      // Basic validation
+      if (!formData.name || !formData.email || !formData.secret) {
+        Alert.alert(t('add.alerts.error'), t('add.alerts.errorMessage'));
+        return;
+      }
+      
+      // Type-specific validation
+      if (formData.type === 'mOTP' && !formData.pin) {
+        Alert.alert(t('add.alerts.error'), 'PIN is required for mOTP');
+        return;
+      }
+
+      if (formData.type === 'HOTP' && (!formData.counter || isNaN(parseInt(formData.counter)))) {
+        Alert.alert(t('add.alerts.error'), 'Valid counter is required for HOTP');
+        return;
+      }
+
+      // Validate secret format
+      if (!OTPService.validateSecret(formData.secret)) {
+        Alert.alert(t('add.alerts.error'), 'Invalid secret key format');
+        return;
+      }
+
+      // Validate digits
+      const digits = parseInt(formData.digits);
+      if (isNaN(digits) || digits < 4 || digits > 8) {
+        Alert.alert(t('add.alerts.error'), 'Digits must be between 4 and 8');
+        return;
+      }
+
+      // Validate period for TOTP
+      if (formData.type === 'TOTP') {
+        const period = parseInt(formData.period);
+        if (isNaN(period) || period < 1 || period > 300) {
+          Alert.alert(t('add.alerts.error'), 'Period must be between 1 and 300 seconds');
+          return;
         }
-      ]
-    );
+      }
+      
+      // Create account object
+      const newAccount = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        secret: formData.secret.trim(),
+        type: formData.type,
+        category: formData.category,
+        algorithm: formData.algorithm,
+        digits: parseInt(formData.digits),
+        period: formData.type === 'TOTP' ? parseInt(formData.period) : undefined,
+        counter: formData.type === 'HOTP' ? parseInt(formData.counter) : undefined,
+        pin: formData.type === 'mOTP' ? formData.pin : undefined,
+      };
+
+      // Save the account using AccountService
+      const savedAccount = await AccountService.addAccount(newAccount);
+      
+      Alert.alert(
+        t('add.alerts.addSuccess'),
+        t('add.alerts.addSuccessMessage', { name: savedAccount.name }),
+        [
+          {
+            text: t('add.alerts.ok'),
+            onPress: () => {
+              // Reset form
+              setFormData({
+                name: '',
+                email: '',
+                secret: '',
+                type: 'TOTP',
+                category: 'Other',
+                pin: '',
+                counter: '0',
+                algorithm: 'SHA1',
+                digits: '6',
+                period: '30',
+              });
+              setShowManualForm(false);
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Error adding account:', error);
+      Alert.alert(
+        t('add.alerts.error'),
+        error instanceof Error ? error.message : t('add.alerts.unknownError'),
+        [{ text: t('add.alerts.ok') }]
+      );
+    }
   };
 
   if (showManualForm) {
