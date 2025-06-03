@@ -190,6 +190,8 @@
     "activate2FA": "Activar 2FA",
     "activating": "Activando...",
     "secureConnection": "Conexión Segura",
+    "expiresInMinutes": "Expira en {{minutes}} minutos",
+    "expiresInSeconds": "Expira en {{seconds}} segundos",
     "alerts": {
       "error": "Error",
       "errorMessage": "Error al escanear emails",
@@ -480,6 +482,10 @@
   "accountMenu": {
     "editName": "Editar Nombre",
     "showQRCode": "Mostrar Código QR",
+    "viewOriginalEmail": "Ver Email Original",
+    "emailViewTitle": "Contenido del Email Original",
+    "emailViewDescription": "Esta funcionalidad mostrará el email original que contiene la información de configuración del código de verificación. Actualmente muestra los detalles de la cuenta.",
+    "accountInfo": "Información de la Cuenta",
     "editNameTitle": "Editar Nombre de Cuenta",
     "editNameDescription": "Cambiar el nombre de visualización para esta cuenta",
     "accountName": "Nombre de Cuenta",
@@ -489,9 +495,9 @@
     "nameUpdated": "Nombre Actualizado",
     "nameUpdatedMessage": "El nombre de la cuenta se ha actualizado exitosamente",
     "nameRequired": "Nombre Requerido",
-    "nameRequiredMessage": "Por favor, ingrese un nombre de cuenta válido",
-    "nameUpdateError": "Error en la Actualización",
-    "nameUpdateErrorMessage": "Error al actualizar el nombre de la cuenta. Por favor, inténtelo de nuevo."
+    "nameRequiredMessage": "Por favor ingrese un nombre de cuenta válido",
+    "nameUpdateError": "Actualización Fallida",
+    "nameUpdateErrorMessage": "Falló la actualización del nombre de cuenta. Por favor intente de nuevo."
   },
   "cloudSync": {
     "title": "Configuración de Sincronización en la Nube",
@@ -673,6 +679,18 @@
     "addFirst": "Añade tu primera cuenta de autenticación para comenzar",
     "noResults": "No se encontraron cuentas",
     "tryDifferentSearch": "Prueba términos de búsqueda diferentes o ajusta los filtros"
+  },
+  "account": {
+    "expired": "EXPIRADO",
+    "copied": "Copiado",
+    "copiedMessage": "Código de verificación copiado al portapapeles",
+    "deleteTitle": "Eliminar Cuenta",
+    "deleteMessage": "¿Está seguro de que desea eliminar {{name}}?",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "swipeToDelete": "Deslizar para eliminar",
+    "typeTemporary": "Temporal",
+    "typeEmail": "Email"
   },
   "error": {
     "title": "Error",

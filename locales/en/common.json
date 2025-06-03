@@ -238,6 +238,8 @@
     "activate2FA": "Activate 2FA",
     "activating": "Activating...",
     "secureConnection": "Secure Connection",
+    "expiresInMinutes": "Expires in {{minutes}} minutes",
+    "expiresInSeconds": "Expires in {{seconds}} seconds",
     "alerts": {
       "error": "Error",
       "errorMessage": "Error occurred while scanning emails",
@@ -528,6 +530,10 @@
   "accountMenu": {
     "editName": "Edit Name",
     "showQRCode": "Show QR Code",
+    "viewOriginalEmail": "View Original Email",
+    "emailViewTitle": "Original Email Content",
+    "emailViewDescription": "This feature will display the original email containing the verification code setup information. Currently showing account details.",
+    "accountInfo": "Account Information",
     "editNameTitle": "Edit Account Name",
     "editNameDescription": "Change the display name for this account",
     "accountName": "Account Name",
@@ -673,6 +679,18 @@
     "addFirst": "Add your first authentication account to get started",
     "noResults": "No accounts found",
     "tryDifferentSearch": "Try different search terms or adjust filters"
+  },
+  "account": {
+    "expired": "EXPIRED",
+    "copied": "Copied",
+    "copiedMessage": "Verification code copied to clipboard",
+    "deleteTitle": "Delete Account",
+    "deleteMessage": "Are you sure you want to delete {{name}}?",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "swipeToDelete": "Swipe to delete",
+    "typeTemporary": "Temporary",
+    "typeEmail": "Email"
   },
   "error": {
     "title": "Error",

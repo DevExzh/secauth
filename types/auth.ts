@@ -1,4 +1,4 @@
-export type AuthType = 'TOTP' | 'HOTP' | 'mOTP' | 'Steam';
+export type AuthType = 'TOTP' | 'HOTP' | 'mOTP' | 'Steam' | 'EMAIL_OTP';
 
 export type AccountCategory = 'All' | 'Social' | 'Finance' | 'Gaming' | 'Work' | 'Other';
 
@@ -15,6 +15,8 @@ export interface Account {
   period?: number; // For TOTP
   counter?: number; // For HOTP
   pin?: string; // For mOTP
+  isTemporary?: boolean; // For email-based one-time codes
+  expiresAt?: Date; // For temporary codes
   createdAt: Date;
   updatedAt: Date;
 }

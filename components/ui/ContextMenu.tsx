@@ -1,7 +1,8 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Edit, QrCode } from 'lucide-react-native';
+import type { Account } from '@/types/auth';
+import { Edit, Mail, QrCode } from 'lucide-react-native';
 import React from 'react';
 import {
     Modal,
@@ -15,9 +16,11 @@ import {
 interface ContextMenuProps {
   visible: boolean;
   onClose: () => void;
-  onEditName: () => void;
-  onShowQRCode: () => void;
+  onEditName?: () => void;
+  onShowQRCode?: () => void;
+  onViewEmail?: () => void;
   position: { x: number; y: number };
+  account?: Account;
 }
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -25,19 +28,34 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   onClose,
   onEditName,
   onShowQRCode,
+  onViewEmail,
   position,
+  account,
 }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
 
+  const isEmailAccount = account?.type === 'EMAIL_OTP' || account?.isTemporary;
+
   const handleEditName = () => {
-    onEditName();
+    if (onEditName) {
+      onEditName();
+    }
     onClose();
   };
 
   const handleShowQRCode = () => {
-    onShowQRCode();
+    if (onShowQRCode) {
+      onShowQRCode();
+    }
+    onClose();
+  };
+
+  const handleViewEmail = () => {
+    if (onViewEmail) {
+      onViewEmail();
+    }
     onClose();
   };
 
@@ -62,25 +80,41 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
                 },
               ]}
             >
-              <TouchableOpacity
-                style={[styles.menuItem, { borderBottomColor: colors.border }]}
-                onPress={handleEditName}
-              >
-                <Edit size={20} color={colors.text} />
-                <Text style={[styles.menuText, { color: colors.text }]}>
-                  {t('accountMenu.editName')}
-                </Text>
-              </TouchableOpacity>
+              {isEmailAccount ? (
+                // Email account menu - only show "View Original Email"
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={handleViewEmail}
+                >
+                  <Mail size={20} color={colors.text} />
+                  <Text style={[styles.menuText, { color: colors.text }]}>
+                    {t('accountMenu.viewOriginalEmail')}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                // Regular account menu
+                <>
+                  <TouchableOpacity
+                    style={[styles.menuItem, { borderBottomColor: colors.border }]}
+                    onPress={handleEditName}
+                  >
+                    <Edit size={20} color={colors.text} />
+                    <Text style={[styles.menuText, { color: colors.text }]}>
+                      {t('accountMenu.editName')}
+                    </Text>
+                  </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={handleShowQRCode}
-              >
-                <QrCode size={20} color={colors.text} />
-                <Text style={[styles.menuText, { color: colors.text }]}>
-                  {t('accountMenu.showQRCode')}
-                </Text>
-              </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={handleShowQRCode}
+                  >
+                    <QrCode size={20} color={colors.text} />
+                    <Text style={[styles.menuText, { color: colors.text }]}>
+                      {t('accountMenu.showQRCode')}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           </TouchableWithoutFeedback>
         </View>

@@ -4,19 +4,20 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { EmailService } from '@/services/emailService';
 import { Account } from '@/types/auth';
 import {
-  ArrowLeft,
-  Check,
-  Shield
+    ArrowLeft,
+    Check,
+    Clock,
+    Shield
 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 interface EmailParsingScreenProps {
@@ -53,67 +54,77 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
       // Mock data - 模拟从邮件中解析出的账户
       const mockAccounts: Account[] = [
         {
-          id: 'google-1',
-          name: 'Google',
+          id: 'email-otp-' + Date.now() + '-1',
+          name: 'Google Email Verification',
           email: userEmail || 'user@example.com',
           secret: 'JBSWY3DPEHPK3PXP',
-          type: 'TOTP',
+          type: 'EMAIL_OTP',
           category: 'Social',
           algorithm: 'SHA1',
           digits: 6,
           period: 30,
+          isTemporary: true,
+          expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15分钟后过期
           createdAt: new Date(),
           updatedAt: new Date()
         },
         {
-          id: 'github-1',
-          name: 'GitHub',
+          id: 'email-otp-' + Date.now() + '-2',
+          name: 'GitHub Email Verification',
           email: userEmail || 'user@example.com',
           secret: 'HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ',
-          type: 'TOTP',
+          type: 'EMAIL_OTP',
           category: 'Work',
           algorithm: 'SHA1',
           digits: 6,
           period: 30,
+          isTemporary: true,
+          expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10分钟后过期
           createdAt: new Date(),
           updatedAt: new Date()
         },
         {
-          id: 'apple-1',
-          name: 'Apple ID',
+          id: 'email-otp-' + Date.now() + '-3',
+          name: 'Apple ID Email Verification',
           email: userEmail || 'user@example.com',
           secret: 'KRMVATZTJFZUC53FONXW2ZJB',
-          type: 'TOTP',
+          type: 'EMAIL_OTP',
           category: 'Other',
           algorithm: 'SHA1',
           digits: 6,
           period: 30,
+          isTemporary: true,
+          expiresAt: new Date(Date.now() + 20 * 60 * 1000), // 20分钟后过期
           createdAt: new Date(),
           updatedAt: new Date()
         },
         {
-          id: 'discord-1',
-          name: 'Discord',
+          id: 'email-otp-' + Date.now() + '-4',
+          name: 'Discord Email Verification',
           email: userEmail || 'user@example.com',
           secret: 'NB2HI4DTHIXS653XO4XHG5UKN4',
-          type: 'TOTP',
+          type: 'EMAIL_OTP',
           category: 'Social',
           algorithm: 'SHA1',
           digits: 6,
           period: 30,
+          isTemporary: true,
+          expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5分钟后过期（已经快过期了）
           createdAt: new Date(),
           updatedAt: new Date()
         },
         {
-          id: 'microsoft-1',
-          name: 'Microsoft',
+          id: 'email-otp-' + Date.now() + '-5',
+          name: 'Microsoft Email Verification',
           email: userEmail || 'user@example.com',
           secret: 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ',
-          type: 'TOTP',
+          type: 'EMAIL_OTP',
           category: 'Work',
           algorithm: 'SHA1',
           digits: 6,
           period: 30,
+          isTemporary: true,
+          expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30分钟后过期
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -166,33 +177,88 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
 
   const renderAccountItem = (account: Account) => {
     const isSelected = selectedAccounts.has(account.id);
+    const isExpired = account.expiresAt && new Date() > account.expiresAt;
+    const isExpiringSoon = account.expiresAt && 
+      new Date(account.expiresAt.getTime() - 10 * 60 * 1000) < new Date(); // 10分钟内过期
+    
+    const getTimeRemaining = () => {
+      if (!account.expiresAt) return '';
+      const now = new Date();
+      const timeDiff = account.expiresAt.getTime() - now.getTime();
+      
+      if (timeDiff <= 0) return t('account.expired');
+      
+      const minutes = Math.floor(timeDiff / (1000 * 60));
+      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+      
+      if (minutes > 0) {
+        return t('emailParsing.expiresInMinutes', { minutes });
+      } else {
+        return t('emailParsing.expiresInSeconds', { seconds });
+      }
+    };
     
     return (
       <TouchableOpacity
         key={account.id}
-        style={[styles.accountItem, { backgroundColor: colors.surface }]}
-        onPress={() => toggleAccountSelection(account.id)}
+        style={[
+          styles.accountItem, 
+          { 
+            backgroundColor: colors.surface,
+            opacity: isExpired ? 0.5 : 1
+          }
+        ]}
+        onPress={() => !isExpired && toggleAccountSelection(account.id)}
+        disabled={isExpired}
       >
         <View style={styles.accountIcon}>
-          <Shield size={20} color={colors.primary} />
+          <Shield size={20} color={isExpired ? colors.error : colors.primary} />
         </View>
         <View style={styles.accountContent}>
-          <Text style={[styles.accountName, { color: colors.text }]}>
-            {account.name}
-          </Text>
+          <View style={styles.accountHeader}>
+            <Text style={[styles.accountName, { color: colors.text }]}>
+              {account.name}
+            </Text>
+            <View style={[
+              styles.tempLabel, 
+              { 
+                backgroundColor: isExpired ? colors.error + '20' : colors.warning + '20' 
+              }
+            ]}>
+              <Clock size={12} color={isExpired ? colors.error : colors.warning} />
+              <Text style={[
+                styles.tempLabelText, 
+                { color: isExpired ? colors.error : colors.warning }
+              ]}>
+                {t('account.typeTemporary')}
+              </Text>
+            </View>
+          </View>
           <Text style={[styles.accountEmail, { color: colors.textSecondary }]}>
             {account.email}
           </Text>
+          <Text style={[
+            styles.expirationText, 
+            { 
+              color: isExpired ? colors.error : 
+                     isExpiringSoon ? colors.warning : 
+                     colors.textSecondary 
+            }
+          ]}>
+            {getTimeRemaining()}
+          </Text>
         </View>
-        <View style={[
-          styles.checkbox,
-          { 
-            backgroundColor: isSelected ? colors.primary : 'transparent',
-            borderColor: isSelected ? colors.primary : colors.border
-          }
-        ]}>
-          {isSelected && <Check size={16} color={colors.background} />}
-        </View>
+        {!isExpired && (
+          <View style={[
+            styles.checkbox,
+            { 
+              backgroundColor: isSelected ? colors.primary : 'transparent',
+              borderColor: isSelected ? colors.primary : colors.border
+            }
+          ]}>
+            {isSelected && <Check size={16} color={colors.background} />}
+          </View>
+        )}
       </TouchableOpacity>
     );
   };
@@ -348,12 +414,30 @@ const styles = StyleSheet.create({
   accountContent: {
     flex: 1,
   },
+  accountHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   accountName: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
   },
   accountEmail: {
+    fontSize: 14,
+  },
+  tempLabel: {
+    padding: 4,
+    borderRadius: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tempLabelText: {
+    fontSize: 12,
+    marginLeft: 4,
+  },
+  expirationText: {
     fontSize: 14,
   },
   checkbox: {

@@ -190,6 +190,8 @@
     "activate2FA": "激活2FA",
     "activating": "正在激活...",
     "secureConnection": "安全连接",
+    "expiresInMinutes": "{{minutes}}分钟后过期",
+    "expiresInSeconds": "{{seconds}}秒后过期",
     "alerts": {
       "error": "错误",
       "errorMessage": "扫描邮件时发生错误",
@@ -480,6 +482,10 @@
   "accountMenu": {
     "editName": "编辑名称",
     "showQRCode": "显示二维码",
+    "viewOriginalEmail": "查看原始邮件",
+    "emailViewTitle": "原始邮件内容",
+    "emailViewDescription": "此功能将显示包含验证码设置信息的原始邮件。当前显示账户详细信息。",
+    "accountInfo": "账户信息",
     "editNameTitle": "编辑账户名称",
     "editNameDescription": "更改此账户的显示名称",
     "accountName": "账户名称",
@@ -673,6 +679,18 @@
     "addFirst": "添加您的第一个身份验证账户开始使用",
     "noResults": "未找到账户",
     "tryDifferentSearch": "尝试不同的搜索词或调整筛选条件"
+  },
+  "account": {
+    "expired": "已过期",
+    "copied": "已复制",
+    "copiedMessage": "验证码已复制到剪贴板",
+    "deleteTitle": "删除账户",
+    "deleteMessage": "确定要删除 {{name}} 吗？",
+    "cancel": "取消",
+    "delete": "删除",
+    "swipeToDelete": "右滑删除",
+    "typeTemporary": "一次性",
+    "typeEmail": "邮件"
   },
   "error": {
     "title": "错误",

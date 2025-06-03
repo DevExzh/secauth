@@ -6,7 +6,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { AccountService } from '@/services/accountService';
 import type { Account, AccountCategory } from '@/types/auth';
 import { useFocusEffect } from '@react-navigation/native';
-import { Bell, Settings, Shield } from 'lucide-react-native';
+import { Shield } from 'lucide-react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
@@ -83,6 +83,49 @@ export default function HomeScreen() {
     };
   }, []);
 
+  // Clean up expired temporary accounts
+  const cleanupExpiredAccounts = useCallback(async () => {
+    try {
+      const currentAccounts = await AccountService.getAccounts();
+      const now = new Date();
+      const expiredAccounts: string[] = [];
+      
+      // Find expired accounts
+      currentAccounts.forEach(account => {
+        if (account.isTemporary && account.expiresAt && account.expiresAt <= now) {
+          expiredAccounts.push(account.id);
+        }
+      });
+      
+      // Delete expired accounts one by one
+      for (const accountId of expiredAccounts) {
+        await AccountService.deleteAccount(accountId);
+      }
+      
+      // Return updated accounts
+      return await AccountService.getAccounts();
+    } catch (error) {
+      console.error('Error cleaning up expired accounts:', error);
+      return await AccountService.getAccounts();
+    }
+  }, []);
+
+  // Periodic cleanup for expired accounts
+  useEffect(() => {
+    const cleanupInterval = setInterval(async () => {
+      if (!isUnmountedRef.current) {
+        try {
+          const updatedAccounts = await cleanupExpiredAccounts();
+          setAccounts(updatedAccounts);
+        } catch (error) {
+          console.error('Error in periodic cleanup:', error);
+        }
+      }
+    }, 10000); // Check every 10 seconds
+
+    return () => clearInterval(cleanupInterval);
+  }, [cleanupExpiredAccounts]);
+
   // Load accounts with performance optimization
   const loadAccounts = useCallback(async (showRefreshIndicator = false) => {
     if (isUnmountedRef.current) return;
@@ -97,12 +140,13 @@ export default function HomeScreen() {
 
       // Use InteractionManager to avoid blocking UI
       await new Promise<void>(resolve => {
-        const task = InteractionManager.runAfterInteractions(() => {
+        InteractionManager.runAfterInteractions(() => {
           resolve();
         });
       });
 
-      const loadedAccounts = await AccountService.getAccounts();
+      // Clean up expired accounts first
+      const loadedAccounts = await cleanupExpiredAccounts();
       
       if (!isUnmountedRef.current) {
         setAccounts(loadedAccounts);
@@ -118,7 +162,7 @@ export default function HomeScreen() {
         setIsRefreshing(false);
       }
     }
-  }, []);
+  }, [cleanupExpiredAccounts]);
 
   // Initial load
   useEffect(() => {
@@ -201,12 +245,40 @@ export default function HomeScreen() {
     // Optional: Add scroll-based optimizations here
   }, []);
 
+  const handleAccountUpdate = useCallback(async (accountId: string, newName: string) => {
+    try {
+      await AccountService.updateAccountName(accountId, newName);
+      // Reload accounts to reflect the change
+      await loadAccounts();
+    } catch (error) {
+      console.error('Error updating account:', error);
+      throw error;
+    }
+  }, [loadAccounts]);
+
+  const handleAccountDelete = useCallback(async (accountId: string) => {
+    try {
+      await AccountService.deleteAccount(accountId);
+      // Update local state immediately
+      setAccounts(prev => prev.filter(account => account.id !== accountId));
+      setFilteredAccounts(prev => prev.filter(account => account.id !== accountId));
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      // Reload accounts to ensure consistency
+      await loadAccounts();
+    }
+  }, [loadAccounts]);
+
   // Memoized render functions
   const renderAccountCard = useCallback(({ item }: { item: Account }) => (
     <AccountCardErrorBoundary account={item}>
-      <AccountCard account={item} />
+      <AccountCard 
+        account={item} 
+        onAccountUpdate={handleAccountUpdate}
+        onAccountDelete={handleAccountDelete}
+      />
     </AccountCardErrorBoundary>
-  ), []);
+  ), [handleAccountUpdate, handleAccountDelete]);
 
   const keyExtractor = useCallback((item: Account) => item.id, []);
 
@@ -225,14 +297,6 @@ export default function HomeScreen() {
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             {t('app.name')}
           </Text>
-        </View>
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.headerButton}>
-            <Bell size={24} color={colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton}>
-            <Settings size={24} color={colors.text} />
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -360,14 +424,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 12,
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerButton: {
-    padding: 8,
-    marginLeft: 8,
   },
   emptyContainer: {
     flex: 1,
