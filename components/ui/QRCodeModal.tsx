@@ -51,6 +51,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(t('common.success'), 'Secret key copied to clipboard');
     } catch (error) {
+      console.error('Copy secret error:', error);
       Alert.alert(t('common.error'), 'Failed to copy secret key');
     }
   };
@@ -63,6 +64,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(t('common.success'), 'QR code data copied to clipboard');
     } catch (error) {
+      console.error('Copy QR data error:', error);
       Alert.alert(t('common.error'), 'Failed to copy QR code data');
     }
   };

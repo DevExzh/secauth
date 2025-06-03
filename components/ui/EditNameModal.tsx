@@ -4,14 +4,14 @@ import { useLanguage } from '@/hooks/useLanguage';
 import type { Account } from '@/types/auth';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Modal,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 interface EditNameModalProps {
@@ -63,6 +63,7 @@ export const EditNameModal: React.FC<EditNameModalProps> = ({
       );
       onClose();
     } catch (error) {
+      console.error('Edit name error:', error);
       Alert.alert(
         t('accountMenu.nameUpdateError'),
         t('accountMenu.nameUpdateErrorMessage')

@@ -9,7 +9,7 @@ import {
     Clock,
     Shield
 } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     Alert,
     SafeAreaView,
@@ -41,11 +41,7 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isActivating, setIsActivating] = useState(false);
 
-  useEffect(() => {
-    loadAccounts();
-  }, []);
-
-  const loadAccounts = async () => {
+  const loadAccounts = useCallback(async () => {
     setIsLoading(true);
     try {
       // 模拟加载过程
@@ -133,11 +129,16 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
       setAccounts(mockAccounts);
       setSelectedAccounts(new Set(mockAccounts.map(account => account.id)));
     } catch (error) {
+      console.error('Email parsing error:', error);
       Alert.alert(t('emailParsing.alerts.error'), t('emailParsing.alerts.errorMessage'));
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userEmail, t]);
+
+  useEffect(() => {
+    loadAccounts();
+  }, [loadAccounts]);
 
   const toggleAccountSelection = (accountId: string) => {
     const newSelection = new Set(selectedAccounts);
@@ -169,6 +170,7 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
       
       onActivate2FA(selectedAccountsList);
     } catch (error) {
+      console.error('2FA activation error:', error);
       Alert.alert(t('emailParsing.alerts.error'), t('emailParsing.alerts.activationError'));
     } finally {
       setIsActivating(false);

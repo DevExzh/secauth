@@ -2,20 +2,20 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
-    ArrowLeft,
-    Mail,
-    Shield,
-    Trash2
+  ArrowLeft,
+  Mail,
+  Shield,
+  Trash2
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    Alert,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 interface EmailIntegrationScreenProps {
@@ -66,6 +66,7 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
       
       onGrantAccess();
     } catch (error) {
+      console.error('Email integration error:', error);
       Alert.alert(t('emailIntegration.alerts.error'), t('emailIntegration.alerts.errorMessage'));
       setIsGranting(false);
     }

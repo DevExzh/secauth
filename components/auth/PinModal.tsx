@@ -3,15 +3,15 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { BiometricAuthService } from '@/services/biometricAuth';
 import { Delete, X } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Alert,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  Vibration,
-  View,
+    Alert,
+    Modal,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    Vibration,
+    View,
 } from 'react-native';
 
 interface PinModalProps {
@@ -80,7 +80,7 @@ export const PinModal: React.FC<PinModalProps> = ({
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setIsLoading(true);
 
     if (mode === 'set') {
@@ -143,14 +143,14 @@ export const PinModal: React.FC<PinModalProps> = ({
     }
 
     setIsLoading(false);
-  };
+  }, [mode, step, pin, confirmPin, pinLength, attempts, maxAttempts, t, onPinSet, onClose]);
 
   useEffect(() => {
     if ((step === 'enter' && pin.length === pinLength) || 
         (step === 'confirm' && confirmPin.length === pinLength)) {
       handleSubmit();
     }
-  }, [pin, confirmPin]);
+  }, [pin, confirmPin, handleSubmit, step]);
 
   const getTitle = () => {
     if (title) return title;

@@ -70,6 +70,7 @@ export const ExportDataScreen: React.FC<ExportDataScreenProps> = ({
         [{ text: t('common.done'), onPress: onBack }]
       );
     } catch (error) {
+      console.error('Export data error:', error);
       Alert.alert(
         t('dataManagement.exportData.exportError'),
         t('dataManagement.exportData.exportErrorMessage')

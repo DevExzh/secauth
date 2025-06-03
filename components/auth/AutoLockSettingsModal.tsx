@@ -81,11 +81,6 @@ export const AutoLockSettingsModal: React.FC<AutoLockSettingsModalProps> = ({
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  const formatTimeout = (timeout: AutoLockTimeout) => {
-    const option = timeoutOptions.find(opt => opt.value === timeout);
-    return option ? option.label : t('autoLock.timeout.custom');
-  };
-
   return (
     <Modal
       visible={visible}

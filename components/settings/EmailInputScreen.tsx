@@ -158,6 +158,7 @@ export const EmailInputScreen: React.FC<EmailInputScreenProps> = ({
       
       onContinue(emailConfig);
     } catch (error) {
+      console.error('Email configuration error:', error);
       Alert.alert(t('emailInput.alerts.error'), t('emailInput.alerts.connectionError'));
     } finally {
       setIsValidating(false);

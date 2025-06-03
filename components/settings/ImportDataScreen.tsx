@@ -54,6 +54,7 @@ export const ImportDataScreen: React.FC<ImportDataScreenProps> = ({
       const randomFile = mockFiles[Math.floor(Math.random() * mockFiles.length)];
       setSelectedFile(randomFile);
     } catch (error) {
+      console.error('File selection error:', error);
       Alert.alert(
         t('dataManagement.importData.importError'),
         t('dataManagement.importData.importErrorMessage')
@@ -100,6 +101,7 @@ export const ImportDataScreen: React.FC<ImportDataScreenProps> = ({
         [{ text: t('common.done'), onPress: onBack }]
       );
     } catch (error) {
+      console.error('Import data error:', error);
       Alert.alert(
         t('dataManagement.importData.importError'),
         t('dataManagement.importData.importErrorMessage')

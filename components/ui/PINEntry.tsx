@@ -1,15 +1,15 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Modal,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  Vibration,
-  View,
+    Modal,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    Vibration,
+    View,
 } from 'react-native';
 
 interface PINEntryProps {
@@ -60,7 +60,7 @@ export function PINEntry({
     setError('');
   };
 
-  const handleVerify = async () => {
+  const handleVerify = useCallback(async () => {
     if (pin.length !== 6) return;
 
     setIsVerifying(true);
@@ -87,18 +87,19 @@ export function PINEntry({
         }
       }
     } catch (error) {
+      console.error('PIN verification error:', error);
       setError(t('auth.pin.verificationError'));
       setPin('');
     } finally {
       setIsVerifying(false);
     }
-  };
+  }, [pin, onVerify, onSuccess, attempts, maxAttempts, t, onClose]);
 
   useEffect(() => {
     if (pin.length === 6) {
       handleVerify();
     }
-  }, [pin]);
+  }, [pin, handleVerify]);
 
   const renderPinDots = () => {
     return (
