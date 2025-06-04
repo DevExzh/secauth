@@ -5,6 +5,7 @@ import type { Account } from '@/types/auth';
 import { Edit, Mail, QrCode } from 'lucide-react-native';
 import React from 'react';
 import {
+    Dimensions,
     Modal,
     StyleSheet,
     Text,
@@ -59,6 +60,38 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     onClose();
   };
 
+  // Calculate smart positioning
+  const getMenuPosition = () => {
+    const screenWidth = Dimensions.get('window').width;
+    const screenHeight = Dimensions.get('window').height;
+    const menuWidth = 200; // Estimated menu width
+    const menuHeight = isEmailAccount ? 60 : 120; // Estimated menu height
+    const margin = 16;
+    
+    let left = position.x;
+    let top = position.y;
+    
+    // Adjust horizontal position if menu would go off-screen
+    if (left + menuWidth > screenWidth - margin) {
+      left = screenWidth - menuWidth - margin;
+    }
+    if (left < margin) {
+      left = margin;
+    }
+    
+    // Adjust vertical position if menu would go off-screen
+    if (top + menuHeight > screenHeight - margin) {
+      top = position.y - menuHeight - 10; // Show above the trigger point
+    }
+    if (top < margin) {
+      top = margin;
+    }
+    
+    return { left, top };
+  };
+
+  const menuPosition = getMenuPosition();
+
   return (
     <Modal
       visible={visible}
@@ -75,8 +108,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
                 {
                   backgroundColor: colors.cardBackground,
                   borderColor: colors.border,
-                  top: position.y,
-                  right: 16, // Always align to right edge with some margin
+                  top: menuPosition.top,
+                  left: menuPosition.left,
                 },
               ]}
             >
@@ -133,6 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
     minWidth: 160,
+    maxWidth: 200,
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -150,5 +184,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '400',
     marginLeft: 12,
+    flex: 1,
   },
 }); 

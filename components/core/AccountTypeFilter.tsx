@@ -2,8 +2,9 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ChevronDown, Clock, Filter, Shield } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
+    Dimensions,
     Modal,
     StyleSheet,
     Text,
@@ -23,6 +24,8 @@ export function AccountTypeFilter({ selectedType, onTypeChange }: AccountTypeFil
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [buttonLayout, setButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const buttonRef = useRef<View>(null);
 
   const filterTypes: { key: AccountTypeFilterValue; labelKey: string; icon: React.ReactNode }[] = [
     { 
@@ -58,9 +61,45 @@ export function AccountTypeFilter({ selectedType, onTypeChange }: AccountTypeFil
     }
   };
 
+  const handleButtonPress = () => {
+    if (buttonRef.current) {
+      buttonRef.current.measureInWindow((x: number, y: number, width: number, height: number) => {
+        setButtonLayout({ x, y, width, height });
+        setShowDropdown(true);
+      });
+    }
+  };
+
+  const getDropdownPosition = () => {
+    const screenWidth = Dimensions.get('window').width;
+    const dropdownWidth = 150;
+    const margin = 16;
+    
+    // Calculate position relative to button
+    let left = buttonLayout.x;
+    
+    // Ensure dropdown doesn't go off-screen on the right
+    if (left + dropdownWidth > screenWidth - margin) {
+      left = screenWidth - dropdownWidth - margin;
+    }
+    
+    // Ensure dropdown doesn't go off-screen on the left
+    if (left < margin) {
+      left = margin;
+    }
+    
+    return {
+      top: buttonLayout.y + buttonLayout.height + 8,
+      left: left,
+    };
+  };
+
+  const dropdownPosition = getDropdownPosition();
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
+        ref={buttonRef}
         style={[
           styles.filterButton,
           {
@@ -68,7 +107,7 @@ export function AccountTypeFilter({ selectedType, onTypeChange }: AccountTypeFil
             borderColor: selectedType !== 'all' ? colors.primary : colors.border,
           },
         ]}
-        onPress={() => setShowDropdown(true)}
+        onPress={handleButtonPress}
         activeOpacity={0.7}
       >
         {getFilterIcon()}
@@ -86,7 +125,17 @@ export function AccountTypeFilter({ selectedType, onTypeChange }: AccountTypeFil
           activeOpacity={1}
           onPress={() => setShowDropdown(false)}
         >
-          <View style={[styles.dropdown, { backgroundColor: colors.cardBackground }]}>
+          <View 
+            style={[
+              styles.dropdown, 
+              { 
+                backgroundColor: colors.cardBackground,
+                position: 'absolute',
+                top: dropdownPosition.top,
+                left: dropdownPosition.left,
+              }
+            ]}
+          >
             {filterTypes.map(({ key, labelKey, icon }) => (
               <TouchableOpacity
                 key={key}
@@ -140,8 +189,6 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   dropdown: {
     minWidth: 150,
