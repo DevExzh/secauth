@@ -67,6 +67,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   const [showViewEmailModal, setShowViewEmailModal] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [currentAccount, setCurrentAccount] = useState<Account>(account);
+  const [lastGeneratedCode, setLastGeneratedCode] = useState<string>('');
   
   const progressValue = useSharedValue(0);
   const translateX = useSharedValue(0);
@@ -108,7 +109,8 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           timeRemaining: 0,
           period: 30,
         });
-        progressValue.value = withTiming(0, { duration: 100 });
+        progressValue.value = withTiming(0, { duration: 300 });
+        setLastGeneratedCode(t('account.expired'));
         return;
       }
 
@@ -116,28 +118,49 @@ export const AccountCard: React.FC<AccountCardProps> = ({
       let remainingTime = getRemainingTime();
       if (currentAccount.isTemporary && remainingTime !== null) {
         const code = await OTPService.generateCode(currentAccount);
+        const totalPeriod = Math.max(remainingTime, 1);
+        
         setGeneratedCode({
           ...code,
           timeRemaining: remainingTime,
-          period: Math.max(remainingTime, 1), // Avoid division by zero
+          period: totalPeriod,
         });
-        progressValue.value = withTiming(remainingTime / Math.max(remainingTime, 1), { duration: 100 });
+        
+        // Calculate current progress and smoothly animate to it
+        const currentProgress = remainingTime / totalPeriod;
+        progressValue.value = withTiming(currentProgress, { duration: 300 });
+        
+        // Update last generated code for comparison
+        if (lastGeneratedCode !== code.code) {
+          setLastGeneratedCode(code.code);
+        }
       } else {
         const code = await OTPService.generateCode(currentAccount);
+        
         setGeneratedCode(code);
-        progressValue.value = withTiming(code.timeRemaining / code.period, { duration: 100 });
+        
+        // Calculate current progress and smoothly animate to it
+        const currentProgress = code.timeRemaining / code.period;
+        progressValue.value = withTiming(currentProgress, { duration: 300 });
+        
+        // Update last generated code for comparison
+        if (lastGeneratedCode !== code.code) {
+          setLastGeneratedCode(code.code);
+        }
       }
     } catch (error) {
       console.error('Error generating code:', error);
       // Set a placeholder code
+      const placeholderCode = '--- ---';
       setGeneratedCode({
-        code: '--- ---',
+        code: placeholderCode,
         timeRemaining: 30,
         period: 30,
       });
-      progressValue.value = withTiming(1, { duration: 100 });
+      progressValue.value = withTiming(1, { duration: 300 });
+      setLastGeneratedCode(placeholderCode);
     }
-  }, [currentAccount, progressValue, isExpired, getRemainingTime, t]);
+  }, [currentAccount, progressValue, isExpired, getRemainingTime, t, lastGeneratedCode]);
 
   useEffect(() => {
     updateCode();

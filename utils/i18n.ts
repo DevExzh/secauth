@@ -66,34 +66,40 @@ const getDeviceLanguage = () => {
   }
 };
 
-// Language detector
+// Language detector with improved async handling
 const languageDetector = {
   type: 'languageDetector' as const,
   async: true,
-  detect: async (callback: (language: string) => void) => {
-    try {
-      // First try to get saved language from storage
-      const savedLanguage = await safeStorageOperations.getItem(LANGUAGE_STORAGE_KEY);
-      if (savedLanguage && Object.keys(resources).includes(savedLanguage)) {
-        callback(savedLanguage);
-        return;
+  detect: (callback: (language: string) => void) => {
+    // Use setTimeout to ensure this runs after current execution cycle
+    setTimeout(async () => {
+      try {
+        // First try to get saved language from storage
+        const savedLanguage = await safeStorageOperations.getItem(LANGUAGE_STORAGE_KEY);
+        if (savedLanguage && Object.keys(resources).includes(savedLanguage)) {
+          callback(savedLanguage);
+          return;
+        }
+        
+        // Fall back to device language
+        const deviceLanguage = getDeviceLanguage();
+        callback(deviceLanguage);
+      } catch (error) {
+        console.error('Error detecting language:', error);
+        callback('en'); // Default fallback
       }
-      
-      // Fall back to device language
-      const deviceLanguage = getDeviceLanguage();
-      callback(deviceLanguage);
-    } catch (error) {
-      console.error('Error detecting language:', error);
-      callback('en'); // Default fallback
-    }
+    }, 0);
   },
   init: () => {},
-  cacheUserLanguage: async (language: string) => {
-    try {
-      await safeStorageOperations.setItem(LANGUAGE_STORAGE_KEY, language);
-    } catch (error) {
-      console.error('Error saving language:', error);
-    }
+  cacheUserLanguage: (language: string) => {
+    // Use setTimeout to defer the storage operation
+    setTimeout(async () => {
+      try {
+        await safeStorageOperations.setItem(LANGUAGE_STORAGE_KEY, language);
+      } catch (error) {
+        console.error('Error saving language:', error);
+      }
+    }, 0);
   },
 };
 
@@ -101,67 +107,79 @@ const languageDetector = {
 let isInitialized = false;
 let initPromise: Promise<void> | null = null;
 
-// Initialize i18n
+// Initialize i18n with improved error handling and deferred execution
 const initI18n = () => {
   if (initPromise) {
     return initPromise;
   }
 
-  initPromise = new Promise<void>((resolve, reject) => {
-    try {
-      i18n
-        .use(languageDetector)
-        .use(initReactI18next)
-        .init({
-          resources,
-          fallbackLng: 'en',
-          defaultNS: 'common',
-          ns: ['common'],
-          
-          interpolation: {
-            escapeValue: false, // React already escapes values
-          },
-          
-          react: {
-            useSuspense: false, // Disable suspense for React Native
-          },
-          
-          debug: false, // Disable debug to prevent excessive logging
-          
-          // Reduce logging
-          saveMissing: false,
-          missingKeyHandler: false,
-          
-          // Optimize performance
-          load: 'languageOnly',
-          cleanCode: true,
-          
-          // Prevent excessive interpolation calls
-          returnObjects: false,
-          returnEmptyString: true,
-          returnNull: false,
-        })
-        .then(() => {
-          isInitialized = true;
-          resolve();
-        })
-        .catch((error) => {
-          console.error('i18n initialization failed:', error);
-          isInitialized = true; // Set to true to prevent infinite loading
-          resolve(); // Resolve instead of reject to prevent app crash
-        });
-    } catch (error) {
-      console.error('i18n initialization error:', error);
-      isInitialized = true;
-      resolve();
-    }
+  initPromise = new Promise<void>((resolve) => {
+    // Use setTimeout to ensure initialization happens after current execution cycle
+    setTimeout(async () => {
+      try {
+        await i18n
+          .use(languageDetector)
+          .use(initReactI18next)
+          .init({
+            resources,
+            fallbackLng: 'en',
+            defaultNS: 'common',
+            ns: ['common'],
+            
+            interpolation: {
+              escapeValue: false, // React already escapes values
+            },
+            
+            react: {
+              useSuspense: false, // Disable suspense for React Native
+              bindI18n: 'languageChanged loaded', // Optimize re-rendering
+              bindI18nStore: false, // Disable store binding for performance
+            },
+            
+            debug: false, // Disable debug to prevent excessive logging
+            
+            // Reduce logging
+            saveMissing: false,
+            missingKeyHandler: false,
+            
+            // Optimize performance
+            load: 'languageOnly',
+            cleanCode: true,
+            
+            // Prevent excessive interpolation calls
+            returnObjects: false,
+            returnEmptyString: true,
+            returnNull: false,
+            
+            // Additional performance optimizations
+            initImmediate: false, // Don't block on init
+            nonExplicitSupportedLngs: false, // Only use explicitly defined languages
+          });
+        
+        isInitialized = true;
+        resolve();
+      } catch (error) {
+        console.error('i18n initialization failed:', error);
+        isInitialized = true; // Set to true to prevent infinite loading
+        resolve(); // Always resolve to prevent app crash
+      }
+    }, 0);
   });
 
   return initPromise;
 };
 
-// Start initialization
-initI18n();
+// Start initialization with proper timing
+if (typeof requestAnimationFrame !== 'undefined') {
+  requestAnimationFrame(() => {
+    initI18n();
+  });
+} else {
+  // Fallback for environments without requestAnimationFrame
+  setTimeout(() => {
+    initI18n();
+  }, 0);
+}
 
 export { initPromise, isInitialized };
 export default i18n; 

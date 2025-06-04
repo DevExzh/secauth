@@ -1,6 +1,6 @@
 import { ColorScheme, ThemeMode } from '@/types/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Appearance } from 'react-native';
 
 const THEME_STORAGE_KEY = 'app_theme_mode';
@@ -16,33 +16,49 @@ interface UseThemeReturn {
 export const useTheme = (): UseThemeReturn => {
   const [themeMode, setThemeMode] = useState<ThemeMode>('system');
   const [isLoading, setIsLoading] = useState(true);
-  const [, forceUpdate] = useState({});
+  const [systemColorScheme, setSystemColorScheme] = useState<ColorScheme | null>(
+    () => Appearance.getColorScheme() as ColorScheme | null
+  );
+  
+  const isUnmountedRef = useRef(false);
 
-  // Force re-render when appearance changes
-  const triggerRerender = useCallback(() => {
-    forceUpdate({});
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isUnmountedRef.current = true;
+    };
   }, []);
 
-  // Listen to system theme changes and force re-render
+  // Listen to system theme changes with proper state updates
   useEffect(() => {
-    const subscription = Appearance.addChangeListener(() => {
-      // Force re-render when system theme changes
-      triggerRerender();
-    });
+    const updateSystemTheme = () => {
+      const newColorScheme = Appearance.getColorScheme() as ColorScheme | null;
+      
+      // Use requestAnimationFrame to defer state update
+      requestAnimationFrame(() => {
+        if (!isUnmountedRef.current) {
+          setSystemColorScheme(newColorScheme);
+        }
+      });
+    };
 
-    return () => subscription?.remove();
-  }, [triggerRerender]);
+    // Set initial value
+    updateSystemTheme();
 
-  // Get current system color scheme (fresh on every render as recommended)
-  const systemColorScheme: ColorScheme | null = Appearance.getColorScheme() as ColorScheme | null;
+    const subscription = Appearance.addChangeListener(updateSystemTheme);
 
-  // Calculate current color scheme based on theme mode
-  const currentColorScheme: ColorScheme = useCallback(() => {
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
+
+  // Calculate current color scheme using useMemo for performance
+  const currentColorScheme: ColorScheme = useMemo(() => {
     if (themeMode === 'system') {
       return systemColorScheme === 'dark' ? 'dark' : 'light';
     }
     return themeMode as ColorScheme;
-  }, [themeMode, systemColorScheme])();
+  }, [themeMode, systemColorScheme]);
 
   // Apply theme using Appearance.setColorScheme()
   const applyTheme = useCallback((mode: ThemeMode) => {
@@ -54,12 +70,10 @@ export const useTheme = (): UseThemeReturn => {
         // Force specific theme
         Appearance.setColorScheme(mode as 'light' | 'dark');
       }
-      // Force re-render after applying theme
-      triggerRerender();
     } catch (error) {
       console.error('Error applying theme:', error);
     }
-  }, [triggerRerender]);
+  }, []);
 
   // Load theme preference from storage
   useEffect(() => {
@@ -68,20 +82,28 @@ export const useTheme = (): UseThemeReturn => {
         const savedMode = await AsyncStorage.getItem(THEME_STORAGE_KEY);
         if (savedMode && ['light', 'dark', 'system'].includes(savedMode)) {
           const mode = savedMode as ThemeMode;
-          setThemeMode(mode);
-          applyTheme(mode);
+          if (!isUnmountedRef.current) {
+            setThemeMode(mode);
+            applyTheme(mode);
+          }
         } else {
           // Default to system theme
-          setThemeMode('system');
-          applyTheme('system');
+          if (!isUnmountedRef.current) {
+            setThemeMode('system');
+            applyTheme('system');
+          }
         }
       } catch (error) {
         console.error('Error loading theme mode:', error);
         // Fallback to system theme
-        setThemeMode('system');
-        applyTheme('system');
+        if (!isUnmountedRef.current) {
+          setThemeMode('system');
+          applyTheme('system');
+        }
       } finally {
-        setIsLoading(false);
+        if (!isUnmountedRef.current) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -97,11 +119,13 @@ export const useTheme = (): UseThemeReturn => {
     }
   }, []);
 
-  // Change theme mode - immediate update with forced re-render
+  // Change theme mode with proper state management
   const setTheme = useCallback(async (mode: ThemeMode): Promise<void> => {
-    // Update theme mode immediately
+    if (isUnmountedRef.current) return;
+    
+    // Update theme mode
     setThemeMode(mode);
-    // Apply theme immediately (this will also trigger re-render)
+    // Apply theme
     applyTheme(mode);
     // Save to storage
     await saveThemeMode(mode);

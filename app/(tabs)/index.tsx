@@ -80,6 +80,7 @@ export default function HomeScreen() {
   const isUnmountedRef = useRef(false);
   const scrollOffset = useRef(0);
   const searchBarOpacity = useRef(new Animated.Value(0)).current;
+  const lastFilterRef = useRef({ accounts: [] as Account[], category: 'All' as AccountCategory, type: 'all' as AccountTypeFilterValue, query: '' });
 
   // Cleanup on unmount
   useEffect(() => {
@@ -124,7 +125,9 @@ export default function HomeScreen() {
       if (!isUnmountedRef.current) {
         try {
           const updatedAccounts = await cleanupExpiredAccounts();
-          setAccounts(updatedAccounts);
+          if (!isUnmountedRef.current) {
+            setAccounts(updatedAccounts);
+          }
         } catch (error) {
           console.error('Error in periodic cleanup:', error);
         }
@@ -184,7 +187,9 @@ export default function HomeScreen() {
       const refreshOnFocus = async () => {
         try {
           await AccountService.refreshAccounts();
-          await loadAccounts();
+          if (!isUnmountedRef.current) {
+            await loadAccounts();
+          }
         } catch (error) {
           console.warn('Failed to refresh accounts on focus:', error);
         }
@@ -230,20 +235,42 @@ export default function HomeScreen() {
     return filtered;
   }, []);
 
-  // Debounced search
+  // Debounced search with proper cleanup and state management
   useEffect(() => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
-    searchTimeoutRef.current = setTimeout(() => {
-      if (!isUnmountedRef.current) {
-        const filtered = filterAccounts(accounts, selectedCategory, selectedType, searchQuery);
-        setFilteredAccounts(filtered);
-      }
-    }, 300); // 300ms debounce
+    // Use requestAnimationFrame to ensure we're not in a render cycle
+    const scheduleFilter = () => {
+      searchTimeoutRef.current = setTimeout(() => {
+        if (!isUnmountedRef.current) {
+          const currentFilter = { accounts, category: selectedCategory, type: selectedType, query: searchQuery };
+          
+          // Check if filter parameters have actually changed to avoid unnecessary updates
+          const lastFilter = lastFilterRef.current;
+          if (
+            currentFilter.accounts === lastFilter.accounts &&
+            currentFilter.category === lastFilter.category &&
+            currentFilter.type === lastFilter.type &&
+            currentFilter.query === lastFilter.query
+          ) {
+            return;
+          }
+          
+          lastFilterRef.current = currentFilter;
+          
+          const filtered = filterAccounts(accounts, selectedCategory, selectedType, searchQuery);
+          setFilteredAccounts(filtered);
+        }
+      }, 300); // 300ms debounce
+    };
+
+    // Use requestAnimationFrame to defer the scheduling
+    const raf = requestAnimationFrame(scheduleFilter);
 
     return () => {
+      cancelAnimationFrame(raf);
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
@@ -252,55 +279,68 @@ export default function HomeScreen() {
 
   // Memoized handlers
   const handleCategoryChange = useCallback((category: AccountCategory) => {
-    setSelectedCategory(category);
+    if (!isUnmountedRef.current) {
+      setSelectedCategory(category);
+    }
   }, []);
 
   const handleTypeChange = useCallback((type: AccountTypeFilterValue) => {
-    setSelectedType(type);
+    if (!isUnmountedRef.current) {
+      setSelectedType(type);
+    }
   }, []);
 
   const handleSearchChange = useCallback((query: string) => {
-    setSearchQuery(query);
+    if (!isUnmountedRef.current) {
+      setSearchQuery(query);
+    }
   }, []);
 
-  // Show/hide search bar based on scroll position
+  // Show/hide search bar based on scroll position with debouncing
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
-    console.log('Scroll offset:', currentOffset); // Debug log
     
-    // Show search bar when pulling down from the top
-    if (currentOffset < -10) {
-      console.log('Showing search bar - pulled down'); // Debug log
-      if (!showSearchBar) {
-        setShowSearchBar(true);
-        searchBarOpacity.setValue(1); // Set immediately
+    // Debounce scroll updates to avoid excessive state changes
+    requestAnimationFrame(() => {
+      if (isUnmountedRef.current) return;
+      
+      // Show search bar when pulling down from the top
+      if (currentOffset < -10) {
+        if (!showSearchBar) {
+          setShowSearchBar(true);
+          searchBarOpacity.setValue(1); // Set immediately
+        }
       }
-    }
-    // Hide search bar when scrolling down (more sensitive)
-    else if (currentOffset > 20 && showSearchBar) {
-      console.log('Hiding search bar - scrolled down'); // Debug log
-      Animated.timing(searchBarOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => {
-        setShowSearchBar(false);
-      });
-    }
-    
-    scrollOffset.current = currentOffset;
+      // Hide search bar when scrolling down (more sensitive)
+      else if (currentOffset > 20 && showSearchBar) {
+        Animated.timing(searchBarOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => {
+          if (!isUnmountedRef.current) {
+            setShowSearchBar(false);
+          }
+        });
+      }
+      
+      scrollOffset.current = currentOffset;
+    });
   }, [searchBarOpacity, showSearchBar]);
 
   // Also show search bar when refresh control is triggered
   const handleRefreshControlPull = useCallback(() => {
-    console.log('Refresh control triggered'); // Debug log
-    setShowSearchBar(true);
-    searchBarOpacity.setValue(1); // Set immediately instead of animating
-    loadAccounts(true);
+    if (!isUnmountedRef.current) {
+      setShowSearchBar(true);
+      searchBarOpacity.setValue(1); // Set immediately instead of animating
+      loadAccounts(true);
+    }
   }, [loadAccounts, searchBarOpacity]);
 
   // Handle drag and drop for reordering
   const handleDragEnd = useCallback(async ({ data }: DragEndParams<Account>) => {
+    if (isUnmountedRef.current) return;
+    
     try {
       // Separate temporary and regular accounts
       const regularAccounts = data.filter((account: Account) => !account.isTemporary);
@@ -312,22 +352,30 @@ export default function HomeScreen() {
       }
       
       // Update local state
-      setFilteredAccounts(data);
-      
-      // Reload accounts to ensure consistency
-      await loadAccounts();
+      if (!isUnmountedRef.current) {
+        setFilteredAccounts(data);
+        
+        // Reload accounts to ensure consistency
+        await loadAccounts();
+      }
     } catch (error) {
       console.error('Error updating account order:', error);
       // Reload accounts on error to ensure consistency
-      await loadAccounts();
+      if (!isUnmountedRef.current) {
+        await loadAccounts();
+      }
     }
   }, [loadAccounts]);
 
   const handleAccountUpdate = useCallback(async (accountId: string, newName: string) => {
+    if (isUnmountedRef.current) return;
+    
     try {
       await AccountService.updateAccountName(accountId, newName);
       // Reload accounts to reflect the change
-      await loadAccounts();
+      if (!isUnmountedRef.current) {
+        await loadAccounts();
+      }
     } catch (error) {
       console.error('Error updating account:', error);
       throw error;
@@ -335,15 +383,21 @@ export default function HomeScreen() {
   }, [loadAccounts]);
 
   const handleAccountDelete = useCallback(async (accountId: string) => {
+    if (isUnmountedRef.current) return;
+    
     try {
       await AccountService.deleteAccount(accountId);
       // Update local state immediately
-      setAccounts(prev => prev.filter(account => account.id !== accountId));
-      setFilteredAccounts(prev => prev.filter(account => account.id !== accountId));
+      if (!isUnmountedRef.current) {
+        setAccounts(prev => prev.filter(account => account.id !== accountId));
+        setFilteredAccounts(prev => prev.filter(account => account.id !== accountId));
+      }
     } catch (error) {
       console.error('Error deleting account:', error);
       // Reload accounts to ensure consistency
-      await loadAccounts();
+      if (!isUnmountedRef.current) {
+        await loadAccounts();
+      }
     }
   }, [loadAccounts]);
 
@@ -398,64 +452,75 @@ export default function HomeScreen() {
     </View>
   ), [colors, t, error, loadAccounts]);
 
-  // Handle scroll begin drag
+  // Handle scroll begin drag with debouncing
   const handleScrollBeginDrag = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
-    console.log('Scroll begin drag, offset:', currentOffset);
     
-    // If we're at the top and user starts dragging, show search bar immediately
-    if (currentOffset <= 0) {
-      console.log('Starting drag from top - showing search bar');
-      setShowSearchBar(true);
-      searchBarOpacity.setValue(1);
-    }
-    // If we're not at the top and search bar is visible, hide it
-    else if (currentOffset > 20 && showSearchBar) {
-      console.log('Starting drag from non-top position - hiding search bar');
-      Animated.timing(searchBarOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => {
-        setShowSearchBar(false);
-      });
-    }
+    requestAnimationFrame(() => {
+      if (isUnmountedRef.current) return;
+      
+      // If we're at the top and user starts dragging, show search bar immediately
+      if (currentOffset <= 0) {
+        setShowSearchBar(true);
+        searchBarOpacity.setValue(1);
+      }
+      // If we're not at the top and search bar is visible, hide it
+      else if (currentOffset > 20 && showSearchBar) {
+        Animated.timing(searchBarOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => {
+          if (!isUnmountedRef.current) {
+            setShowSearchBar(false);
+          }
+        });
+      }
+    });
   }, [searchBarOpacity, showSearchBar]);
 
-  // Handle momentum scroll
+  // Handle momentum scroll with debouncing
   const handleMomentumScrollBegin = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
-    console.log('Momentum scroll begin, offset:', currentOffset);
     
-    // Hide search bar if we're scrolled down
-    if (currentOffset > 20) {
-      console.log('Hiding search bar during momentum scroll');
-      Animated.timing(searchBarOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => {
-        setShowSearchBar(false);
-      });
-    }
+    requestAnimationFrame(() => {
+      if (isUnmountedRef.current) return;
+      
+      // Hide search bar if we're scrolled down
+      if (currentOffset > 20) {
+        Animated.timing(searchBarOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => {
+          if (!isUnmountedRef.current) {
+            setShowSearchBar(false);
+          }
+        });
+      }
+    });
   }, [searchBarOpacity]);
 
-  // Handle momentum scroll end
+  // Handle momentum scroll end with debouncing
   const handleMomentumScrollEnd = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
-    console.log('Momentum scroll end, offset:', currentOffset);
     
-    // Hide search bar if we're scrolled down
-    if (currentOffset > 20) {
-      console.log('Hiding search bar after momentum scroll');
-      Animated.timing(searchBarOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => {
-        setShowSearchBar(false);
-      });
-    }
+    requestAnimationFrame(() => {
+      if (isUnmountedRef.current) return;
+      
+      // Hide search bar if we're scrolled down
+      if (currentOffset > 20) {
+        Animated.timing(searchBarOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => {
+          if (!isUnmountedRef.current) {
+            setShowSearchBar(false);
+          }
+        });
+      }
+    });
   }, [searchBarOpacity]);
 
   if (error) {
