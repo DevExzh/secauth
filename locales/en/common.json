@@ -10,6 +10,11 @@
   "search": {
     "placeholder": "Search accounts"
   },
+  "filter": {
+    "all": "All",
+    "otp": "OTP",
+    "temporary": "Temporary"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",

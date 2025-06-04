@@ -1,5 +1,6 @@
 import { AccountCard } from '@/components/account';
-import { CategoryFilter, SearchBar } from '@/components/core';
+import { AccountTypeFilter, CategoryFilter, SearchBar } from '@/components/core';
+import type { AccountTypeFilterValue } from '@/components/core/AccountTypeFilter';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -9,7 +10,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Shield } from 'lucide-react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  FlatList,
+  Animated,
   InteractionManager,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -20,8 +21,12 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+import DraggableFlatList, {
+  DragEndParams,
+  RenderItemParams,
+} from 'react-native-draggable-flatlist';
 
 // Error Boundary for AccountCard
 class AccountCardErrorBoundary extends React.Component<
@@ -63,15 +68,18 @@ export default function HomeScreen() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [filteredAccounts, setFilteredAccounts] = useState<Account[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<AccountCategory>('All');
+  const [selectedType, setSelectedType] = useState<AccountTypeFilterValue>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSearchBar, setShowSearchBar] = useState(false);
   
   // Refs for performance optimization
-  const flatListRef = useRef<FlatList>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const isUnmountedRef = useRef(false);
+  const scrollOffset = useRef(0);
+  const searchBarOpacity = useRef(new Animated.Value(0)).current;
 
   // Cleanup on unmount
   useEffect(() => {
@@ -187,8 +195,22 @@ export default function HomeScreen() {
   );
 
   // Filter accounts with debouncing and memoization
-  const filterAccounts = useCallback((accountsList: Account[], category: AccountCategory, query: string) => {
+  const filterAccounts = useCallback((accountsList: Account[], category: AccountCategory, type: AccountTypeFilterValue, query: string) => {
     let filtered = accountsList;
+
+    // Filter by type first
+    switch (type) {
+      case 'otp':
+        filtered = filtered.filter(account => !account.isTemporary);
+        break;
+      case 'temporary':
+        filtered = filtered.filter(account => account.isTemporary);
+        break;
+      case 'all':
+      default:
+        // No filtering
+        break;
+    }
 
     // Filter by category
     if (category !== 'All') {
@@ -216,7 +238,7 @@ export default function HomeScreen() {
 
     searchTimeoutRef.current = setTimeout(() => {
       if (!isUnmountedRef.current) {
-        const filtered = filterAccounts(accounts, selectedCategory, searchQuery);
+        const filtered = filterAccounts(accounts, selectedCategory, selectedType, searchQuery);
         setFilteredAccounts(filtered);
       }
     }, 300); // 300ms debounce
@@ -226,24 +248,80 @@ export default function HomeScreen() {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [accounts, selectedCategory, searchQuery, filterAccounts]);
+  }, [accounts, selectedCategory, selectedType, searchQuery, filterAccounts]);
 
   // Memoized handlers
   const handleCategoryChange = useCallback((category: AccountCategory) => {
     setSelectedCategory(category);
   }, []);
 
+  const handleTypeChange = useCallback((type: AccountTypeFilterValue) => {
+    setSelectedType(type);
+  }, []);
+
   const handleSearchChange = useCallback((query: string) => {
     setSearchQuery(query);
   }, []);
 
-  const handleRefresh = useCallback(() => {
-    loadAccounts(true);
-  }, [loadAccounts]);
-
+  // Show/hide search bar based on scroll position
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    // Optional: Add scroll-based optimizations here
-  }, []);
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    console.log('Scroll offset:', currentOffset); // Debug log
+    
+    // Show search bar when pulling down from the top
+    if (currentOffset < -10) {
+      console.log('Showing search bar - pulled down'); // Debug log
+      if (!showSearchBar) {
+        setShowSearchBar(true);
+        searchBarOpacity.setValue(1); // Set immediately
+      }
+    }
+    // Hide search bar when scrolling down (more sensitive)
+    else if (currentOffset > 20 && showSearchBar) {
+      console.log('Hiding search bar - scrolled down'); // Debug log
+      Animated.timing(searchBarOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowSearchBar(false);
+      });
+    }
+    
+    scrollOffset.current = currentOffset;
+  }, [searchBarOpacity, showSearchBar]);
+
+  // Also show search bar when refresh control is triggered
+  const handleRefreshControlPull = useCallback(() => {
+    console.log('Refresh control triggered'); // Debug log
+    setShowSearchBar(true);
+    searchBarOpacity.setValue(1); // Set immediately instead of animating
+    loadAccounts(true);
+  }, [loadAccounts, searchBarOpacity]);
+
+  // Handle drag and drop for reordering
+  const handleDragEnd = useCallback(async ({ data }: DragEndParams<Account>) => {
+    try {
+      // Separate temporary and regular accounts
+      const regularAccounts = data.filter((account: Account) => !account.isTemporary);
+      
+      // Only update order for regular accounts (temporary accounts maintain their order)
+      if (regularAccounts.length > 0) {
+        const regularAccountIds = regularAccounts.map((account: Account) => account.id);
+        await AccountService.updateAccountOrder(regularAccountIds);
+      }
+      
+      // Update local state
+      setFilteredAccounts(data);
+      
+      // Reload accounts to ensure consistency
+      await loadAccounts();
+    } catch (error) {
+      console.error('Error updating account order:', error);
+      // Reload accounts on error to ensure consistency
+      await loadAccounts();
+    }
+  }, [loadAccounts]);
 
   const handleAccountUpdate = useCallback(async (accountId: string, newName: string) => {
     try {
@@ -270,64 +348,36 @@ export default function HomeScreen() {
   }, [loadAccounts]);
 
   // Memoized render functions
-  const renderAccountCard = useCallback(({ item }: { item: Account }) => (
+  const renderAccountCard = useCallback(({ item, drag, isActive }: RenderItemParams<Account>) => (
     <AccountCardErrorBoundary account={item}>
       <AccountCard 
         account={item} 
         onAccountUpdate={handleAccountUpdate}
         onAccountDelete={handleAccountDelete}
+        onLongPress={item.isTemporary ? undefined : drag}
+        isDragging={isActive}
       />
     </AccountCardErrorBoundary>
   ), [handleAccountUpdate, handleAccountDelete]);
 
   const keyExtractor = useCallback((item: Account) => item.id, []);
 
-  const getItemLayout = useCallback((data: any, index: number) => ({
-    length: 120, // Approximate height of AccountCard
-    offset: 120 * index,
-    index,
-  }), []);
-
   // Memoized components
-  const headerComponent = useMemo(() => (
-    <View style={[styles.header, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 }]}>
-      <View style={styles.headerTop}>
-        <View style={styles.headerLeft}>
-          <Shield size={32} color={colors.primary} />
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            {t('app.name')}
-          </Text>
-        </View>
-      </View>
-
-      <SearchBar
-        value={searchQuery}
-        onChangeText={handleSearchChange}
-        placeholder={t('search.placeholder')}
-      />
-
-      <CategoryFilter
-        selectedCategory={selectedCategory}
-        onCategoryChange={handleCategoryChange}
-      />
-    </View>
-  ), [colors, t, searchQuery, selectedCategory, handleSearchChange, handleCategoryChange]);
-
   const emptyComponent = useMemo(() => (
     <View style={styles.emptyContainer}>
       <Shield size={64} color={colors.textSecondary} />
       <Text style={[styles.emptyTitle, { color: colors.text }]}>
-        {searchQuery || selectedCategory !== 'All' 
+        {searchQuery || selectedCategory !== 'All' || selectedType !== 'all'
           ? t('accounts.noResults') 
           : t('accounts.empty')}
       </Text>
       <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
-        {searchQuery || selectedCategory !== 'All'
+        {searchQuery || selectedCategory !== 'All' || selectedType !== 'all'
           ? t('accounts.tryDifferentSearch')
           : t('accounts.addFirst')}
       </Text>
     </View>
-  ), [colors, t, searchQuery, selectedCategory]);
+  ), [colors, t, searchQuery, selectedCategory, selectedType]);
 
   const errorComponent = useMemo(() => (
     <View style={styles.errorContainer}>
@@ -348,9 +398,69 @@ export default function HomeScreen() {
     </View>
   ), [colors, t, error, loadAccounts]);
 
+  // Handle scroll begin drag
+  const handleScrollBeginDrag = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    console.log('Scroll begin drag, offset:', currentOffset);
+    
+    // If we're at the top and user starts dragging, show search bar immediately
+    if (currentOffset <= 0) {
+      console.log('Starting drag from top - showing search bar');
+      setShowSearchBar(true);
+      searchBarOpacity.setValue(1);
+    }
+    // If we're not at the top and search bar is visible, hide it
+    else if (currentOffset > 20 && showSearchBar) {
+      console.log('Starting drag from non-top position - hiding search bar');
+      Animated.timing(searchBarOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowSearchBar(false);
+      });
+    }
+  }, [searchBarOpacity, showSearchBar]);
+
+  // Handle momentum scroll
+  const handleMomentumScrollBegin = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    console.log('Momentum scroll begin, offset:', currentOffset);
+    
+    // Hide search bar if we're scrolled down
+    if (currentOffset > 20) {
+      console.log('Hiding search bar during momentum scroll');
+      Animated.timing(searchBarOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowSearchBar(false);
+      });
+    }
+  }, [searchBarOpacity]);
+
+  // Handle momentum scroll end
+  const handleMomentumScrollEnd = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    console.log('Momentum scroll end, offset:', currentOffset);
+    
+    // Hide search bar if we're scrolled down
+    if (currentOffset > 20) {
+      console.log('Hiding search bar after momentum scroll');
+      Animated.timing(searchBarOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowSearchBar(false);
+      });
+    }
+  }, [searchBarOpacity]);
+
   if (error) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 }]}>
         <StatusBar
           barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor={colors.background}
@@ -362,38 +472,78 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 }]}>
       <StatusBar
         barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor={colors.background}
         translucent={false}
       />
       
-      <FlatList
-        ref={flatListRef}
+      {/* Sticky Header */}
+      <View style={[styles.stickyHeader, { backgroundColor: colors.background }]}>
+        <View style={styles.logoSection}>
+          <Shield size={24} color={colors.primary} />
+          <Text style={[styles.logoText, { color: colors.text }]}>
+            {t('app.name')}
+          </Text>
+        </View>
+        
+        <View style={styles.categorySection}>
+          <View style={styles.categoryFilterContainer}>
+            <CategoryFilter
+              selectedCategory={selectedCategory}
+              onCategoryChange={handleCategoryChange}
+            />
+          </View>
+          <AccountTypeFilter
+            selectedType={selectedType}
+            onTypeChange={handleTypeChange}
+          />
+        </View>
+      </View>
+
+      {/* Search Bar (conditional) */}
+      {showSearchBar && (
+        <Animated.View 
+          style={[
+            styles.searchBarContainer, 
+            { 
+              backgroundColor: colors.background,
+              opacity: searchBarOpacity,
+            }
+          ]}
+        >
+          <SearchBar
+            value={searchQuery}
+            onChangeText={handleSearchChange}
+            placeholder={t('search.placeholder')}
+          />
+        </Animated.View>
+      )}
+      
+      {/* Main Content */}
+      <DraggableFlatList
         data={filteredAccounts}
         renderItem={renderAccountCard}
         keyExtractor={keyExtractor}
-        getItemLayout={getItemLayout}
-        ListHeaderComponent={headerComponent}
         ListEmptyComponent={isLoading ? null : emptyComponent}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
-            onRefresh={handleRefresh}
+            onRefresh={handleRefreshControlPull}
             colors={[colors.primary]}
             tintColor={colors.primary}
           />
         }
-        onScroll={handleScroll}
+        onDragEnd={handleDragEnd}
         scrollEventThrottle={16}
         removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        updateCellsBatchingPeriod={50}
-        initialNumToRender={10}
-        windowSize={10}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        onScrollBeginDrag={handleScrollBeginDrag}
+        onMomentumScrollBegin={handleMomentumScrollBegin}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
       />
     </SafeAreaView>
   );
@@ -405,6 +555,38 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flexGrow: 1,
+    paddingTop: 8,
+  },
+  stickyHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  logoSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  logoText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  categorySection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  categoryFilterContainer: {
+    flex: 1,
+    marginRight: 8,
+  },
+  searchBarContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   header: {
     paddingHorizontal: 20,

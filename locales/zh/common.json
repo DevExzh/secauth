@@ -10,6 +10,11 @@
   "search": {
     "placeholder": "搜索账户"
   },
+  "filter": {
+    "all": "全部",
+    "otp": "OTP",
+    "temporary": "临时"
+  },
   "common": {
     "save": "保存",
     "cancel": "取消",

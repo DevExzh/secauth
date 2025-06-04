@@ -12,17 +12,18 @@ export class AccountService {
   private static loadPromise: Promise<Account[]> | null = null;
 
   /**
-   * Get all accounts with performance optimization
+   * Get all accounts with performance optimization and proper sorting
    */
   static async getAccounts(): Promise<Account[]> {
     // Return cached data if available
     if (this.cache) {
-      return this.cache;
+      return this.sortAccounts(this.cache);
     }
 
     // Return existing promise if already loading
     if (this.isLoading && this.loadPromise) {
-      return this.loadPromise;
+      const accounts = await this.loadPromise;
+      return this.sortAccounts(accounts);
     }
 
     this.isLoading = true;
@@ -31,11 +32,33 @@ export class AccountService {
     try {
       const accounts = await this.loadPromise;
       this.cache = accounts;
-      return accounts;
+      return this.sortAccounts(accounts);
     } finally {
       this.isLoading = false;
       this.loadPromise = null;
     }
+  }
+
+  /**
+   * Sort accounts according to business rules:
+   * 1. Temporary email codes at top, newest first (not reorderable)
+   * 2. Regular OTP accounts below, ordered by custom order or creation time (reorderable)
+   */
+  private static sortAccounts(accounts: Account[]): Account[] {
+    const temporaryAccounts = accounts
+      .filter(account => account.isTemporary)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    const regularAccounts = accounts
+      .filter(account => !account.isTemporary)
+      .sort((a, b) => {
+        // Sort by custom order if available, then by creation time
+        const orderA = (a as any).customOrder ?? new Date(a.createdAt).getTime();
+        const orderB = (b as any).customOrder ?? new Date(b.createdAt).getTime();
+        return orderA - orderB;
+      });
+    
+    return [...temporaryAccounts, ...regularAccounts];
   }
 
   /**
@@ -246,5 +269,51 @@ export class AccountService {
   static async refreshAccounts(): Promise<Account[]> {
     this.clearCache();
     return await this.getAccounts();
+  }
+
+  /**
+   * Update account order for drag and drop functionality
+   */
+  static async updateAccountOrder(accountIds: string[]): Promise<void> {
+    try {
+      const accounts = await this.getAccounts();
+      const updatedAccounts = accounts.map(account => {
+        const newOrder = accountIds.indexOf(account.id);
+        if (newOrder !== -1 && !account.isTemporary) {
+          return {
+            ...account,
+            customOrder: newOrder,
+            updatedAt: new Date(),
+          } as Account & { customOrder: number };
+        }
+        return account;
+      });
+      
+      // Update cache immediately
+      this.cache = updatedAccounts;
+      
+      // Save to storage
+      await this.saveAccountsAsync(updatedAccounts);
+    } catch (error) {
+      console.error('Error updating account order:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get accounts filtered by type (OTP, temporary, or all)
+   */
+  static async getAccountsByType(type: 'otp' | 'temporary' | 'all'): Promise<Account[]> {
+    const accounts = await this.getAccounts();
+    
+    switch (type) {
+      case 'otp':
+        return accounts.filter(account => !account.isTemporary);
+      case 'temporary':
+        return accounts.filter(account => account.isTemporary);
+      case 'all':
+      default:
+        return accounts;
+    }
   }
 } 

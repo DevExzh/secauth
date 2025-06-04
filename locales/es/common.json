@@ -10,6 +10,11 @@
   "search": {
     "placeholder": "Buscar cuentas"
   },
+  "filter": {
+    "all": "Todos",
+    "otp": "OTP",
+    "temporary": "Temporal"
+  },
   "common": {
     "save": "Guardar",
     "cancel": "Cancelar",

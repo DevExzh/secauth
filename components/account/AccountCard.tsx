@@ -45,12 +45,16 @@ interface AccountCardProps {
   account: Account;
   onAccountUpdate?: (accountId: string, newName: string) => void;
   onAccountDelete?: (accountId: string) => void;
+  onLongPress?: () => void;
+  isDragging?: boolean;
 }
 
 export const AccountCard: React.FC<AccountCardProps> = ({ 
   account, 
   onAccountUpdate,
-  onAccountDelete
+  onAccountDelete,
+  onLongPress,
+  isDragging = false
 }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
@@ -224,10 +228,32 @@ export const AccountCard: React.FC<AccountCardProps> = ({
       });
   }, [currentAccount.isTemporary, isExpired, translateX, handleDelete]);
 
+  // Long press gesture for drag and drop (only for non-temporary accounts)
+  const longPressGesture = useMemo(() => {
+    return Gesture.LongPress()
+      .enabled(!currentAccount.isTemporary && !isExpired() && !!onLongPress)
+      .minDuration(500)
+      .onStart(() => {
+        if (onLongPress) {
+          runOnJS(onLongPress)();
+        }
+      });
+  }, [currentAccount.isTemporary, isExpired, onLongPress]);
+
+  // Compose gestures
+  const composedGesture = useMemo(() => {
+    return Gesture.Simultaneous(panGesture, longPressGesture);
+  }, [panGesture, longPressGesture]);
+
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: translateX.value }],
-      opacity: opacity.value,
+      transform: [
+        { translateX: translateX.value },
+        { scale: isDragging ? 1.05 : 1 }
+      ],
+      opacity: isDragging ? 0.8 : opacity.value,
+      elevation: isDragging ? 8 : 2,
+      shadowOpacity: isDragging ? 0.3 : 0.1,
     };
   });
 
@@ -347,7 +373,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
 
   return (
     <>
-      <GestureDetector gesture={panGesture}>
+      <GestureDetector gesture={composedGesture}>
         <Animated.View style={[animatedStyle]}>
           <View style={[styles.container, { backgroundColor: colors.cardBackground }]}>
             <View style={styles.header}>
