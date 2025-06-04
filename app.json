@@ -10,13 +10,20 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "dev.exzh.secauth"
+      "bundleIdentifier": "dev.exzh.secauth",
+      "icon": {
+        "light": "./assets/images/secauth.svg",
+        "dark": "./assets/images/secauth-dark.svg"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#ffffff",
+        "monochromeImage": "./assets/images/adaptive-icon-monochrome.svg"
       },
+      "theme": "@style/AppTheme",
+      "allowBackup": false,
       "edgeToEdgeEnabled": true,
       "permissions": [
         "android.permission.CAMERA",
@@ -27,7 +34,8 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "themeColor": "#ffffff"
     },
     "plugins": [
       "expo-router",
@@ -37,7 +45,11 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "image": "./assets/images/splash-icon.png",
+            "backgroundColor": "#1a1a1a"
+          }
         }
       ],
       "expo-camera"
