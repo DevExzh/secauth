@@ -16,7 +16,13 @@
     "build:ios": "eas build --platform ios --profile production",
     "build:all": "eas build --platform all --profile production",
     "build:dev": "eas build --platform all --profile development",
-    "build:preview": "eas build --platform all --profile preview"
+    "build:preview": "eas build --platform all --profile preview",
+    "build:test": "./scripts/test-build.sh",
+    "build:android:local": "cd android && ./gradlew assembleRelease",
+    "build:android:debug": "cd android && ./gradlew assembleDebug",
+    "build:android:bundle": "cd android && ./gradlew bundleRelease",
+    "build:android:clean": "cd android && ./gradlew clean",
+    "run:android:release": "expo run:android --variant release"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -26,6 +32,7 @@
     "@react-navigation/native": "^7.1.6",
     "expo": "^53.0.9",
     "expo-blur": "~14.1.4",
+    "expo-build-properties": "^0.14.6",
     "expo-camera": "~16.1.6",
     "expo-clipboard": "^7.1.4",
     "expo-constants": "~17.1.5",
@@ -57,7 +64,8 @@
     "react-native-screens": "~4.11.1",
     "react-native-svg": "^15.11.2",
     "react-native-web": "~0.20.0",
-    "react-native-webview": "13.13.5"
+    "react-native-webview": "13.13.5",
+    "expo-dev-client": "~5.1.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

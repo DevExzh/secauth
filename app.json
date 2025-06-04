@@ -7,20 +7,17 @@
     "icon": "./assets/images/icon.png",
     "scheme": "secauth",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dev.exzh.secauth",
-      "icon": {
-        "light": "./assets/images/secauth.svg",
-        "dark": "./assets/images/secauth-dark.svg"
-      }
+      "deploymentTarget": "15.1",
+      "icon": "./assets/images/icon.png"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "monochromeImage": "./assets/images/adaptive-icon-monochrome.svg"
+        "backgroundColor": "#ffffff"
       },
       "theme": "@style/AppTheme",
       "allowBackup": false,
@@ -52,10 +49,29 @@
           }
         }
       ],
-      "expo-camera"
+      "expo-camera",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "35.0.0"
+          },
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d6d19b64-6c38-42ce-89fe-fcaf9c4e45de"
+      }
     }
   }
 }
