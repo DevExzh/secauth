@@ -67,7 +67,8 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   const [showViewEmailModal, setShowViewEmailModal] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [currentAccount, setCurrentAccount] = useState<Account>(account);
-  const [lastGeneratedCode, setLastGeneratedCode] = useState<string>('');
+  const [codeGeneratedAt, setCodeGeneratedAt] = useState<number>(0);
+  const [hasGeneratedTempCode, setHasGeneratedTempCode] = useState(false);
   
   const progressValue = useSharedValue(0);
   const translateX = useSharedValue(0);
@@ -76,6 +77,8 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   // Update local account state when account prop changes
   useEffect(() => {
     setCurrentAccount(account);
+    // Reset temp code flag when account changes
+    setHasGeneratedTempCode(false);
   }, [account]);
 
   // Check if account is expired
@@ -100,7 +103,30 @@ export const AccountCard: React.FC<AccountCardProps> = ({
     return Math.max(0, Math.floor(timeDiff / 1000)); // Return seconds
   }, [currentAccount]);
 
-  const updateCode = useCallback(async () => {
+  // Check if current code is expired for non-temporary accounts
+  const isCodeExpired = useCallback(() => {
+    if (currentAccount.isTemporary) return false;
+    if (!generatedCode || !codeGeneratedAt) return true;
+    
+    const now = Date.now();
+    const codeAge = Math.floor((now - codeGeneratedAt) / 1000);
+    return codeAge >= generatedCode.period;
+  }, [currentAccount.isTemporary, generatedCode, codeGeneratedAt]);
+
+  // Calculate current time remaining for the code
+  const getCurrentTimeRemaining = useCallback(() => {
+    if (currentAccount.isTemporary) {
+      return getRemainingTime() || 0;
+    }
+    
+    if (!generatedCode || !codeGeneratedAt) return 0;
+    
+    const now = Date.now();
+    const codeAge = Math.floor((now - codeGeneratedAt) / 1000);
+    return Math.max(0, generatedCode.period - codeAge);
+  }, [currentAccount.isTemporary, generatedCode, codeGeneratedAt, getRemainingTime]);
+
+  const generateNewCode = useCallback(async () => {
     try {
       // If account is expired, show expired message
       if (isExpired()) {
@@ -110,14 +136,17 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           period: 30,
         });
         progressValue.value = withTiming(0, { duration: 300 });
-        setLastGeneratedCode(t('account.expired'));
         return;
       }
 
-      // For temporary accounts, use remaining time instead of standard period
-      let remainingTime = getRemainingTime();
-      if (currentAccount.isTemporary && remainingTime !== null) {
+      // For temporary accounts, only generate code once
+      if (currentAccount.isTemporary) {
+        if (hasGeneratedTempCode) {
+          return; // Already generated, don't generate again
+        }
+        
         const code = await OTPService.generateCode(currentAccount);
+        const remainingTime = getRemainingTime() || 0;
         const totalPeriod = Math.max(remainingTime, 1);
         
         setGeneratedCode({
@@ -125,29 +154,22 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           timeRemaining: remainingTime,
           period: totalPeriod,
         });
+        setCodeGeneratedAt(Date.now());
+        setHasGeneratedTempCode(true);
         
-        // Calculate current progress and smoothly animate to it
         const currentProgress = remainingTime / totalPeriod;
         progressValue.value = withTiming(currentProgress, { duration: 300 });
-        
-        // Update last generated code for comparison
-        if (lastGeneratedCode !== code.code) {
-          setLastGeneratedCode(code.code);
-        }
-      } else {
-        const code = await OTPService.generateCode(currentAccount);
-        
-        setGeneratedCode(code);
-        
-        // Calculate current progress and smoothly animate to it
-        const currentProgress = code.timeRemaining / code.period;
-        progressValue.value = withTiming(currentProgress, { duration: 300 });
-        
-        // Update last generated code for comparison
-        if (lastGeneratedCode !== code.code) {
-          setLastGeneratedCode(code.code);
-        }
+        return;
       }
+
+      // For non-temporary accounts, generate new code
+      const code = await OTPService.generateCode(currentAccount);
+      setGeneratedCode(code);
+      setCodeGeneratedAt(Date.now());
+      
+      // Calculate current progress and smoothly animate to it
+      const currentProgress = code.timeRemaining / code.period;
+      progressValue.value = withTiming(currentProgress, { duration: 300 });
     } catch (error) {
       console.error('Error generating code:', error);
       // Set a placeholder code
@@ -157,16 +179,61 @@ export const AccountCard: React.FC<AccountCardProps> = ({
         timeRemaining: 30,
         period: 30,
       });
+      setCodeGeneratedAt(Date.now());
       progressValue.value = withTiming(1, { duration: 300 });
-      setLastGeneratedCode(placeholderCode);
     }
-  }, [currentAccount, progressValue, isExpired, getRemainingTime, t, lastGeneratedCode]);
+  }, [currentAccount, progressValue, isExpired, getRemainingTime, t, hasGeneratedTempCode]);
 
+  const updateProgress = useCallback(() => {
+    if (!generatedCode) return;
+
+    const timeRemaining = getCurrentTimeRemaining();
+    const period = generatedCode.period;
+    
+    // Update the timeRemaining in the generatedCode state
+    setGeneratedCode(prev => prev ? { ...prev, timeRemaining } : null);
+    
+    // Update progress animation
+    const currentProgress = timeRemaining / period;
+    progressValue.value = withTiming(currentProgress, { duration: 100 });
+  }, [getCurrentTimeRemaining, progressValue]);
+
+  // Initial code generation
   useEffect(() => {
-    updateCode();
-    const interval = setInterval(updateCode, 1000);
-    return () => clearInterval(interval);
-  }, [updateCode]);
+    generateNewCode();
+  }, [currentAccount.id]); // Only regenerate when account changes
+
+  // Setup timers for code updates and progress updates
+  useEffect(() => {
+    if (!generatedCode) return;
+
+    let progressInterval: number;
+    let codeTimeout: number;
+
+    // For temporary accounts, only update progress
+    if (currentAccount.isTemporary) {
+      progressInterval = setInterval(updateProgress, 1000);
+    } else {
+      // For non-temporary accounts, update progress every second
+      progressInterval = setInterval(updateProgress, 1000);
+      
+      // Set timeout to regenerate code when it expires
+      const timeRemaining = getCurrentTimeRemaining();
+      if (timeRemaining > 0) {
+        codeTimeout = setTimeout(() => {
+          generateNewCode();
+        }, timeRemaining * 1000);
+      } else if (isCodeExpired()) {
+        // If code is already expired, generate immediately
+        generateNewCode();
+      }
+    }
+
+    return () => {
+      if (progressInterval) clearInterval(progressInterval);
+      if (codeTimeout) clearTimeout(codeTimeout);
+    };
+  }, [generatedCode, currentAccount.isTemporary, updateProgress, generateNewCode, getCurrentTimeRemaining, isCodeExpired]);
 
   const handleCopyCode = useCallback(async () => {
     if (generatedCode && generatedCode.code !== t('account.expired')) {
