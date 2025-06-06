@@ -1,12 +1,12 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useSmartSafeArea } from '@/hooks/useSafeArea';
 import { AutoLockTimeout } from '@/services/autoLock';
-import { ChevronRight } from 'lucide-react-native';
+import { ChevronRight, Clock } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
     Modal,
-    SafeAreaView,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -22,6 +22,7 @@ export function AutoLockSettings({ currentTimeout, onTimeoutChange }: AutoLockSe
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
+  const { containerPadding } = useSmartSafeArea();
   const [showModal, setShowModal] = useState(false);
 
   const timeoutOptions: { key: AutoLockTimeout; label: string }[] = [
@@ -50,7 +51,7 @@ export function AutoLockSettings({ currentTimeout, onTimeoutChange }: AutoLockSe
         onPress={() => setShowModal(true)}
       >
         <View style={styles.settingIcon}>
-          {/* You can add an auto-lock icon here */}
+          <Clock size={20} color={colors.textSecondary} />
         </View>
         <View style={styles.settingContent}>
           <Text style={[styles.settingTitle, { color: colors.text }]}>
@@ -71,7 +72,7 @@ export function AutoLockSettings({ currentTimeout, onTimeoutChange }: AutoLockSe
         presentationStyle="pageSheet"
         onRequestClose={() => setShowModal(false)}
       >
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+        <View style={[styles.modalContainer, { backgroundColor: colors.background }, containerPadding]}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setShowModal(false)}>
               <Text style={[styles.cancelText, { color: colors.primary }]}>
@@ -106,7 +107,7 @@ export function AutoLockSettings({ currentTimeout, onTimeoutChange }: AutoLockSe
               </TouchableOpacity>
             ))}
           </View>
-        </SafeAreaView>
+        </View>
       </Modal>
     </>
   );

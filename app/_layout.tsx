@@ -6,6 +6,7 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
+import { SettingsProvider } from '@/contexts/SettingsContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 // Initialize i18n
 import { initPromise } from '@/utils/i18n';
@@ -82,12 +83,195 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ErrorBoundary>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
+        <SettingsProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+              
+              {/* Modal Screens */}
+              <Stack.Screen 
+                name="modals/data/import-data" 
+                options={{ 
+                  presentation: 'modal',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'vertical',
+                }} 
+              />
+              <Stack.Screen 
+                name="modals/data/export-data" 
+                options={{ 
+                  presentation: 'modal',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'vertical',
+                }} 
+              />
+              <Stack.Screen 
+                name="modals/settings/help-center" 
+                options={{ 
+                  presentation: 'modal',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'vertical',
+                }} 
+              />
+              <Stack.Screen 
+                name="modals/settings/about-app" 
+                options={{ 
+                  presentation: 'modal',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'vertical',
+                }} 
+              />
+              <Stack.Screen 
+                name="modals/email/email-settings" 
+                options={{ 
+                  presentation: 'modal',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'vertical',
+                }} 
+              />
+              <Stack.Screen 
+                name="modals/settings/connected-accounts" 
+                options={{ 
+                  presentation: 'modal',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'vertical',
+                }} 
+              />
+              <Stack.Screen 
+                name="modals/settings/cloud-sync" 
+                options={{ 
+                  presentation: 'modal',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'vertical',
+                }} 
+              />
+              <Stack.Screen 
+                name="modals/settings/sync-frequency" 
+                options={{ 
+                  presentation: 'modal',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'vertical',
+                }} 
+              />
+              <Stack.Screen 
+                name="modals/email/email-integration" 
+                options={{ 
+                  presentation: 'modal',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  gestureDirection: 'vertical',
+                }} 
+              />
+                          <Stack.Screen 
+              name="modals/email/email-parsing" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/email/email-add-input" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/email/email-add-integration" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/email/email-add-parsing" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/auth/pin" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/auth/auto-lock" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/settings/theme" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/account/qr-code" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/account/edit-name" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/account/view-email" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/account/qr-scanner" 
+              options={{ 
+                presentation: 'fullScreenModal',
+                headerShown: false,
+                gestureEnabled: false,
+              }} 
+            />
           </Stack>
-        </ThemeProvider>
+          </ThemeProvider>
+        </SettingsProvider>
       </ErrorBoundary>
     </GestureHandlerRootView>
   );

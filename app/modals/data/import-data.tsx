@@ -1,6 +1,8 @@
+import { SmartScreen } from '@/components/layout/SmartScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { router } from 'expo-router';
 import {
     AlertTriangle,
     ArrowLeft,
@@ -12,7 +14,6 @@ import {
 import React, { useState } from 'react';
 import {
     Alert,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Switch,
@@ -21,19 +22,13 @@ import {
     View,
 } from 'react-native';
 
-interface ImportDataScreenProps {
-  onBack: () => void;
-}
-
 interface MockFile {
   name: string;
   size: number;
   type: string;
 }
 
-export const ImportDataScreen: React.FC<ImportDataScreenProps> = ({
-  onBack,
-}) => {
+export default function ImportDataModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
@@ -98,7 +93,7 @@ export const ImportDataScreen: React.FC<ImportDataScreenProps> = ({
       Alert.alert(
         t('dataManagement.importData.importSuccess'),
         t('dataManagement.importData.importSuccessMessage', { count: importedCount }),
-        [{ text: t('common.done'), onPress: onBack }]
+        [{ text: t('common.done'), onPress: () => router.back() }]
       );
     } catch (error) {
       console.error('Import data error:', error);
@@ -119,19 +114,26 @@ export const ImportDataScreen: React.FC<ImportDataScreenProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <ArrowLeft size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {t('dataManagement.importData.title')}
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
+  const renderHeader = () => (
+    <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <ArrowLeft size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>
+        {t('dataManagement.importData.title')}
+      </Text>
+      <View style={styles.placeholder} />
+    </View>
+  );
 
-      <ScrollView style={styles.content}>
+  return (
+    <SmartScreen style={{ backgroundColor: colors.background }}>
+      {renderHeader()}
+      <ScrollView 
+        style={styles.content}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={[styles.iconContainer, { backgroundColor: colors.primary + '20' }]}>
@@ -249,14 +251,11 @@ export const ImportDataScreen: React.FC<ImportDataScreenProps> = ({
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SmartScreen>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -264,14 +263,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    minHeight: 44,
   },
   backButton: {
     padding: 8,
+    marginLeft: -8,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
+    flex: 1,
+    textAlign: 'center',
   },
   placeholder: {
     width: 40,
@@ -279,49 +281,52 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: 20,
+  },
   headerSection: {
     alignItems: 'center',
-    paddingVertical: 32,
+    paddingVertical: 24,
     paddingHorizontal: 16,
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 6,
     textAlign: 'center',
   },
   description: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: 'center',
   },
   section: {
     marginHorizontal: 16,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   sectionDescription: {
     fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 16,
+    lineHeight: 18,
+    marginBottom: 12,
   },
   fileSelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
+    padding: 14,
+    borderRadius: 10,
     borderWidth: 2,
     borderStyle: 'dashed',
   },
@@ -341,13 +346,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   optionCard: {
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 10,
+    padding: 14,
   },
   optionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   optionTitle: {
     fontSize: 16,
@@ -373,22 +378,23 @@ const styles = StyleSheet.create({
   warningCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 12,
+    padding: 10,
+    borderRadius: 6,
+    marginTop: 10,
   },
   warningText: {
-    fontSize: 14,
+    fontSize: 13,
     marginLeft: 8,
     flex: 1,
   },
   buttonContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 32,
+    paddingTop: 8,
+    paddingBottom: 20,
   },
   importButton: {
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderRadius: 10,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },

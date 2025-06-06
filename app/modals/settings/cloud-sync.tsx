@@ -1,6 +1,8 @@
+import { SmartScreen } from '@/components/layout/SmartScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { router } from 'expo-router';
 import {
   ArrowLeft,
   Check,
@@ -12,22 +14,16 @@ import {
 import React, { useState } from 'react';
 import {
   Alert,
-  Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 
-interface CloudSyncSettingsProps {
-  onBack: () => void;
-}
-
-export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) => {
+export default function CloudSyncModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
@@ -105,19 +101,27 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
     }
   ];
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <ArrowLeft size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {t('cloudSync.title')}
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
+  const renderHeader = () => (
+    <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <ArrowLeft size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>
+        {t('cloudSync.title')}
+      </Text>
+      <View style={styles.placeholder} />
+    </View>
+  );
 
-      <ScrollView style={styles.content}>
+  return (
+    <SmartScreen style={{ backgroundColor: colors.background }}>
+      {renderHeader()}
+      
+      <ScrollView 
+        style={styles.content} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Sync Toggle */}
         <View style={[styles.section, { backgroundColor: colors.surface }]}>
           <View style={styles.syncToggle}>
@@ -287,21 +291,18 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({ onBack }) 
           </Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SmartScreen>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingTop: Platform.OS === 'android' ? 25 : 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   backButton: {
     padding: 8,
@@ -316,6 +317,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
+  },
+  scrollContent: {
+    paddingBottom: 24,
   },
   section: {
     marginBottom: 24,
@@ -427,12 +431,13 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   infoSection: {
-    marginBottom: 32,
+    marginTop: 8,
+    marginBottom: 16,
   },
   infoTitle: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   infoText: {
     fontSize: 14,

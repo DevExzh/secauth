@@ -1,20 +1,21 @@
+import { router } from 'expo-router';
 import {
-  Bell,
-  Clock,
-  Download,
-  Globe,
-  HelpCircle,
-  Info,
-  Link,
-  Lock,
-  Mail,
-  MailCheck,
-  Moon,
-  RefreshCw,
-  Shield,
-  Trash2,
-  Upload,
-  Wifi,
+    Bell,
+    Clock,
+    Download,
+    Globe,
+    HelpCircle,
+    Info,
+    Link,
+    Lock,
+    Mail,
+    MailCheck,
+    Moon,
+    RefreshCw,
+    Shield,
+    Trash2,
+    Upload,
+    Wifi,
 } from 'lucide-react-native';
 import React from 'react';
 
@@ -47,24 +48,14 @@ export const createSettingsGroups = (
     emailNotifications: boolean;
     autoDeleteEmails: boolean;
     connectedEmailAccounts: number;
+    emailSyncFrequency: string;
   },
   handlers: {
     handleBiometricToggle: (value: boolean) => void;
-    setShowPinModal: (show: boolean) => void;
-    setShowAutoLockModal: (show: boolean) => void;
-    setShowThemeModal: (show: boolean) => void;
     setNotifications: (value: boolean) => void;
-    setShowEmailSettings: (show: boolean) => void;
-    setShowConnectedAccounts: (show: boolean) => void;
     setEmailAutoSync: (value: boolean) => void;
-    setShowSyncFrequency: (show: boolean) => void;
     setAutoDeleteEmails: (value: boolean) => void;
     setEmailNotifications: (value: boolean) => void;
-    setShowCloudSync: (show: boolean) => void;
-    setShowImportData: (show: boolean) => void;
-    setShowExportData: (show: boolean) => void;
-    setShowHelpCenter: (show: boolean) => void;
-    setShowAboutApp: (show: boolean) => void;
   }
 ): SettingsGroup[] => [
   {
@@ -83,14 +74,14 @@ export const createSettingsGroups = (
         title: values.hasPinSet ? t('settings.changePin') : t('settings.setPin'),
         subtitle: values.hasPinSet ? t('settings.changePinDescription') : t('settings.setPinDescription'),
         type: 'navigation',
-        onPress: () => handlers.setShowPinModal(true),
+        onPress: () => router.push('/modals/auth/pin?mode=set' as any),
       },
       {
         icon: React.createElement(Shield, { size: 20, color: colors.primary }),
         title: t('settings.autoLock'),
         subtitle: t('settings.autoLockDescription'),
         type: 'navigation',
-        onPress: () => handlers.setShowAutoLockModal(true),
+        onPress: () => router.push('/modals/auth/auto-lock' as any),
       },
     ],
   },
@@ -109,7 +100,7 @@ export const createSettingsGroups = (
         subtitle: t(`settings.themeOptions.${values.themeMode}`),
         type: 'theme',
         themeValue: values.themeMode,
-        onPress: () => handlers.setShowThemeModal(true),
+        onPress: () => router.push('/modals/settings/theme' as any),
       },
       {
         icon: React.createElement(Bell, { size: 20, color: colors.primary }),
@@ -129,14 +120,14 @@ export const createSettingsGroups = (
         title: t('settings.emailIntegration'),
         subtitle: t('settings.emailIntegrationDescription'),
         type: 'navigation',
-        onPress: () => handlers.setShowEmailSettings(true),
+        onPress: () => router.push('/modals/email/email-settings' as any),
       },
       {
         icon: React.createElement(Link, { size: 20, color: colors.primary }),
         title: t('settings.connectedAccounts'),
         subtitle: `${values.connectedEmailAccounts} ${t('settings.connectedAccountsDescription')}`,
         type: 'navigation',
-        onPress: () => handlers.setShowConnectedAccounts(true),
+        onPress: () => router.push('/modals/settings/connected-accounts' as any),
       },
       {
         icon: React.createElement(RefreshCw, { size: 20, color: colors.primary }),
@@ -149,9 +140,9 @@ export const createSettingsGroups = (
       {
         icon: React.createElement(Clock, { size: 20, color: colors.primary }),
         title: t('settings.syncFrequency'),
-        subtitle: t('settings.syncFrequencyDescription'),
+        subtitle: values.emailSyncFrequency,
         type: 'navigation',
-        onPress: () => handlers.setShowSyncFrequency(true),
+        onPress: () => router.push('/modals/settings/sync-frequency' as any),
       },
       {
         icon: React.createElement(Trash2, { size: 20, color: colors.primary }),
@@ -179,21 +170,21 @@ export const createSettingsGroups = (
         title: t('settings.exportData'),
         subtitle: t('settings.exportDataDescription'),
         type: 'navigation',
-        onPress: () => handlers.setShowExportData(true),
+        onPress: () => router.push('/modals/data/export-data' as any),
       },
       {
         icon: React.createElement(Download, { size: 20, color: colors.primary }),
         title: t('settings.importData'),
         subtitle: t('settings.importDataDescription'),
         type: 'navigation',
-        onPress: () => handlers.setShowImportData(true),
+        onPress: () => router.push('/modals/data/import-data' as any),
       },
       {
         icon: React.createElement(Wifi, { size: 20, color: colors.primary }),
         title: t('settings.cloudSync'),
         subtitle: t('settings.cloudSyncDescription'),
         type: 'navigation',
-        onPress: () => handlers.setShowCloudSync(true),
+        onPress: () => router.push('/modals/settings/cloud-sync' as any),
       },
     ],
   },
@@ -205,14 +196,14 @@ export const createSettingsGroups = (
         title: t('settings.helpCenter'),
         subtitle: t('settings.helpCenterDescription'),
         type: 'navigation',
-        onPress: () => handlers.setShowHelpCenter(true),
+        onPress: () => router.push('/modals/settings/help-center' as any),
       },
       {
         icon: React.createElement(Info, { size: 20, color: colors.primary }),
         title: t('settings.aboutApp'),
         subtitle: t('settings.aboutAppDescription'),
         type: 'navigation',
-        onPress: () => handlers.setShowAboutApp(true),
+        onPress: () => router.push('/modals/settings/about-app' as any),
       },
     ],
   },

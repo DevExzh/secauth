@@ -2,11 +2,11 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { BiometricAuthService } from '@/services/biometricAuth';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Delete, X } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
     Alert,
-    Modal,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -14,24 +14,14 @@ import {
     View,
 } from 'react-native';
 
-interface PinModalProps {
-  visible: boolean;
-  onClose: () => void;
-  onPinSet?: () => void;
-  mode?: 'set' | 'confirm' | 'verify';
-  title?: string;
-}
-
-export const PinModal: React.FC<PinModalProps> = ({
-  visible,
-  onClose,
-  onPinSet,
-  mode = 'set',
-  title,
-}) => {
+export default function PinScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
+  const params = useLocalSearchParams();
+
+  const mode = (params.mode as 'set' | 'verify') || 'set';
+  const title = params.title as string;
 
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
@@ -43,10 +33,8 @@ export const PinModal: React.FC<PinModalProps> = ({
   const pinLength = 6;
 
   useEffect(() => {
-    if (visible) {
-      resetState();
-    }
-  }, [visible]);
+    resetState();
+  }, []);
 
   const resetState = () => {
     setPin('');
@@ -55,6 +43,10 @@ export const PinModal: React.FC<PinModalProps> = ({
     setAttempts(0);
     setIsLoading(false);
   };
+
+  const handleClose = useCallback(() => {
+    router.back();
+  }, []);
 
   const handleNumberPress = (number: string) => {
     if (isLoading) return;
@@ -94,10 +86,7 @@ export const PinModal: React.FC<PinModalProps> = ({
             try {
               await BiometricAuthService.setPIN(pin);
               Alert.alert(t('auth.pin.success'), t('auth.pin.successMessage'), [
-                { text: t('common.ok'), onPress: () => {
-                  onPinSet?.();
-                  onClose();
-                }}
+                { text: t('common.ok'), onPress: handleClose }
               ]);
             } catch (error) {
               Alert.alert(t('common.error'), t('auth.pin.setError'));
@@ -115,8 +104,7 @@ export const PinModal: React.FC<PinModalProps> = ({
         try {
           const isValid = await BiometricAuthService.verifyPIN(pin);
           if (isValid) {
-            onPinSet?.();
-            onClose();
+            handleClose();
           } else {
             Vibration.vibrate(500);
             setAttempts(prev => prev + 1);
@@ -126,7 +114,7 @@ export const PinModal: React.FC<PinModalProps> = ({
               Alert.alert(
                 t('auth.pin.maxAttemptsTitle'),
                 t('auth.pin.maxAttemptsMessage'),
-                [{ text: t('common.ok'), onPress: onClose }]
+                [{ text: t('common.ok'), onPress: handleClose }]
               );
             } else {
               Alert.alert(
@@ -143,7 +131,7 @@ export const PinModal: React.FC<PinModalProps> = ({
     }
 
     setIsLoading(false);
-  }, [mode, step, pin, confirmPin, pinLength, attempts, maxAttempts, t, onPinSet, onClose]);
+  }, [mode, step, pin, confirmPin, pinLength, attempts, maxAttempts, t, handleClose]);
 
   useEffect(() => {
     if ((step === 'enter' && pin.length === pinLength) || 
@@ -246,47 +234,40 @@ export const PinModal: React.FC<PinModalProps> = ({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-      onRequestClose={onClose}
-    >
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <X size={24} color={colors.text} />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.content}>
-          <Text style={[styles.title, { color: colors.text }]}>
-            {getTitle()}
-          </Text>
-          
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            {getSubtitle()}
-          </Text>
-
-          {renderPinDots()}
-          {renderNumberPad()}
-        </View>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+          <X size={24} color={colors.text} />
+        </TouchableOpacity>
       </View>
-    </Modal>
+
+      <View style={styles.content}>
+        <Text style={[styles.title, { color: colors.text }]}>
+          {getTitle()}
+        </Text>
+        
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          {getSubtitle()}
+        </Text>
+
+        {renderPinDots()}
+        {renderNumberPad()}
+      </View>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingVertical: 12,
   },
   closeButton: {
     padding: 8,
@@ -295,7 +276,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: 32,
-    paddingTop: 40,
+    paddingTop: 20,
+    paddingBottom: 40,
   },
   title: {
     fontSize: 24,

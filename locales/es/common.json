@@ -16,6 +16,9 @@
     "temporary": "Temporal"
   },
   "common": {
+    "no": "No",
+    "yes": "Sí",
+    "ok": "OK",
     "save": "Guardar",
     "cancel": "Cancelar",
     "delete": "Eliminar",
@@ -482,7 +485,17 @@
     "invalidQRMessage": "Por favor, escanee un código QR de autenticador válido",
     "retry": "Reintentar",
     "cancel": "Cancelar",
-    "instruction": "Alinee el código QR dentro del marco de escaneo"
+    "instruction": "Alinee el código QR dentro del marco de escaneo",
+    "scanSuccess": "Código QR Escaneado",
+    "data": "Datos"
+  },
+  "viewEmail": {
+    "title": "Email de la Cuenta",
+    "accountNotFound": "Cuenta no encontrada",
+    "emailAddress": "Dirección de Email",
+    "noEmail": "No hay email asociado con esta cuenta",
+    "accountName": "Nombre de la Cuenta",
+    "issuer": "Emisor"
   },
   "accountMenu": {
     "editName": "Editar Nombre",

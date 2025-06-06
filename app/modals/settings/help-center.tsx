@@ -1,6 +1,8 @@
+import { SmartScreen } from '@/components/layout/SmartScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { router } from 'expo-router';
 import {
     ArrowLeft,
     Book,
@@ -16,7 +18,6 @@ import {
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
@@ -24,10 +25,6 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-
-interface HelpCenterScreenProps {
-  onBack: () => void;
-}
 
 interface HelpCategory {
   id: string;
@@ -37,9 +34,7 @@ interface HelpCategory {
   articles: string[];
 }
 
-export const HelpCenterScreen: React.FC<HelpCenterScreenProps> = ({
-  onBack,
-}) => {
+export default function HelpCenterModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
@@ -131,18 +126,21 @@ export const HelpCenterScreen: React.FC<HelpCenterScreenProps> = ({
     )
   );
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <ArrowLeft size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {t('helpCenter.title')}
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <ArrowLeft size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>
+        {t('helpCenter.title')}
+      </Text>
+      <View style={styles.placeholder} />
+    </View>
+  );
 
+  return (
+    <SmartScreen style={{ backgroundColor: colors.background }}>
+      {renderHeader()}
       <ScrollView style={styles.content}>
         {/* Header Section */}
         <View style={styles.headerSection}>
@@ -282,22 +280,17 @@ export const HelpCenterScreen: React.FC<HelpCenterScreenProps> = ({
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SmartScreen>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   backButton: {
     padding: 8,

@@ -1,6 +1,8 @@
+import { SmartScreen } from '@/components/layout/SmartScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { router } from 'expo-router';
 import {
     ArrowLeft,
     CheckCircle,
@@ -13,7 +15,6 @@ import {
 import React, { useState } from 'react';
 import {
     Alert,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
@@ -29,15 +30,7 @@ interface ConnectedAccount {
   lastSync: string;
 }
 
-interface ConnectedAccountsScreenProps {
-  onBack: () => void;
-  onAddAccount: () => void;
-}
-
-export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = ({ 
-  onBack, 
-  onAddAccount 
-}) => {
+export default function ConnectedAccountsModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
@@ -100,6 +93,11 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
     );
   };
 
+  const handleAddAccount = () => {
+    // Navigate to email integration
+    router.push('/modals/email/email-integration' as any);
+  };
+
   const getProviderIcon = (provider: string) => {
     // 这里可以根据不同的邮箱提供商返回不同的图标
     return <Mail size={24} color={colors.primary} />;
@@ -158,18 +156,21 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
     </View>
   );
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <ArrowLeft size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {t('connectedAccounts.title')}
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <ArrowLeft size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>
+        {t('connectedAccounts.title')}
+      </Text>
+      <View style={styles.placeholder} />
+    </View>
+  );
 
+  return (
+    <SmartScreen style={{ backgroundColor: colors.background }}>
+      {renderHeader()}
       <ScrollView style={styles.content}>
         {/* Summary Section */}
         <View style={styles.summarySection}>
@@ -196,7 +197,7 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
         <View style={styles.addAccountSection}>
           <TouchableOpacity
             style={[styles.addAccountButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
-            onPress={onAddAccount}
+            onPress={handleAddAccount}
           >
             <Plus size={24} color={colors.primary} />
             <Text style={[styles.addAccountText, { color: colors.primary }]}>
@@ -215,14 +216,11 @@ export const ConnectedAccountsScreen: React.FC<ConnectedAccountsScreenProps> = (
           </Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SmartScreen>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

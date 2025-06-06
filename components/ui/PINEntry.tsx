@@ -1,22 +1,23 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useSmartSafeArea } from '@/hooks/useSafeArea';
+import { Delete } from 'lucide-react-native';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+    Animated,
     Modal,
-    SafeAreaView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    Vibration,
-    View,
+    View
 } from 'react-native';
 
 interface PINEntryProps {
   visible: boolean;
   onClose: () => void;
-  onSuccess: () => void;
-  onVerify: (pin: string) => Promise<boolean>;
+  onSuccess: (pin: string) => void;
+  onVerify?: (pin: string) => Promise<boolean>;
   title?: string;
   subtitle?: string;
   maxAttempts?: number;
@@ -34,24 +35,79 @@ export function PINEntry({
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
+  const { containerPadding } = useSmartSafeArea();
 
   const [pin, setPin] = useState('');
-  const [attempts, setAttempts] = useState(0);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState('');
+  const [attempts, setAttempts] = useState(0);
+
+  const shakeAnimation = useRef(new Animated.Value(0)).current;
+
+  const resetState = () => {
+    setPin('');
+    setError('');
+    setAttempts(0);
+  };
 
   useEffect(() => {
     if (visible) {
-      setPin('');
-      setAttempts(0);
-      setError('');
+      resetState();
     }
   }, [visible]);
 
+  const shakeError = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnimation, { toValue: 10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: -10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: 10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnimation, { toValue: 0, duration: 50, useNativeDriver: true }),
+    ]).start();
+  };
+
+  const handlePinComplete = async (enteredPin: string) => {
+    if (onVerify) {
+      try {
+        const isValid = await onVerify(enteredPin);
+        if (isValid) {
+          onSuccess(enteredPin);
+          resetState();
+        } else {
+          const newAttempts = attempts + 1;
+          setAttempts(newAttempts);
+          
+          if (newAttempts >= maxAttempts) {
+            setError(t('auth.pin.maxAttemptsReached'));
+            setTimeout(() => {
+              resetState();
+              onClose();
+            }, 2000);
+          } else {
+            setError(t('auth.pin.incorrectPin', { remaining: maxAttempts - newAttempts }));
+            shakeError();
+            setPin('');
+          }
+        }
+      } catch (err) {
+        console.error('PIN verification error:', err);
+        setError(t('auth.pin.verificationError'));
+        shakeError();
+        setPin('');
+      }
+    } else {
+      onSuccess(enteredPin);
+      resetState();
+    }
+  };
+
   const handleNumberPress = (number: string) => {
-    if (pin.length < 6) {
-      setPin(prev => prev + number);
+    if (pin.length < 4) {
+      const newPin = pin + number;
+      setPin(newPin);
       setError('');
+      
+      if (newPin.length === 4) {
+        setTimeout(() => handlePinComplete(newPin), 100);
+      }
     }
   };
 
@@ -60,104 +116,61 @@ export function PINEntry({
     setError('');
   };
 
-  const handleVerify = useCallback(async () => {
-    if (pin.length !== 6) return;
-
-    setIsVerifying(true);
-    try {
-      const isValid = await onVerify(pin);
-      if (isValid) {
-        onSuccess();
-        setPin('');
-        setAttempts(0);
-        setError('');
-      } else {
-        const newAttempts = attempts + 1;
-        setAttempts(newAttempts);
-        setPin('');
-        Vibration.vibrate(500);
-        
-        if (newAttempts >= maxAttempts) {
-          setError(t('auth.pin.maxAttemptsReached'));
-          setTimeout(() => {
-            onClose();
-          }, 2000);
-        } else {
-          setError(t('auth.pin.incorrectPin', { remaining: maxAttempts - newAttempts }));
-        }
-      }
-    } catch (error) {
-      console.error('PIN verification error:', error);
-      setError(t('auth.pin.verificationError'));
-      setPin('');
-    } finally {
-      setIsVerifying(false);
-    }
-  }, [pin, onVerify, onSuccess, attempts, maxAttempts, t, onClose]);
-
-  useEffect(() => {
-    if (pin.length === 6) {
-      handleVerify();
-    }
-  }, [pin, handleVerify]);
-
-  const renderPinDots = () => {
-    return (
-      <View style={styles.pinDotsContainer}>
-        {Array.from({ length: 6 }).map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.pinDot,
-              {
-                backgroundColor: index < pin.length ? colors.primary : 'transparent',
-                borderColor: colors.border,
-              },
-            ]}
-          />
-        ))}
-      </View>
-    );
-  };
+  const renderPinDots = () => (
+    <Animated.View style={[
+      styles.pinContainer,
+      { transform: [{ translateX: shakeAnimation }] }
+    ]}>
+      {[...Array(4)].map((_, index) => (
+        <View
+          key={index}
+          style={[
+            styles.pinDot,
+            {
+              backgroundColor: index < pin.length ? colors.primary : colors.border,
+              borderColor: colors.border,
+            }
+          ]}
+        />
+      ))}
+    </Animated.View>
+  );
 
   const renderNumberPad = () => {
     const numbers = [
       ['1', '2', '3'],
       ['4', '5', '6'],
       ['7', '8', '9'],
-      ['', '0', 'backspace'],
+      ['', '0', 'backspace']
     ];
 
     return (
       <View style={styles.numberPad}>
         {numbers.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.numberRow}>
-            {row.map((item, itemIndex) => {
+            {row.map((item, colIndex) => {
               if (item === '') {
-                return <View key={itemIndex} style={styles.numberButton} />;
+                return <View key={colIndex} style={styles.numberButton} />;
               }
               
               if (item === 'backspace') {
                 return (
                   <TouchableOpacity
-                    key={itemIndex}
-                    style={[styles.numberButton, { backgroundColor: colors.surface }]}
+                    key={colIndex}
+                    style={styles.numberButton}
                     onPress={handleBackspace}
                     disabled={pin.length === 0}
                   >
-                    <Text style={[styles.backspaceText, { color: colors.text }]}>
-                      ⌫
-                    </Text>
+                    <Delete size={24} color={pin.length > 0 ? colors.text : colors.textSecondary} />
                   </TouchableOpacity>
                 );
               }
 
               return (
                 <TouchableOpacity
-                  key={itemIndex}
-                  style={[styles.numberButton, { backgroundColor: colors.surface }]}
+                  key={colIndex}
+                  style={styles.numberButton}
                   onPress={() => handleNumberPress(item)}
-                  disabled={isVerifying}
                 >
                   <Text style={[styles.numberText, { color: colors.text }]}>
                     {item}
@@ -178,7 +191,7 @@ export function PINEntry({
       presentationStyle="fullScreen"
       onRequestClose={onClose}
     >
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.container, { backgroundColor: colors.background }, containerPadding]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
             <Text style={[styles.cancelText, { color: colors.primary }]}>
@@ -208,7 +221,7 @@ export function PINEntry({
 
           {renderNumberPad()}
         </View>
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 }
@@ -219,73 +232,75 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    minHeight: 44,
   },
   cancelButton: {
-    padding: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   cancelText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '400',
   },
   content: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 40,
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingBottom: 80, // Reduced bottom padding
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '600',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 16,
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: 48,
+    lineHeight: 22,
   },
-  pinDotsContainer: {
+  pinContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 40,
+    marginBottom: 48,
   },
   pinDot: {
     width: 16,
     height: 16,
     borderRadius: 8,
     borderWidth: 2,
-    marginHorizontal: 8,
+    marginHorizontal: 12,
   },
   errorText: {
-    fontSize: 14,
+    fontSize: 16,
     textAlign: 'center',
-    marginBottom: 20,
-    minHeight: 20,
+    marginBottom: 32,
+    paddingHorizontal: 16,
   },
   numberPad: {
-    width: '100%',
-    maxWidth: 300,
+    marginTop: 32,
   },
   numberRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+    justifyContent: 'center',
+    marginBottom: 16,
   },
   numberButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: 16,
   },
   numberText: {
-    fontSize: 24,
-    fontWeight: '400',
-  },
-  backspaceText: {
-    fontSize: 20,
+    fontSize: 28,
+    fontWeight: '300',
   },
 }); 

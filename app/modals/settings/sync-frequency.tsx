@@ -1,11 +1,12 @@
 import { Colors } from '@/constants/Colors';
+import { useSettings } from '@/contexts/SettingsContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useSmartSafeArea } from '@/hooks/useSafeArea';
+import { router } from 'expo-router';
 import { ArrowLeft, Check } from 'lucide-react-native';
 import React from 'react';
 import {
-    Modal,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
@@ -19,22 +20,12 @@ interface SyncFrequencyOption {
   description: string;
 }
 
-interface SyncFrequencyModalProps {
-  visible: boolean;
-  currentFrequency: string;
-  onSelect: (frequency: string) => void;
-  onClose: () => void;
-}
-
-export const SyncFrequencyModal: React.FC<SyncFrequencyModalProps> = ({
-  visible,
-  currentFrequency,
-  onSelect,
-  onClose,
-}) => {
+export default function SyncFrequencyModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
+  const { containerPadding } = useSmartSafeArea();
+  const { emailSyncFrequency, setEmailSyncFrequency } = useSettings();
 
   const frequencyOptions: SyncFrequencyOption[] = [
     {
@@ -70,12 +61,12 @@ export const SyncFrequencyModal: React.FC<SyncFrequencyModalProps> = ({
   ];
 
   const handleSelect = (frequency: string) => {
-    onSelect(frequency);
-    onClose();
+    setEmailSyncFrequency(frequency);
+    router.back();
   };
 
   const renderOption = (option: SyncFrequencyOption) => {
-    const isSelected = option.value === currentFrequency;
+    const isSelected = option.value === emailSyncFrequency;
     
     return (
       <TouchableOpacity
@@ -114,54 +105,47 @@ export const SyncFrequencyModal: React.FC<SyncFrequencyModalProps> = ({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={false}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={onClose}>
-            <ArrowLeft size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            {t('syncFrequency.title')}
+    <View style={[styles.container, { backgroundColor: colors.background }, containerPadding]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <ArrowLeft size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          {t('syncFrequency.title')}
+        </Text>
+        <View style={styles.placeholder} />
+      </View>
+
+      <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
+        {/* Summary Section */}
+        <View style={styles.summarySection}>
+          <Text style={[styles.summaryTitle, { color: colors.text }]}>
+            {t('syncFrequency.selectTitle')}
           </Text>
-          <View style={styles.placeholder} />
+          <Text style={[styles.summaryDescription, { color: colors.textSecondary }]}>
+            {t('syncFrequency.description')}
+          </Text>
         </View>
 
-        <ScrollView style={styles.content}>
-          {/* Summary Section */}
-          <View style={styles.summarySection}>
-            <Text style={[styles.summaryTitle, { color: colors.text }]}>
-              {t('syncFrequency.selectTitle')}
-            </Text>
-            <Text style={[styles.summaryDescription, { color: colors.textSecondary }]}>
-              {t('syncFrequency.description')}
-            </Text>
-          </View>
+        {/* Options List */}
+        <View style={styles.optionsList}>
+          {frequencyOptions.map(renderOption)}
+        </View>
 
-          {/* Options List */}
-          <View style={styles.optionsList}>
-            {frequencyOptions.map(renderOption)}
-          </View>
-
-          {/* Info Section */}
-          <View style={styles.infoSection}>
-            <Text style={[styles.infoTitle, { color: colors.text }]}>
-              {t('syncFrequency.infoSection.title')}
-            </Text>
-            <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-              {t('syncFrequency.infoSection.description')}
-            </Text>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </Modal>
+        {/* Info Section */}
+        <View style={styles.infoSection}>
+          <Text style={[styles.infoTitle, { color: colors.text }]}>
+            {t('syncFrequency.infoSection.title')}
+          </Text>
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+            {t('syncFrequency.infoSection.description')}
+          </Text>
+        </View>
+      </ScrollView>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -190,8 +174,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
+  scrollContent: {
+    paddingBottom: 16,
+  },
   summarySection: {
-    paddingVertical: 24,
+    paddingVertical: 20,
   },
   summaryTitle: {
     fontSize: 24,
@@ -203,7 +190,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   optionsList: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   optionItem: {
     flexDirection: 'row',
@@ -228,7 +215,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   infoSection: {
-    marginBottom: 32,
+    marginBottom: 16,
   },
   infoTitle: {
     fontSize: 16,

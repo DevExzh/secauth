@@ -1,6 +1,8 @@
+import { SmartScreen } from '@/components/layout/SmartScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { router } from 'expo-router';
 import {
     ArrowLeft,
     Bell,
@@ -16,7 +18,6 @@ import {
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Switch,
@@ -25,24 +26,12 @@ import {
     View,
 } from 'react-native';
 
-interface EmailSettingsScreenProps {
-  onBack: () => void;
-  onConnectedAccounts: () => void;
-  onAddAccount: () => void;
-  onSyncFrequency: () => void;
-}
-
-export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
-  onBack,
-  onConnectedAccounts,
-  onAddAccount,
-  onSyncFrequency,
-}) => {
+export default function EmailSettingsModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
 
-  // Settings state
+  // Local state for settings
   const [emailAutoSync, setEmailAutoSync] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [autoDeleteEmails, setAutoDeleteEmails] = useState(true);
@@ -51,6 +40,18 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
   // Mock data
   const connectedAccountsCount = 2;
   const currentSyncFrequency = t('emailSettings.syncFrequency');
+
+  const handleConnectedAccounts = () => {
+    router.push('/modals/settings/connected-accounts' as any);
+  };
+
+  const handleAddAccount = () => {
+    router.push('/modals/email/email-add-input' as any);
+  };
+
+  const handleSyncFrequency = () => {
+    router.push('/modals/settings/sync-frequency' as any);
+  };
 
   const settingsGroups = [
     {
@@ -61,14 +62,14 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
           title: t('emailSettings.connectedAccounts.title'),
           subtitle: t('emailSettings.connectedAccounts.subtitle', { count: connectedAccountsCount }),
           type: 'navigation',
-          onPress: onConnectedAccounts,
+          onPress: handleConnectedAccounts,
         },
         {
           icon: <Plus size={20} color={colors.primary} />,
           title: t('emailSettings.addEmailAccount.title'),
           subtitle: t('emailSettings.addEmailAccount.subtitle'),
           type: 'navigation',
-          onPress: onAddAccount,
+          onPress: handleAddAccount,
         },
       ],
     },
@@ -88,7 +89,7 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
           title: t('emailSettings.syncFrequencyOption.title'),
           subtitle: currentSyncFrequency,
           type: 'navigation',
-          onPress: onSyncFrequency,
+          onPress: handleSyncFrequency,
           disabled: !emailAutoSync,
         },
       ],
@@ -191,18 +192,21 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
     </TouchableOpacity>
   );
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <ArrowLeft size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {t('emailSettings.title')}
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <ArrowLeft size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>
+        {t('emailSettings.title')}
+      </Text>
+      <View style={styles.placeholder} />
+    </View>
+  );
 
+  return (
+    <SmartScreen style={{ backgroundColor: colors.background }}>
+      {renderHeader()}
       <ScrollView style={styles.content}>
         {/* Summary Section */}
         <View style={styles.summarySection}>
@@ -279,14 +283,11 @@ export const EmailSettingsScreen: React.FC<EmailSettingsScreenProps> = ({
           </Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SmartScreen>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

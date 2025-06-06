@@ -1,32 +1,26 @@
+import { SmartScreen } from '@/components/layout/SmartScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { router } from 'expo-router';
 import {
-  ArrowLeft,
-  ChevronDown,
-  Eye,
-  EyeOff,
-  Mail,
-  Settings
+    ArrowLeft,
+    ChevronDown,
+    Eye,
+    EyeOff,
+    Mail,
+    Settings
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
-
-interface EmailInputScreenProps {
-  onBack: () => void;
-  onContinue: (emailConfig: EmailConfig) => void;
-}
 
 interface EmailConfig {
   email: string;
@@ -39,10 +33,7 @@ interface EmailConfig {
   useSsl: boolean;
 }
 
-export const EmailInputScreen: React.FC<EmailInputScreenProps> = ({ 
-  onBack, 
-  onContinue 
-}) => {
+export default function EmailAddInputModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
@@ -156,7 +147,11 @@ export const EmailInputScreen: React.FC<EmailInputScreenProps> = ({
         useSsl
       };
       
-      onContinue(emailConfig);
+      // Navigate to next step with email config
+      router.push({
+        pathname: '/modals/email/email-add-integration' as any,
+        params: { emailConfig: JSON.stringify(emailConfig) }
+      });
     } catch (error) {
       console.error('Email configuration error:', error);
       Alert.alert(t('emailInput.alerts.error'), t('emailInput.alerts.connectionError'));
@@ -293,170 +288,169 @@ export const EmailInputScreen: React.FC<EmailInputScreenProps> = ({
     </View>
   );
 
+  const renderHeader = () => (
+    <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <ArrowLeft size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>
+        {t('emailInput.title')}
+      </Text>
+      <View style={styles.placeholder} />
+    </View>
+  );
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <ArrowLeft size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {t('emailInput.title')}
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      <KeyboardAvoidingView 
+    <SmartScreen style={{ backgroundColor: colors.background }}>
+      {renderHeader()}
+      <ScrollView 
         style={styles.content}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          {/* Icon Section */}
-          <View style={styles.iconContainer}>
-            <View style={[styles.iconWrapper, { backgroundColor: colors.primary }]}>
-              <Mail size={48} color={colors.background} />
-            </View>
+        {/* Icon Section */}
+        <View style={styles.iconContainer}>
+          <View style={[styles.iconWrapper, { backgroundColor: colors.primary }]}>
+            <Mail size={48} color={colors.background} />
           </View>
+        </View>
 
-          {/* Title Section */}
-          <View style={styles.titleSection}>
-            <Text style={[styles.title, { color: colors.text }]}>
-              {t('emailInput.subtitle')}
-            </Text>
-            <Text style={[styles.description, { color: colors.textSecondary }]}>
-              {t('emailInput.description')}
-            </Text>
-          </View>
+        {/* Title Section */}
+        <View style={styles.titleSection}>
+          <Text style={[styles.title, { color: colors.text }]}>
+            {t('emailInput.subtitle')}
+          </Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
+            {t('emailInput.description')}
+          </Text>
+        </View>
 
-          {/* Email Input Section */}
-          <View style={styles.inputSection}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              {t('emailInput.emailLabel')}
-            </Text>
-            <View style={[styles.inputContainer, { 
-              backgroundColor: colors.surface,
-              borderColor: colors.border
-            }]}>
-              <Mail size={20} color={colors.textSecondary} style={styles.inputIcon} />
-              <TextInput
-                style={[styles.inputField, { color: colors.text }]}
-                value={email}
-                onChangeText={handleEmailChange}
-                placeholder={t('emailInput.emailPlaceholder')}
-                placeholderTextColor={colors.textSecondary}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="email"
-              />
-            </View>
-          </View>
-
-          {/* Password Input Section */}
-          <View style={styles.inputSection}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              {t('emailInput.passwordLabel')}
-            </Text>
-            <View style={[styles.inputContainer, { 
-              backgroundColor: colors.surface,
-              borderColor: colors.border
-            }]}>
-              <TextInput
-                style={[styles.inputField, { color: colors.text }]}
-                value={password}
-                onChangeText={setPassword}
-                placeholder={t('emailInput.passwordPlaceholder')}
-                placeholderTextColor={colors.textSecondary}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-              <TouchableOpacity 
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeButton}
-              >
-                {showPassword ? 
-                  <EyeOff size={20} color={colors.textSecondary} /> : 
-                  <Eye size={20} color={colors.textSecondary} />
-                }
-              </TouchableOpacity>
-            </View>
-            <Text style={[styles.hint, { color: colors.textSecondary }]}>
-              {t('emailInput.passwordHint')}
-            </Text>
-          </View>
-
-          {/* Advanced Settings Toggle */}
-          <TouchableOpacity
-            style={[styles.advancedToggle, { borderColor: colors.border }]}
-            onPress={() => setShowAdvanced(!showAdvanced)}
-          >
-            <View style={styles.advancedToggleContent}>
-              <Settings size={20} color={colors.primary} />
-              <Text style={[styles.advancedToggleText, { color: colors.text }]}>
-                {t('emailInput.advancedSettings')}
-              </Text>
-            </View>
-            <ChevronDown 
-              size={20} 
-              color={colors.textSecondary}
-              style={showAdvanced ? { transform: [{ rotate: '180deg' }] } : undefined}
+        {/* Email Input Section */}
+        <View style={styles.inputSection}>
+          <Text style={[styles.label, { color: colors.text }]}>
+            {t('emailInput.emailLabel')}
+          </Text>
+          <View style={[styles.inputContainer, { 
+            backgroundColor: colors.surface,
+            borderColor: colors.border
+          }]}>
+            <Mail size={20} color={colors.textSecondary} style={styles.inputIcon} />
+            <TextInput
+              style={[styles.inputField, { color: colors.text }]}
+              value={email}
+              onChangeText={handleEmailChange}
+              placeholder={t('emailInput.emailPlaceholder')}
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
             />
-          </TouchableOpacity>
-
-          {/* Advanced Settings */}
-          {showAdvanced && (
-            <View style={styles.advancedSettings}>
-              {renderProtocolSelector()}
-              {renderServerConfig()}
-            </View>
-          )}
-
-          {/* Info Section */}
-          <View style={[styles.infoContainer, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.infoTitle, { color: colors.text }]}>
-              {t('emailInput.infoTitle')}
-            </Text>
-            <Text style={[styles.infoDescription, { color: colors.textSecondary }]}>
-              {t('emailInput.infoDescription')}
-            </Text>
           </View>
+        </View>
 
-          {/* Continue Button */}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[
-                styles.continueButton, 
-                { 
-                  backgroundColor: email.trim() && validateEmail(email.trim()) && password.trim()
-                    ? colors.primary 
-                    : colors.border 
-                }
-              ]}
-              onPress={handleContinue}
-              disabled={!email.trim() || !validateEmail(email.trim()) || !password.trim() || isValidating}
+        {/* Password Input Section */}
+        <View style={styles.inputSection}>
+          <Text style={[styles.label, { color: colors.text }]}>
+            {t('emailInput.passwordLabel')}
+          </Text>
+          <View style={[styles.inputContainer, { 
+            backgroundColor: colors.surface,
+            borderColor: colors.border
+          }]}>
+            <TextInput
+              style={[styles.inputField, { color: colors.text }]}
+              value={password}
+              onChangeText={setPassword}
+              placeholder={t('emailInput.passwordPlaceholder')}
+              placeholderTextColor={colors.textSecondary}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity 
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeButton}
             >
-              <Text style={[
-                styles.continueButtonText, 
-                { 
-                  color: email.trim() && validateEmail(email.trim()) && password.trim()
-                    ? colors.background 
-                    : colors.textSecondary 
-                }
-              ]}>
-                {isValidating ? t('emailInput.connecting') : t('emailInput.continue')}
-              </Text>
+              {showPassword ? 
+                <EyeOff size={20} color={colors.textSecondary} /> : 
+                <Eye size={20} color={colors.textSecondary} />
+              }
             </TouchableOpacity>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          <Text style={[styles.hint, { color: colors.textSecondary }]}>
+            {t('emailInput.passwordHint')}
+          </Text>
+        </View>
+
+        {/* Advanced Settings Toggle */}
+        <TouchableOpacity
+          style={[styles.advancedToggle, { borderColor: colors.border }]}
+          onPress={() => setShowAdvanced(!showAdvanced)}
+        >
+          <View style={styles.advancedToggleContent}>
+            <Settings size={20} color={colors.primary} />
+            <Text style={[styles.advancedToggleText, { color: colors.text }]}>
+              {t('emailInput.advancedSettings')}
+            </Text>
+          </View>
+          <ChevronDown 
+            size={20} 
+            color={colors.textSecondary}
+            style={showAdvanced ? { transform: [{ rotate: '180deg' }] } : undefined}
+          />
+        </TouchableOpacity>
+
+        {/* Advanced Settings */}
+        {showAdvanced && (
+          <View style={styles.advancedSettings}>
+            {renderProtocolSelector()}
+            {renderServerConfig()}
+          </View>
+        )}
+
+        {/* Info Section */}
+        <View style={[styles.infoContainer, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.infoTitle, { color: colors.text }]}>
+            {t('emailInput.infoTitle')}
+          </Text>
+          <Text style={[styles.infoDescription, { color: colors.textSecondary }]}>
+            {t('emailInput.infoDescription')}
+          </Text>
+        </View>
+
+        {/* Continue Button */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.continueButton, 
+              { 
+                backgroundColor: email.trim() && validateEmail(email.trim()) && password.trim()
+                  ? colors.primary 
+                  : colors.border 
+              }
+            ]}
+            onPress={handleContinue}
+            disabled={!email.trim() || !validateEmail(email.trim()) || !password.trim() || isValidating}
+          >
+            <Text style={[
+              styles.continueButtonText, 
+              { 
+                color: email.trim() && validateEmail(email.trim()) && password.trim()
+                  ? colors.background 
+                  : colors.textSecondary 
+              }
+            ]}>
+              {isValidating ? t('emailInput.connecting') : t('emailInput.continue')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SmartScreen>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -464,7 +458,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   backButton: {
     padding: 8,

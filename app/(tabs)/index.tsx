@@ -4,6 +4,7 @@ import type { AccountTypeFilterValue } from '@/components/core/AccountTypeFilter
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useSmartSafeArea } from '@/hooks/useSafeArea';
 import { AccountService } from '@/services/accountService';
 import type { Account, AccountCategory } from '@/types/auth';
 import { useFocusEffect } from '@react-navigation/native';
@@ -14,7 +15,6 @@ import {
   InteractionManager,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Platform,
   RefreshControl,
   SafeAreaView,
   StatusBar,
@@ -63,6 +63,7 @@ export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
+  const { containerPadding, listFooterHeight } = useSmartSafeArea();
   
   // State management with performance optimization
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -525,7 +526,7 @@ export default function HomeScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }, containerPadding]}>
         <StatusBar
           barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor={colors.background}
@@ -537,7 +538,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0 }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }, containerPadding]}>
       <StatusBar
         barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor={colors.background}
@@ -592,6 +593,7 @@ export default function HomeScreen() {
         renderItem={renderAccountCard}
         keyExtractor={keyExtractor}
         ListEmptyComponent={isLoading ? null : emptyComponent}
+        ListFooterComponent={() => <View style={{ height: listFooterHeight }} />}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}

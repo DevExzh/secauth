@@ -16,6 +16,9 @@
     "temporary": "Temporary"
   },
   "common": {
+    "no": "No",
+    "yes": "Yes",
+    "ok": "OK",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -530,7 +533,17 @@
     "invalidQRMessage": "Please scan a valid authenticator QR code",
     "retry": "Retry",
     "cancel": "Cancel",
-    "instruction": "Align the QR code within the scanning frame"
+    "instruction": "Align the QR code within the scanning frame",
+    "scanSuccess": "QR Code Scanned",
+    "data": "Data"
+  },
+  "viewEmail": {
+    "title": "Account Email",
+    "accountNotFound": "Account not found",
+    "emailAddress": "Email Address",
+    "noEmail": "No email associated with this account",
+    "accountName": "Account Name",
+    "issuer": "Issuer"
   },
   "accountMenu": {
     "editName": "Edit Name",

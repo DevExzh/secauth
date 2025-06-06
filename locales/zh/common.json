@@ -16,6 +16,9 @@
     "temporary": "临时"
   },
   "common": {
+    "no": "否",
+    "yes": "是",
+    "ok": "好",
     "save": "保存",
     "cancel": "取消",
     "delete": "删除",
@@ -482,7 +485,17 @@
     "invalidQRMessage": "请扫描有效的身份验证器二维码",
     "retry": "重试",
     "cancel": "取消",
-    "instruction": "将二维码对准扫描框"
+    "instruction": "将二维码对准扫描框",
+    "scanSuccess": "二维码扫描成功",
+    "data": "数据"
+  },
+  "viewEmail": {
+    "title": "账户邮箱",
+    "accountNotFound": "未找到账户",
+    "emailAddress": "邮箱地址",
+    "noEmail": "此账户没有关联邮箱",
+    "accountName": "账户名称",
+    "issuer": "发行方"
   },
   "accountMenu": {
     "editName": "编辑名称",

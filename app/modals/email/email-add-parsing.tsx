@@ -1,8 +1,10 @@
+import { SmartScreen } from '@/components/layout/SmartScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { EmailService } from '@/services/emailService';
 import { Account } from '@/types/auth';
+import { router } from 'expo-router';
 import {
     ArrowLeft,
     Check,
@@ -12,7 +14,6 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import {
     Alert,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
@@ -20,17 +21,7 @@ import {
     View,
 } from 'react-native';
 
-interface EmailParsingScreenProps {
-  onBack: () => void;
-  onActivate2FA: (accounts: Account[]) => void;
-  userEmail?: string;
-}
-
-export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({ 
-  onBack, 
-  onActivate2FA,
-  userEmail
-}) => {
+export default function EmailAddParsingModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
@@ -40,6 +31,8 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
   const [deleteProcessedEmails, setDeleteProcessedEmails] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isActivating, setIsActivating] = useState(false);
+
+  const userEmail = 'user@example.com'; // This could come from props in real implementation
 
   const loadAccounts = useCallback(async () => {
     setIsLoading(true);
@@ -168,7 +161,9 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
         await EmailService.deleteProcessedEmails(Array.from(selectedAccounts));
       }
       
-      onActivate2FA(selectedAccountsList);
+      // TODO: Implement actual 2FA activation logic
+      console.log('Activated 2FA for accounts:', selectedAccountsList);
+      router.back();
     } catch (error) {
       console.error('2FA activation error:', error);
       Alert.alert(t('emailParsing.alerts.error'), t('emailParsing.alerts.activationError'));
@@ -265,18 +260,21 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
     );
   };
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <ArrowLeft size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {t('emailParsing.title')}
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <ArrowLeft size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>
+        {t('emailParsing.title')}
+      </Text>
+      <View style={styles.placeholder} />
+    </View>
+  );
 
+  return (
+    <SmartScreen style={{ backgroundColor: colors.background }}>
+      {renderHeader()}
       <ScrollView style={styles.content}>
         <View style={styles.descriptionSection}>
           <Text style={[styles.description, { color: colors.textSecondary }]}>
@@ -344,14 +342,11 @@ export const EmailParsingScreen: React.FC<EmailParsingScreenProps> = ({
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </SmartScreen>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -449,36 +444,35 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 12,
   },
   deleteOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    marginBottom: 24,
   },
   deleteOptionText: {
     fontSize: 16,
     marginLeft: 12,
   },
   buttonContainer: {
-    paddingVertical: 24,
-    gap: 12,
+    marginBottom: 32,
   },
   activateButton: {
-    borderRadius: 12,
     paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 12,
   },
   activateButtonText: {
     fontSize: 16,
     fontWeight: '600',
   },
   secureButton: {
-    borderRadius: 12,
     paddingVertical: 16,
+    borderRadius: 12,
+    borderWidth: 2,
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
   },
   secureButtonText: {
     fontSize: 16,

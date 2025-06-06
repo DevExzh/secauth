@@ -1,7 +1,4 @@
 import { ContextMenu } from '@/components/ui/ContextMenu';
-import { EditNameModal } from '@/components/ui/EditNameModal';
-import { QRCodeModal } from '@/components/ui/QRCodeModal';
-import { ViewEmailModal } from '@/components/ui/ViewEmailModal';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -10,34 +7,35 @@ import { OTPService } from '@/services/otpService';
 import type { Account, GeneratedCode } from '@/types/auth';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
 import {
-  Building2,
-  Clock,
-  Copy,
-  CreditCard,
-  Gamepad2,
-  Github,
-  Mail,
-  MessageCircle,
-  MoreVertical,
-  Shield,
-  Trash2
+    Building2,
+    Clock,
+    Copy,
+    CreditCard,
+    Gamepad2,
+    Github,
+    Mail,
+    MessageCircle,
+    MoreVertical,
+    Shield,
+    Trash2
 } from 'lucide-react-native';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
+    runOnJS,
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring,
+    withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -62,9 +60,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   
   const [generatedCode, setGeneratedCode] = useState<GeneratedCode | null>(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
-  const [showEditNameModal, setShowEditNameModal] = useState(false);
-  const [showQRCodeModal, setShowQRCodeModal] = useState(false);
-  const [showViewEmailModal, setShowViewEmailModal] = useState(false);
+
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [currentAccount, setCurrentAccount] = useState<Account>(account);
   const [codeGeneratedAt, setCodeGeneratedAt] = useState<number>(0);
@@ -196,12 +192,12 @@ export const AccountCard: React.FC<AccountCardProps> = ({
     // Update progress animation
     const currentProgress = timeRemaining / period;
     progressValue.value = withTiming(currentProgress, { duration: 100 });
-  }, [getCurrentTimeRemaining, progressValue]);
+  }, [generatedCode, getCurrentTimeRemaining, progressValue]);
 
   // Initial code generation
   useEffect(() => {
     generateNewCode();
-  }, [currentAccount.id]); // Only regenerate when account changes
+  }, [generateNewCode, currentAccount.id]); // Only regenerate when account changes
 
   // Setup timers for code updates and progress updates
   useEffect(() => {
@@ -250,17 +246,34 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   }, []);
 
   const handleEditName = useCallback(() => {
-    setShowEditNameModal(true);
-  }, []);
+    router.push({
+      pathname: '/modals/account/edit-name',
+      params: {
+        account: JSON.stringify(currentAccount)
+      }
+    } as any);
+  }, [currentAccount]);
 
   const handleShowQRCode = useCallback(() => {
-    setShowQRCodeModal(true);
-  }, []);
+    router.push({
+      pathname: '/modals/account/qr-code',
+      params: {
+        account: JSON.stringify(currentAccount)
+      }
+    } as any);
+  }, [currentAccount]);
 
   const handleViewEmail = useCallback(() => {
-    setShowViewEmailModal(true);
-  }, []);
+    router.push({
+      pathname: '/modals/account/view-email', 
+      params: {
+        account: JSON.stringify(currentAccount)
+      }
+    } as any);
+  }, [currentAccount]);
 
+  // Note: handleSaveName is available for future use when name editing is implemented
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSaveName = useCallback(async (accountId: string, newName: string) => {
     try {
       // Update local state immediately for instant feedback
@@ -584,28 +597,6 @@ export const AccountCard: React.FC<AccountCardProps> = ({
         onViewEmail={handleViewEmail}
         position={menuPosition}
         account={currentAccount}
-      />
-
-      {/* Edit Name Modal */}
-      <EditNameModal
-        visible={showEditNameModal}
-        account={currentAccount}
-        onClose={() => setShowEditNameModal(false)}
-        onSave={handleSaveName}
-      />
-
-      {/* QR Code Modal */}
-      <QRCodeModal
-        visible={showQRCodeModal}
-        account={currentAccount}
-        onClose={() => setShowQRCodeModal(false)}
-      />
-
-      {/* View Email Modal */}
-      <ViewEmailModal
-        visible={showViewEmailModal}
-        account={currentAccount}
-        onClose={() => setShowViewEmailModal(false)}
       />
     </>
   );

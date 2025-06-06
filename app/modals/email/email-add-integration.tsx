@@ -1,49 +1,48 @@
+import { SmartScreen } from '@/components/layout/SmartScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { router, useLocalSearchParams } from 'expo-router';
 import {
-  ArrowLeft,
-  Mail,
-  Shield,
-  Trash2
+    ArrowLeft,
+    Mail,
+    Shield,
+    Trash2
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
-interface EmailIntegrationScreenProps {
-  onBack: () => void;
-  onGrantAccess: () => void;
-  emailConfig?: {
-    email: string;
-    password: string;
-    protocol: 'IMAP' | 'POP3';
-    imapServer: string;
-    imapPort: string;
-    smtpServer: string;
-    smtpPort: string;
-    useSsl: boolean;
-  };
+interface EmailConfig {
+  email: string;
+  password: string;
+  protocol: 'IMAP' | 'POP3';
+  imapServer: string;
+  imapPort: string;
+  smtpServer: string;
+  smtpPort: string;
+  useSsl: boolean;
 }
 
-export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({ 
-  onBack, 
-  onGrantAccess,
-  emailConfig
-}) => {
+export default function EmailAddIntegrationModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
+  const params = useLocalSearchParams();
   
   const [isGranting, setIsGranting] = useState(false);
   const [connectionStep, setConnectionStep] = useState(0);
+
+  // Parse emailConfig from params if available
+  const emailConfig: EmailConfig | undefined = params.emailConfig 
+    ? JSON.parse(params.emailConfig as string) 
+    : undefined;
 
   const handleGrantAccess = async () => {
     setIsGranting(true);
@@ -64,7 +63,13 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
       
-      onGrantAccess();
+      // Navigate to add parsing screen
+      router.push({
+        pathname: '/modals/email/email-add-parsing',
+        params: {
+          userEmail: emailConfig?.email || ''
+        }
+      } as any);
     } catch (error) {
       console.error('Email integration error:', error);
       Alert.alert(t('emailIntegration.alerts.error'), t('emailIntegration.alerts.errorMessage'));
@@ -102,18 +107,21 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
     },
   ];
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <ArrowLeft size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {t('emailIntegration.title')}
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <ArrowLeft size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>
+        {t('emailIntegration.title')}
+      </Text>
+      <View style={styles.placeholder} />
+    </View>
+  );
 
+  return (
+    <SmartScreen style={{ backgroundColor: colors.background }}>
+      {renderHeader()}
       <ScrollView style={styles.content}>
         {/* Email Configuration Summary */}
         {emailConfig && (
@@ -254,14 +262,11 @@ export const EmailIntegrationScreen: React.FC<EmailIntegrationScreenProps> = ({
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SmartScreen>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
