@@ -11,21 +11,21 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Shield } from 'lucide-react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Animated,
-  InteractionManager,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  RefreshControl,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Animated,
+    InteractionManager,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    RefreshControl,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import DraggableFlatList, {
-  DragEndParams,
-  RenderItemParams,
+    DragEndParams,
+    RenderItemParams,
 } from 'react-native-draggable-flatlist';
 
 // Error Boundary for AccountCard
@@ -63,7 +63,7 @@ export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
-  const { containerPadding, listFooterHeight } = useSmartSafeArea();
+  const { tabAwareContainerPadding, listFooterHeight } = useSmartSafeArea();
   
   // State management with performance optimization
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -526,7 +526,7 @@ export default function HomeScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }, containerPadding]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }, tabAwareContainerPadding]}>
         <StatusBar
           barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor={colors.background}
@@ -538,7 +538,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }, containerPadding]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }, tabAwareContainerPadding]}>
       <StatusBar
         barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor={colors.background}
@@ -593,7 +593,7 @@ export default function HomeScreen() {
         renderItem={renderAccountCard}
         keyExtractor={keyExtractor}
         ListEmptyComponent={isLoading ? null : emptyComponent}
-        ListFooterComponent={() => <View style={{ height: listFooterHeight }} />}
+        ListFooterComponent={null}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -605,7 +605,7 @@ export default function HomeScreen() {
         onDragEnd={handleDragEnd}
         scrollEventThrottle={16}
         removeClippedSubviews={true}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={[styles.listContainer, { paddingBottom: 150 }]}
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
         onScrollBeginDrag={handleScrollBeginDrag}

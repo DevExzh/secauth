@@ -5,10 +5,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export function useSmartSafeArea() {
   const insets = useSafeAreaInsets();
   
-  // Simple calculation without complex logic
+  // Calculate tab bar height based on platform (matching _layout.tsx configuration)
+  const tabBarHeight = Platform.OS === 'ios' ? 90 : 80;
+  
+  // Calculate bottom padding to avoid tab bar overlap with extra breathing room
   const bottomPadding = Platform.OS === 'ios' 
-    ? (insets.bottom > 0 ? 140 : 100) 
-    : Math.max(insets.bottom + 80, 100);
+    ? tabBarHeight + Math.max(insets.bottom, 0) + 32 // Tab bar + safe area + extra breathing room
+    : tabBarHeight + Math.max(insets.bottom, 0) + 32; // Same for Android
   
   return {
     top: insets.top,
@@ -20,6 +23,13 @@ export function useSmartSafeArea() {
       paddingLeft: insets.left,
       paddingRight: insets.right,
       paddingBottom: 0,
+    },
+    // For tabs context
+    tabAwareContainerPadding: {
+      paddingTop: insets.top,
+      paddingLeft: insets.left,
+      paddingRight: insets.right,
+      paddingBottom: bottomPadding, // Add bottom padding to avoid tab bar overlap
     },
     listFooterHeight: bottomPadding,
     contentPadding: {
@@ -34,10 +44,8 @@ export function useSmartSafeArea() {
 export function useDynamicSafeArea() {
   const insets = useSafeAreaInsets();
   
-  // Calculate tab bar height based on platform and device
-  const tabBarHeight = Platform.OS === 'ios' 
-    ? (insets.bottom > 0 ? 83 : 49) // iPhone X+ vs older iPhones
-    : 56; // Android Material Design
+  // Calculate tab bar height based on platform (matching _layout.tsx configuration)
+  const tabBarHeight = Platform.OS === 'ios' ? 90 : 80;
   
   return {
     // Full screen padding including safe areas

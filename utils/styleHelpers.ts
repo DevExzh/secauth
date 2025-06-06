@@ -67,10 +67,8 @@ export const quickFixStyles = StyleSheet.create({
 export function useDynamicStyles() {
   const insets = useSafeAreaInsets();
   
-  // Calculate intelligent tab bar height
-  const tabBarHeight = Platform.OS === 'ios' ? 
-    (insets.bottom > 0 ? 83 : 49) : // iPhone X+ vs older iPhones
-    56; // Android Material Design
+  // Calculate tab bar height (matching _layout.tsx configuration)
+  const tabBarHeight = Platform.OS === 'ios' ? 90 : 80;
   
   return {
     // Full screen container with proper safe areas
@@ -134,9 +132,7 @@ export function useDynamicStyles() {
 export function useListPadding() {
   const insets = useSafeAreaInsets();
   
-  const tabBarHeight = Platform.OS === 'ios' ? 
-    (insets.bottom > 0 ? 83 : 49) : 
-    56;
+  const tabBarHeight = Platform.OS === 'ios' ? 90 : 80;
   
   return {
     // For FlatList/ScrollView contentContainerStyle
