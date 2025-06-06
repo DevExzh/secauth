@@ -1,4 +1,6 @@
 import { Account, EmailAccount, EmailVerification } from '@/types/auth';
+import { getLogger } from '@/utils/logger';
+import { LoggerScopes } from '@/utils/loggerConfig';
 
 export interface EmailPermissions {
   accessInbox: boolean;
@@ -47,6 +49,7 @@ export const EMAIL_PROVIDERS: EmailProvider[] = [
 ];
 
 export class EmailService {
+  private static readonly logger = getLogger(LoggerScopes.SERVICES.EMAIL);
   private static connectedAccounts: EmailAccount[] = [];
   private static permissions: EmailPermissions = {
     accessInbox: false,
@@ -173,9 +176,17 @@ export class EmailService {
 
   static async deleteProcessedEmails(emailIds: string[]): Promise<void> {
     // Simulate deleting processed emails
+    this.logger.info('开始删除已处理的邮件', { 
+      emailCount: emailIds.length,
+      emailIds: emailIds.slice(0, 5) // 只记录前5个ID避免日志过长
+    });
+    
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log('Deleted emails:', emailIds);
+        this.logger.info('已完成邮件删除', { 
+          deletedCount: emailIds.length,
+          operation: 'delete_processed_emails'
+        });
         resolve();
       }, 500);
     });
@@ -192,9 +203,19 @@ export class EmailService {
 
   static async activateAccount(verificationId: string, actionUrl?: string): Promise<boolean> {
     // Simulate account activation
+    this.logger.info('开始激活账户', { 
+      verificationId,
+      hasActionUrl: !!actionUrl,
+      operation: 'activate_account'
+    });
+    
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log('Activating account:', verificationId, actionUrl);
+        this.logger.info('账户激活成功', { 
+          verificationId,
+          actionUrl,
+          operation: 'activate_account_success'
+        });
         resolve(true);
       }, 1000);
     });

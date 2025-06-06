@@ -1,6 +1,7 @@
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { BiometricAuthService } from '@/services/biometricAuth';
+import { getLogger } from '@/utils/logger';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
@@ -49,6 +50,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 const SETTINGS_STORAGE_KEY = '@secauth_settings';
 
 export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const logger = getLogger('contexts.settings');
   const { t } = useLanguage();
   const { themeMode, setTheme } = useTheme();
   
@@ -77,7 +79,14 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
       };
       await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
     } catch (error) {
-      console.error('Error saving settings:', error);
+      logger.error('保存设置失败', error as Error, { 
+        operation: 'save_settings',
+        settingsKeys: Object.keys({
+          biometric, hasPinSet, notifications, emailAutoSync, 
+          emailNotifications, autoDeleteEmails, emailSyncFrequency, 
+          connectedEmailAccounts
+        })
+      });
     }
   }, [biometric, hasPinSet, notifications, emailAutoSync, emailNotifications, autoDeleteEmails, emailSyncFrequency, connectedEmailAccounts]);
 
@@ -97,7 +106,10 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
         setConnectedEmailAccounts(parsed.connectedEmailAccounts ?? 2);
       }
     } catch (error) {
-      console.error('Error loading settings:', error);
+      logger.error('加载设置失败', error as Error, { 
+        operation: 'load_settings',
+        storageKey: SETTINGS_STORAGE_KEY
+      });
     }
   }, [t]);
 
@@ -116,7 +128,9 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
         setBiometric(isBiometricEnabled);
         setHasPinSet(hasPIN);
       } catch (error) {
-        console.error('Error initializing settings:', error);
+        logger.error('初始化设置失败', error as Error, { 
+          operation: 'initialize_settings'
+        });
       }
     };
 
@@ -134,7 +148,10 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
       await BiometricAuthService.setBiometricEnabled(value);
       setBiometric(value);
     } catch (error) {
-      console.error('Error toggling biometric:', error);
+      logger.error('切换生物识别失败', error as Error, { 
+        operation: 'toggle_biometric',
+        targetValue: value
+      });
     }
   }, []);
 
@@ -150,10 +167,15 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
       const isAvailable = await BiometricAuthService.isAvailable();
       if (isAvailable && !biometric) {
         // Could show alert to enable biometric, but for now just set the flag
-        console.log('Biometric available, user could enable it');
+        logger.info('生物识别可用，用户可以启用', { 
+          biometricAvailable: true,
+          currentlyEnabled: biometric
+        });
       }
     } catch (error) {
-      console.error('Error checking biometric availability:', error);
+      logger.error('检查生物识别可用性失败', error as Error, { 
+        operation: 'check_biometric_availability'
+      });
     }
   }, [biometric]);
 

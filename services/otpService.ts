@@ -1,5 +1,7 @@
 import { OtpNativeModule } from '@/modules/otp-native';
 import type { Account, AuthType, GeneratedCode } from '@/types/auth';
+import { getLogger } from '@/utils/logger';
+import { LoggerScopes } from '@/utils/loggerConfig';
 import { InteractionManager } from 'react-native';
 
 // Cache for generated codes to avoid frequent recalculation
@@ -13,6 +15,7 @@ interface CodeCache {
 export class OTPService {
   private static codeCache: CodeCache = {};
   private static readonly CACHE_DURATION = 5000; // Increased to 5 seconds cache
+  private static readonly logger = getLogger(LoggerScopes.SERVICES.OTP);
 
   /**
    * Generate OTP code for an account using native implementation with enhanced caching
@@ -114,72 +117,78 @@ export class OTPService {
     
     try {
       // Log the parameters being passed to native module
-      console.log('Generating OTP with params:', {
-        type: account.type,
-        secretLength: cleanedSecret.length,
-        secretPreview: cleanedSecret.substring(0, 4) + '...',
-        digits: account.digits || 6,
-        algorithm: account.algorithm || 'SHA1',
-        period: period,
-        counter: account.counter,
-        pin: account.pin ? '****' : undefined
-      });
+      // console.log('Generating OTP with params:', {
+      //   type: account.type,
+      //   secretLength: cleanedSecret.length,
+      //   secretPreview: cleanedSecret.substring(0, 4) + '...',
+      //   digits: account.digits || 6,
+      //   algorithm: account.algorithm || 'SHA1',
+      //   period: period,
+      //   counter: account.counter,
+      //   pin: account.pin ? '****' : undefined
+      // });
       
       switch (account.type) {
         case 'TOTP':
           const timeSlot = Math.floor(now / 1000 / period);
-          console.log('TOTP timeSlot:', timeSlot);
-          console.log('Calling OtpNative.generateTOTP with params:', {
-            secret: cleanedSecret.substring(0, 4) + '...',
-            timeSlot: timeSlot,
-            digits: account.digits || 6,
-            algorithm: account.algorithm || 'SHA1'
-          });
+          // console.log('TOTP timeSlot:', timeSlot);
+          // console.log('Calling OtpNative.generateTOTP with params:', {
+          //   secret: cleanedSecret.substring(0, 4) + '...',
+          //   timeSlot: timeSlot,
+          //   digits: account.digits || 6,
+          //   algorithm: account.algorithm || 'SHA1'
+          // });
           code = OtpNativeModule.generateTOTP(
             cleanedSecret,
             timeSlot,
             account.digits || 6,
             account.algorithm || 'SHA1'
           );
-          console.log('TOTP native result:', code ? 'success' : 'empty');
+          // console.log('TOTP native result:', code ? 'success' : 'empty');
           break;
         case 'HOTP':
-          console.log('HOTP counter:', account.counter || 0);
+          this.logger.debug('生成HOTP代码', { 
+            counter: account.counter || 0,
+            digits: account.digits || 6,
+            algorithm: account.algorithm || 'SHA1'
+          });
           code = OtpNativeModule.generateHOTP(
             cleanedSecret,
             account.counter || 0,
             account.digits || 6,
             account.algorithm || 'SHA1'
           );
-          console.log('HOTP native result:', code ? 'success' : 'empty');
+          this.logger.debug('HOTP原生生成结果', { success: !!code });
           break;
         case 'mOTP':
           const motpTimeSlot = Math.floor(now / 1000);
-          console.log('mOTP timeSlot:', motpTimeSlot, 'pin:', account.pin ? '****' : 'none');
+          this.logger.debug('生成mOTP代码', { 
+            timeSlot: motpTimeSlot,
+            hasPin: !!account.pin
+          });
           code = OtpNativeModule.generateMOTP(
             cleanedSecret,
             account.pin || '0000',
             motpTimeSlot
           );
-          console.log('mOTP native result:', code ? 'success' : 'empty');
+          this.logger.debug('mOTP原生生成结果', { success: !!code });
           break;
         case 'Steam':
           const steamTimeSlot = Math.floor(now / 1000 / 30);
-          console.log('Steam timeSlot:', steamTimeSlot);
+          this.logger.debug('生成Steam代码', { timeSlot: steamTimeSlot });
           code = OtpNativeModule.generateSteamGuard(
             cleanedSecret,
             steamTimeSlot
           );
-          console.log('Steam native result:', code ? 'success' : 'empty');
+          this.logger.debug('Steam原生生成结果', { success: !!code });
           break;
         default:
           const defaultTimeSlot = Math.floor(now / 1000 / period);
-          console.log('Default TOTP timeSlot:', defaultTimeSlot);
-          console.log('Calling OtpNative.generateTOTP (default) with params:', {
-            secret: cleanedSecret.substring(0, 4) + '...',
+          this.logger.debug('生成默认TOTP代码', { 
             timeSlot: defaultTimeSlot,
             digits: account.digits || 6,
-            algorithm: account.algorithm || 'SHA1'
+            algorithm: account.algorithm || 'SHA1',
+            period
           });
           code = OtpNativeModule.generateTOTP(
             cleanedSecret,
@@ -187,7 +196,7 @@ export class OTPService {
             account.digits || 6,
             account.algorithm || 'SHA1'
           );
-          console.log('Default TOTP native result:', code ? 'success' : 'empty');
+          this.logger.debug('默认TOTP原生生成结果', { success: !!code });
       }
     } catch (error) {
       console.warn('Native OTP generation failed with error:', error);
@@ -205,7 +214,7 @@ export class OTPService {
       };
     }
     
-    console.log('Successfully generated OTP code using native implementation');
+    // console.log('Successfully generated OTP code using native implementation');
     return {
       code: this.formatCode(code, account.type),
       timeRemaining: this.calculateTimeRemaining(account, now),

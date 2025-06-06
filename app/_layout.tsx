@@ -10,6 +10,9 @@ import { SettingsProvider } from '@/contexts/SettingsContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 // Initialize i18n
 import { initPromise } from '@/utils/i18n';
+// Initialize logger
+import { getLogger } from '@/utils/logger';
+import { initializeLogger } from '@/utils/loggerConfig';
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<
@@ -50,29 +53,45 @@ class ErrorBoundary extends React.Component<
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [i18nReady, setI18nReady] = useState(false);
+  const [loggerReady, setLoggerReady] = useState(false);
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   useEffect(() => {
-    const initializeI18n = async () => {
+    const initializeApp = async () => {
       try {
+        // Initialize logger first
+        initializeLogger();
+        setLoggerReady(true);
+        
+        // Now we can safely use logger
+        const logger = getLogger('app.layout');
+        logger.info('开始初始化应用');
+        logger.info('日志系统初始化完成');
+
+        // Initialize i18n
+        logger.info('开始初始化国际化');
         if (initPromise) {
           await initPromise;
         }
         setI18nReady(true);
+        logger.info('国际化初始化完成');
+
+        logger.info('应用初始化完成');
       } catch (error) {
-        console.error('Failed to initialize i18n:', error);
+        console.error('Failed to initialize app:', error);
         // Set to true anyway to prevent infinite loading
         setI18nReady(true);
+        setLoggerReady(true);
       }
     };
 
-    initializeI18n();
+    initializeApp();
   }, []);
 
-  if (!loaded || !i18nReady) {
-    // Show loading screen while fonts or i18n are loading
+  if (!loaded || !i18nReady || !loggerReady) {
+    // Show loading screen while fonts, i18n, or logger are loading
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
