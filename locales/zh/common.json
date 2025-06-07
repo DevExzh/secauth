@@ -197,7 +197,6 @@
     "deleteProcessedEmails": "删除已处理的邮件",
     "activate2FA": "激活2FA",
     "activating": "正在激活...",
-    "secureConnection": "安全连接",
     "expiresInMinutes": "{{minutes}}分钟后过期",
     "expiresInSeconds": "{{seconds}}秒后过期",
     "alerts": {
@@ -207,9 +206,7 @@
       "selectAccountMessage": "请至少选择一个账户",
       "success": "成功",
       "successMessage": "已成功为所选账户激活两步验证",
-      "activationError": "激活过程中发生错误",
-      "securityConnection": "安全连接",
-      "securityConnectionSettings": "安全连接设置"
+      "activationError": "激活过程中发生错误"
     }
   },
   "emailInput": {

@@ -330,17 +330,6 @@ export default function EmailParsingModal() {
                 {isActivating ? t('emailParsing.activating') : t('emailParsing.activate2FA')}
               </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.secureButton, { borderColor: colors.primary }]}
-              onPress={() => {
-                Alert.alert(t('emailParsing.alerts.securityConnection'), t('emailParsing.alerts.securityConnectionSettings'));
-              }}
-            >
-              <Text style={[styles.secureButtonText, { color: colors.primary }]} numberOfLines={2}>
-                {t('emailParsing.secureConnection')}
-              </Text>
-            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
@@ -501,17 +490,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
   },
-  secureButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    borderWidth: 2,
-    alignItems: 'center',
-    minHeight: 48,
-  },
-  secureButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
+
 }); 

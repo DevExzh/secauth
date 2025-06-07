@@ -245,7 +245,6 @@
     "deleteProcessedEmails": "Delete processed emails",
     "activate2FA": "Activate 2FA",
     "activating": "Activating...",
-    "secureConnection": "Secure Connection",
     "expiresInMinutes": "Expires in {{minutes}} minutes",
     "expiresInSeconds": "Expires in {{seconds}} seconds",
     "alerts": {
@@ -255,9 +254,7 @@
       "selectAccountMessage": "Please select at least one account",
       "success": "Success",
       "successMessage": "Successfully activated two-factor authentication for selected accounts",
-      "activationError": "Error occurred during activation",
-      "securityConnection": "Secure Connection",
-      "securityConnectionSettings": "Secure connection settings"
+      "activationError": "Error occurred during activation"
     }
   },
   "emailInput": {
