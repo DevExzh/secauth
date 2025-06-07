@@ -4,136 +4,103 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { router } from 'expo-router';
 import {
-  ArrowLeft,
-  Bell,
-  ChevronRight,
-  Clock,
-  Link,
-  Mail,
-  Plus,
-  RefreshCw,
-  Settings,
-  Shield,
-  Trash2
+    ArrowLeft,
+    ChevronRight,
+    Clock,
+    Timer,
+    Wifi,
+    Zap
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
-export default function EmailSettingsModal() {
+export default function EmailConnectionTimeoutModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
 
-  // Local state for settings
-  const [emailAutoSync, setEmailAutoSync] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [autoDeleteEmails, setAutoDeleteEmails] = useState(true);
-  const [secureConnection, setSecureConnection] = useState(true);
+  // Local state for timeout settings
+  const [customTimeouts, setCustomTimeouts] = useState(false);
+  const [autoRetry, setAutoRetry] = useState(true);
+  const [connectionTimeout, setConnectionTimeout] = useState('30 seconds');
+  const [readTimeout, setReadTimeout] = useState('60 seconds');
+  const [retryAttempts, setRetryAttempts] = useState('3 attempts');
 
-  // Mock data
-  const connectedAccountsCount = 2;
-  const currentSyncFrequency = t('emailSettings.syncFrequency');
+  const timeoutOptions = [
+    { label: '10 seconds', value: '10 seconds' },
+    { label: '30 seconds', value: '30 seconds' },
+    { label: '60 seconds', value: '60 seconds' },
+    { label: '2 minutes', value: '2 minutes' },
+    { label: '5 minutes', value: '5 minutes' },
+  ];
 
-  const handleConnectedAccounts = () => {
-    router.push('/modals/settings/connected-accounts' as any);
-  };
-
-  const handleAddAccount = () => {
-    router.push('/modals/email/email-add-input' as any);
-  };
-
-  const handleSyncFrequency = () => {
-    router.push('/modals/settings/sync-frequency' as any);
-  };
+  const retryOptions = [
+    { label: '1 attempt', value: '1 attempt' },
+    { label: '3 attempts', value: '3 attempts' },
+    { label: '5 attempts', value: '5 attempts' },
+    { label: '10 attempts', value: '10 attempts' },
+  ];
 
   const settingsGroups = [
     {
-      title: t('emailSettings.accountManagement.title'),
+      title: t('emailConnectionTimeout.generalSettings.title'),
       items: [
         {
-          icon: <Link size={20} color={colors.primary} />,
-          title: t('emailSettings.connectedAccounts.title'),
-          subtitle: t('emailSettings.connectedAccounts.subtitle', { count: connectedAccountsCount }),
-          type: 'navigation',
-          onPress: handleConnectedAccounts,
+          icon: <Timer size={20} color={colors.primary} />,
+          title: t('emailConnectionTimeout.customTimeouts.title'),
+          subtitle: t('emailConnectionTimeout.customTimeouts.subtitle'),
+          type: 'switch',
+          value: customTimeouts,
+          onToggle: setCustomTimeouts,
         },
         {
-          icon: <Plus size={20} color={colors.primary} />,
-          title: t('emailSettings.addEmailAccount.title'),
-          subtitle: t('emailSettings.addEmailAccount.subtitle'),
-          type: 'navigation',
-          onPress: handleAddAccount,
+          icon: <Zap size={20} color={colors.primary} />,
+          title: t('emailConnectionTimeout.autoRetry.title'),
+          subtitle: t('emailConnectionTimeout.autoRetry.subtitle'),
+          type: 'switch',
+          value: autoRetry,
+          onToggle: setAutoRetry,
         },
       ],
     },
     {
-      title: t('emailSettings.syncSettings.title'),
+      title: t('emailConnectionTimeout.timeoutSettings.title'),
       items: [
         {
-          icon: <RefreshCw size={20} color={colors.primary} />,
-          title: t('emailSettings.autoSync.title'),
-          subtitle: t('emailSettings.autoSync.subtitle'),
-          type: 'switch',
-          value: emailAutoSync,
-          onToggle: setEmailAutoSync,
+          icon: <Wifi size={20} color={colors.primary} />,
+          title: t('emailConnectionTimeout.connectionTimeout.title'),
+          subtitle: connectionTimeout,
+          type: 'navigation',
+          onPress: () => console.log('Select connection timeout'),
+          disabled: !customTimeouts,
         },
         {
           icon: <Clock size={20} color={colors.primary} />,
-          title: t('emailSettings.syncFrequencyOption.title'),
-          subtitle: currentSyncFrequency,
+          title: t('emailConnectionTimeout.readTimeout.title'),
+          subtitle: readTimeout,
           type: 'navigation',
-          onPress: handleSyncFrequency,
-          disabled: !emailAutoSync,
+          onPress: () => console.log('Select read timeout'),
+          disabled: !customTimeouts,
         },
       ],
     },
     {
-      title: t('emailSettings.emailProcessing.title'),
+      title: t('emailConnectionTimeout.retrySettings.title'),
       items: [
         {
-          icon: <Trash2 size={20} color={colors.primary} />,
-          title: t('emailSettings.autoDeleteEmails.title'),
-          subtitle: t('emailSettings.autoDeleteEmails.subtitle'),
-          type: 'switch',
-          value: autoDeleteEmails,
-          onToggle: setAutoDeleteEmails,
-        },
-        {
-          icon: <Bell size={20} color={colors.primary} />,
-          title: t('emailSettings.emailNotifications.title'),
-          subtitle: t('emailSettings.emailNotifications.subtitle'),
-          type: 'switch',
-          value: emailNotifications,
-          onToggle: setEmailNotifications,
-        },
-      ],
-    },
-    {
-      title: t('emailSettings.securitySettings.title'),
-      items: [
-        {
-          icon: <Shield size={20} color={colors.primary} />,
-          title: t('emailSettings.secureConnection.title'),
-          subtitle: t('emailSettings.secureConnection.subtitle'),
-          type: 'switch',
-          value: secureConnection,
-          onToggle: setSecureConnection,
-        },
-        {
-          icon: <Settings size={20} color={colors.primary} />,
-          title: t('emailSettings.advancedSettings.title'),
-          subtitle: t('emailSettings.advancedSettings.subtitle'),
+          icon: <Timer size={20} color={colors.primary} />,
+          title: t('emailConnectionTimeout.retryAttempts.title'),
+          subtitle: retryAttempts,
           type: 'navigation',
-          onPress: () => {
-            router.push('/modals/email/email-advanced-settings' as any);
-          },
+          onPress: () => console.log('Select retry attempts'),
+          disabled: !autoRetry,
         },
       ],
     },
@@ -197,7 +164,7 @@ export default function EmailSettingsModal() {
         <ArrowLeft size={24} color={colors.text} />
       </TouchableOpacity>
       <Text style={[styles.headerTitle, { color: colors.text }]}>
-        {t('emailSettings.title')}
+        {t('emailConnectionTimeout.title')}
       </Text>
       <View style={styles.placeholder} />
     </View>
@@ -210,13 +177,13 @@ export default function EmailSettingsModal() {
         {/* Summary Section */}
         <View style={styles.summarySection}>
           <View style={[styles.summaryIcon, { backgroundColor: colors.primary + '20' }]}>
-            <Mail size={32} color={colors.primary} />
+            <Timer size={32} color={colors.primary} />
           </View>
           <Text style={[styles.summaryTitle, { color: colors.text }]}>
-            {t('emailSettings.summaryTitle')}
+            {t('emailConnectionTimeout.summaryTitle')}
           </Text>
           <Text style={[styles.summaryDescription, { color: colors.textSecondary }]}>
-            {t('emailSettings.summaryDescription')}
+            {t('emailConnectionTimeout.summaryDescription')}
           </Text>
         </View>
 
@@ -239,47 +206,49 @@ export default function EmailSettingsModal() {
           </View>
         ))}
 
-        {/* Status Section */}
+        {/* Current Settings Status */}
         <View style={styles.statusSection}>
           <Text style={[styles.statusTitle, { color: colors.text }]}>
-            {t('emailSettings.statusSection.title')}
+            {t('emailConnectionTimeout.currentSettings.title')}
           </Text>
           <View style={[styles.statusCard, { backgroundColor: colors.surface }]}>
             <View style={styles.statusRow}>
               <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.lastSync')}
+                {t('emailConnectionTimeout.currentSettings.connectionTimeout')}
               </Text>
               <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.lastSyncValue')}
+                {connectionTimeout}
               </Text>
             </View>
             <View style={styles.statusRow}>
               <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.scannedEmails')}
+                {t('emailConnectionTimeout.currentSettings.readTimeout')}
               </Text>
               <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.scannedEmailsValue')}
+                {readTimeout}
               </Text>
             </View>
             <View style={styles.statusRow}>
               <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.foundAccounts')}
+                {t('emailConnectionTimeout.currentSettings.retryAttempts')}
               </Text>
               <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.foundAccountsValue')}
+                {retryAttempts}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Info Section */}
-        <View style={styles.infoSection}>
-          <Text style={[styles.infoTitle, { color: colors.text }]}>
-            {t('emailSettings.infoSection.title')}
+        {/* Recommendations Section */}
+        <View style={styles.recommendationSection}>
+          <Text style={[styles.recommendationTitle, { color: colors.text }]}>
+            {t('emailConnectionTimeout.recommendations.title')}
           </Text>
-          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            {t('emailSettings.infoSection.description')}
-          </Text>
+          <View style={[styles.recommendationCard, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.recommendationText, { color: colors.textSecondary }]}>
+              {t('emailConnectionTimeout.recommendations.description')}
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </SmartScreen>
@@ -403,16 +372,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  infoSection: {
+  recommendationSection: {
     marginHorizontal: 16,
     marginBottom: 32,
   },
-  infoTitle: {
+  recommendationTitle: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 12,
   },
-  infoText: {
+  recommendationCard: {
+    padding: 16,
+    borderRadius: 12,
+  },
+  recommendationText: {
     fontSize: 14,
     lineHeight: 20,
   },

@@ -4,136 +4,174 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { router } from 'expo-router';
 import {
-  ArrowLeft,
-  Bell,
-  ChevronRight,
-  Clock,
-  Link,
-  Mail,
-  Plus,
-  RefreshCw,
-  Settings,
-  Shield,
-  Trash2
+    ArrowLeft,
+    ChevronRight,
+    Clock,
+    Database,
+    FileKey,
+    Key,
+    Lock,
+    Shield,
+    ShieldCheck,
+    Timer,
+    Wifi
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
-export default function EmailSettingsModal() {
+export default function EmailAdvancedSettingsModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
 
-  // Local state for settings
-  const [emailAutoSync, setEmailAutoSync] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [autoDeleteEmails, setAutoDeleteEmails] = useState(true);
-  const [secureConnection, setSecureConnection] = useState(true);
+  // Local state for advanced security settings
+  const [endToEndEncryption, setEndToEndEncryption] = useState(true);
+  const [twoFactorAuth, setTwoFactorAuth] = useState(false);
+  const [certificateValidation, setCertificateValidation] = useState(true);
+  const [secureProtocolOnly, setSecureProtocolOnly] = useState(true);
+  const [autoLockEnabled, setAutoLockEnabled] = useState(true);
+  const [dataRetentionEnabled, setDataRetentionEnabled] = useState(false);
 
-  // Mock data
-  const connectedAccountsCount = 2;
-  const currentSyncFrequency = t('emailSettings.syncFrequency');
-
-  const handleConnectedAccounts = () => {
-    router.push('/modals/settings/connected-accounts' as any);
+  const handleEncryptionSettings = () => {
+    router.push('/modals/email/email-encryption-settings' as any);
   };
 
-  const handleAddAccount = () => {
-    router.push('/modals/email/email-add-input' as any);
+  const handleCertificateManagement = () => {
+    router.push('/modals/email/email-certificate-management' as any);
   };
 
-  const handleSyncFrequency = () => {
-    router.push('/modals/settings/sync-frequency' as any);
+  const handleConnectionTimeout = () => {
+    router.push('/modals/email/email-connection-timeout' as any);
+  };
+
+  const handleDataRetention = () => {
+    router.push('/modals/email/email-data-retention' as any);
+  };
+
+  const handleAutoLockSettings = () => {
+    Alert.alert(
+      t('emailAdvancedSettings.autoLock.alertTitle'),
+      t('emailAdvancedSettings.autoLock.alertMessage'),
+      [{ text: t('common.ok'), style: 'default' }]
+    );
   };
 
   const settingsGroups = [
     {
-      title: t('emailSettings.accountManagement.title'),
+      title: t('emailAdvancedSettings.encryption.title'),
       items: [
         {
-          icon: <Link size={20} color={colors.primary} />,
-          title: t('emailSettings.connectedAccounts.title'),
-          subtitle: t('emailSettings.connectedAccounts.subtitle', { count: connectedAccountsCount }),
-          type: 'navigation',
-          onPress: handleConnectedAccounts,
+          icon: <Lock size={20} color={colors.primary} />,
+          title: t('emailAdvancedSettings.endToEndEncryption.title'),
+          subtitle: t('emailAdvancedSettings.endToEndEncryption.subtitle'),
+          type: 'switch',
+          value: endToEndEncryption,
+          onToggle: setEndToEndEncryption,
         },
         {
-          icon: <Plus size={20} color={colors.primary} />,
-          title: t('emailSettings.addEmailAccount.title'),
-          subtitle: t('emailSettings.addEmailAccount.subtitle'),
+          icon: <FileKey size={20} color={colors.primary} />,
+          title: t('emailAdvancedSettings.encryptionSettings.title'),
+          subtitle: t('emailAdvancedSettings.encryptionSettings.subtitle'),
           type: 'navigation',
-          onPress: handleAddAccount,
+          onPress: handleEncryptionSettings,
         },
       ],
     },
     {
-      title: t('emailSettings.syncSettings.title'),
+      title: t('emailAdvancedSettings.authentication.title'),
       items: [
         {
-          icon: <RefreshCw size={20} color={colors.primary} />,
-          title: t('emailSettings.autoSync.title'),
-          subtitle: t('emailSettings.autoSync.subtitle'),
+          icon: <Key size={20} color={colors.primary} />,
+          title: t('emailAdvancedSettings.twoFactorAuth.title'),
+          subtitle: t('emailAdvancedSettings.twoFactorAuth.subtitle'),
           type: 'switch',
-          value: emailAutoSync,
-          onToggle: setEmailAutoSync,
+          value: twoFactorAuth,
+          onToggle: setTwoFactorAuth,
+        },
+        {
+          icon: <Shield size={20} color={colors.primary} />,
+          title: t('emailAdvancedSettings.certificateValidation.title'),
+          subtitle: t('emailAdvancedSettings.certificateValidation.subtitle'),
+          type: 'switch',
+          value: certificateValidation,
+          onToggle: setCertificateValidation,
+        },
+        {
+          icon: <ShieldCheck size={20} color={colors.primary} />,
+          title: t('emailAdvancedSettings.certificateManagement.title'),
+          subtitle: t('emailAdvancedSettings.certificateManagement.subtitle'),
+          type: 'navigation',
+          onPress: handleCertificateManagement,
+        },
+      ],
+    },
+    {
+      title: t('emailAdvancedSettings.connection.title'),
+      items: [
+        {
+          icon: <Wifi size={20} color={colors.primary} />,
+          title: t('emailAdvancedSettings.secureProtocolOnly.title'),
+          subtitle: t('emailAdvancedSettings.secureProtocolOnly.subtitle'),
+          type: 'switch',
+          value: secureProtocolOnly,
+          onToggle: setSecureProtocolOnly,
+        },
+        {
+          icon: <Timer size={20} color={colors.primary} />,
+          title: t('emailAdvancedSettings.connectionTimeout.title'),
+          subtitle: t('emailAdvancedSettings.connectionTimeout.subtitle'),
+          type: 'navigation',
+          onPress: handleConnectionTimeout,
+        },
+      ],
+    },
+    {
+      title: t('emailAdvancedSettings.security.title'),
+      items: [
+        {
+          icon: <Lock size={20} color={colors.primary} />,
+          title: t('emailAdvancedSettings.autoLockEnabled.title'),
+          subtitle: t('emailAdvancedSettings.autoLockEnabled.subtitle'),
+          type: 'switch',
+          value: autoLockEnabled,
+          onToggle: setAutoLockEnabled,
         },
         {
           icon: <Clock size={20} color={colors.primary} />,
-          title: t('emailSettings.syncFrequencyOption.title'),
-          subtitle: currentSyncFrequency,
+          title: t('emailAdvancedSettings.autoLockSettings.title'),
+          subtitle: t('emailAdvancedSettings.autoLockSettings.subtitle'),
           type: 'navigation',
-          onPress: handleSyncFrequency,
-          disabled: !emailAutoSync,
+          onPress: handleAutoLockSettings,
+          disabled: !autoLockEnabled,
         },
       ],
     },
     {
-      title: t('emailSettings.emailProcessing.title'),
+      title: t('emailAdvancedSettings.dataManagement.title'),
       items: [
         {
-          icon: <Trash2 size={20} color={colors.primary} />,
-          title: t('emailSettings.autoDeleteEmails.title'),
-          subtitle: t('emailSettings.autoDeleteEmails.subtitle'),
+          icon: <Database size={20} color={colors.primary} />,
+          title: t('emailAdvancedSettings.dataRetentionEnabled.title'),
+          subtitle: t('emailAdvancedSettings.dataRetentionEnabled.subtitle'),
           type: 'switch',
-          value: autoDeleteEmails,
-          onToggle: setAutoDeleteEmails,
+          value: dataRetentionEnabled,
+          onToggle: setDataRetentionEnabled,
         },
         {
-          icon: <Bell size={20} color={colors.primary} />,
-          title: t('emailSettings.emailNotifications.title'),
-          subtitle: t('emailSettings.emailNotifications.subtitle'),
-          type: 'switch',
-          value: emailNotifications,
-          onToggle: setEmailNotifications,
-        },
-      ],
-    },
-    {
-      title: t('emailSettings.securitySettings.title'),
-      items: [
-        {
-          icon: <Shield size={20} color={colors.primary} />,
-          title: t('emailSettings.secureConnection.title'),
-          subtitle: t('emailSettings.secureConnection.subtitle'),
-          type: 'switch',
-          value: secureConnection,
-          onToggle: setSecureConnection,
-        },
-        {
-          icon: <Settings size={20} color={colors.primary} />,
-          title: t('emailSettings.advancedSettings.title'),
-          subtitle: t('emailSettings.advancedSettings.subtitle'),
+          icon: <Timer size={20} color={colors.primary} />,
+          title: t('emailAdvancedSettings.dataRetentionSettings.title'),
+          subtitle: t('emailAdvancedSettings.dataRetentionSettings.subtitle'),
           type: 'navigation',
-          onPress: () => {
-            router.push('/modals/email/email-advanced-settings' as any);
-          },
+          onPress: handleDataRetention,
+          disabled: !dataRetentionEnabled,
         },
       ],
     },
@@ -197,7 +235,7 @@ export default function EmailSettingsModal() {
         <ArrowLeft size={24} color={colors.text} />
       </TouchableOpacity>
       <Text style={[styles.headerTitle, { color: colors.text }]}>
-        {t('emailSettings.title')}
+        {t('emailAdvancedSettings.title')}
       </Text>
       <View style={styles.placeholder} />
     </View>
@@ -210,13 +248,13 @@ export default function EmailSettingsModal() {
         {/* Summary Section */}
         <View style={styles.summarySection}>
           <View style={[styles.summaryIcon, { backgroundColor: colors.primary + '20' }]}>
-            <Mail size={32} color={colors.primary} />
+            <Shield size={32} color={colors.primary} />
           </View>
           <Text style={[styles.summaryTitle, { color: colors.text }]}>
-            {t('emailSettings.summaryTitle')}
+            {t('emailAdvancedSettings.summaryTitle')}
           </Text>
           <Text style={[styles.summaryDescription, { color: colors.textSecondary }]}>
-            {t('emailSettings.summaryDescription')}
+            {t('emailAdvancedSettings.summaryDescription')}
           </Text>
         </View>
 
@@ -239,47 +277,19 @@ export default function EmailSettingsModal() {
           </View>
         ))}
 
-        {/* Status Section */}
-        <View style={styles.statusSection}>
-          <Text style={[styles.statusTitle, { color: colors.text }]}>
-            {t('emailSettings.statusSection.title')}
-          </Text>
-          <View style={[styles.statusCard, { backgroundColor: colors.surface }]}>
-            <View style={styles.statusRow}>
-              <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.lastSync')}
+        {/* Warning Section */}
+        <View style={styles.warningSection}>
+          <View style={[styles.warningCard, { backgroundColor: colors.surface, borderColor: colors.primary + '40' }]}>
+            <Shield size={24} color={colors.primary} style={styles.warningIcon} />
+            <View style={styles.warningContent}>
+              <Text style={[styles.warningTitle, { color: colors.text }]}>
+                {t('emailAdvancedSettings.warning.title')}
               </Text>
-              <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.lastSyncValue')}
-              </Text>
-            </View>
-            <View style={styles.statusRow}>
-              <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.scannedEmails')}
-              </Text>
-              <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.scannedEmailsValue')}
-              </Text>
-            </View>
-            <View style={styles.statusRow}>
-              <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.foundAccounts')}
-              </Text>
-              <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.foundAccountsValue')}
+              <Text style={[styles.warningText, { color: colors.textSecondary }]}>
+                {t('emailAdvancedSettings.warning.description')}
               </Text>
             </View>
           </View>
-        </View>
-
-        {/* Info Section */}
-        <View style={styles.infoSection}>
-          <Text style={[styles.infoTitle, { color: colors.text }]}>
-            {t('emailSettings.infoSection.title')}
-          </Text>
-          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            {t('emailSettings.infoSection.description')}
-          </Text>
         </View>
       </ScrollView>
     </SmartScreen>
@@ -377,42 +387,29 @@ const styles = StyleSheet.create({
     height: 1,
     marginLeft: 48,
   },
-  statusSection: {
-    marginHorizontal: 16,
-    marginBottom: 24,
-  },
-  statusTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  statusCard: {
-    padding: 16,
-    borderRadius: 12,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  statusLabel: {
-    fontSize: 14,
-  },
-  statusValue: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  infoSection: {
+  warningSection: {
     marginHorizontal: 16,
     marginBottom: 32,
   },
-  infoTitle: {
+  warningCard: {
+    flexDirection: 'row',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  warningIcon: {
+    marginRight: 12,
+    marginTop: 2,
+  },
+  warningContent: {
+    flex: 1,
+  },
+  warningTitle: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: 4,
   },
-  infoText: {
+  warningText: {
     fontSize: 14,
     lineHeight: 20,
   },

@@ -389,6 +389,281 @@
       "description": "• Only scans emails containing two-factor authentication information\n• Does not read or store personal email content\n• All connections use secure encryption protocols\n• You can disconnect email connections at any time"
     }
   },
+  "emailAdvancedSettings": {
+    "title": "Advanced Security Settings",
+    "summaryTitle": "Advanced Email Security",
+    "summaryDescription": "Configure advanced security features for email connections, including encryption, authentication, and data retention policies.",
+    "encryption": {
+      "title": "Encryption Settings",
+      "alertTitle": "Encryption Configuration",
+      "alertMessage": "This feature allows you to configure encryption algorithms and key management for secure email connections."
+    },
+    "endToEndEncryption": {
+      "title": "End-to-End Encryption",
+      "subtitle": "Enable end-to-end encryption for email data"
+    },
+    "encryptionSettings": {
+      "title": "Encryption Configuration",
+      "subtitle": "Configure encryption algorithms and key settings"
+    },
+    "authentication": {
+      "title": "Authentication Methods"
+    },
+    "twoFactorAuth": {
+      "title": "Two-Factor Authentication",
+      "subtitle": "Require 2FA for email account access"
+    },
+    "certificateValidation": {
+      "title": "Certificate Validation",
+      "subtitle": "Validate server certificates for secure connections"
+    },
+    "certificateManagement": {
+      "title": "Certificate Management",
+      "subtitle": "Manage trusted certificates and authorities"
+    },
+    "certificate": {
+      "alertTitle": "Certificate Management",
+      "alertMessage": "This feature allows you to manage trusted certificates and certificate authorities for secure email connections."
+    },
+    "connection": {
+      "title": "Connection Security"
+    },
+    "secureProtocolOnly": {
+      "title": "Secure Protocols Only",
+      "subtitle": "Allow only encrypted connections (SSL/TLS)"
+    },
+    "connectionTimeout": {
+      "title": "Connection Timeout",
+      "subtitle": "Configure timeout settings for email connections"
+    },
+    "timeout": {
+      "alertTitle": "Connection Timeout",
+      "alertMessage": "This feature allows you to configure timeout settings for email server connections to optimize performance and security."
+    },
+    "security": {
+      "title": "Access Security"
+    },
+    "autoLockEnabled": {
+      "title": "Auto Lock",
+      "subtitle": "Automatically lock email access after inactivity"
+    },
+    "autoLockSettings": {
+      "title": "Auto Lock Configuration",
+      "subtitle": "Configure auto lock timing and behavior"
+    },
+    "autoLock": {
+      "alertTitle": "Auto Lock Configuration",
+      "alertMessage": "This feature allows you to configure automatic locking of email access after periods of inactivity."
+    },
+    "dataManagement": {
+      "title": "Data Management"
+    },
+    "dataRetentionEnabled": {
+      "title": "Data Retention Policy",
+      "subtitle": "Enable automatic data retention and cleanup"
+    },
+    "dataRetentionSettings": {
+      "title": "Retention Configuration",
+      "subtitle": "Configure data retention periods and policies"
+    },
+    "dataRetention": {
+      "alertTitle": "Data Retention",
+      "alertMessage": "This feature allows you to configure how long email data is retained and when it should be automatically cleaned up."
+    },
+         "warning": {
+       "title": "Security Notice",
+       "description": "These are advanced security settings. Changes may affect email connectivity and performance. Only modify these settings if you understand the implications."
+     }
+   },
+   "emailCertificateManagement": {
+     "title": "Certificate Management",
+     "summaryTitle": "Certificate Management",
+     "summaryDescription": "Manage trusted certificates and certificate authorities for secure email connections. View, import, export, and manage certificate trust settings.",
+     "stats": {
+       "valid": "Valid",
+       "expired": "Expired",
+       "revoked": "Revoked"
+     },
+     "status": {
+       "valid": "Valid",
+       "expired": "Expired",
+       "revoked": "Revoked"
+     },
+     "actions": {
+       "title": "Certificate Actions"
+     },
+     "certificates": {
+       "title": "Installed Certificates"
+     },
+     "importCertificate": {
+       "title": "Import Certificate",
+       "subtitle": "Add new certificate from file or server",
+       "message": "Choose how you would like to import the certificate:",
+       "fromFile": "From File",
+       "fromServer": "From Server"
+     },
+     "importFromFile": {
+       "title": "Import from File",
+       "message": "Select a certificate file (.crt, .pem, .der) to import into the trusted certificate store."
+     },
+     "importFromServer": {
+       "title": "Import from Server",
+       "message": "Enter the server hostname to automatically retrieve and import the server's certificate."
+     },
+     "exportCertificates": {
+       "title": "Export Certificates",
+       "subtitle": "Backup certificates to external storage",
+       "message": "Export all trusted certificates to a backup file for safekeeping or transfer to another device."
+     },
+     "exportSuccess": {
+       "title": "Export Complete",
+       "message": "Certificates have been successfully exported to your device storage."
+     },
+     "certificateDetails": {
+       "issuer": "Issuer",
+       "expiry": "Expires",
+       "fingerprint": "Fingerprint",
+       "revoke": "Revoke Trust"
+     },
+     "revokeCertificate": {
+       "title": "Revoke Certificate",
+       "message": "Are you sure you want to revoke trust for this certificate? This may affect email connectivity."
+     },
+     "revokeSuccess": {
+       "title": "Certificate Revoked",
+       "message": "The certificate trust has been successfully revoked."
+     },
+     "security": {
+       "title": "Security Notice",
+       "description": "Only import certificates from trusted sources. Invalid or malicious certificates can compromise the security of your email connections."
+     }
+   },
+   "emailEncryptionSettings": {
+     "title": "Encryption Settings",
+     "summaryTitle": "Email Encryption Configuration",
+     "summaryDescription": "Configure encryption algorithms, key management, and security settings for email connections.",
+     "basicSettings": {
+       "title": "Basic Encryption"
+     },
+     "encryptionEnabled": {
+       "title": "Enable Encryption",
+       "subtitle": "Use encryption for all email connections"
+     },
+     "strongEncryption": {
+       "title": "Strong Encryption",
+       "subtitle": "Use military-grade encryption algorithms"
+     },
+     "algorithmSettings": {
+       "title": "Algorithm Configuration"
+     },
+     "encryptionAlgorithm": {
+       "title": "Encryption Algorithm"
+     },
+     "keyLength": {
+       "title": "Key Length"
+     },
+     "keyManagement": {
+       "title": "Key Management"
+     },
+     "keyRotation": {
+       "title": "Automatic Key Rotation",
+       "subtitle": "Automatically rotate encryption keys periodically"
+     },
+     "currentSettings": {
+       "title": "Current Configuration",
+       "algorithm": "Algorithm",
+       "keyLength": "Key Length",
+       "status": "Status"
+     },
+     "infoSection": {
+       "title": "About Encryption",
+       "description": "Encryption protects your email data during transmission and storage. Higher security levels may impact performance but provide better protection against unauthorized access."
+     }
+   },
+   "emailConnectionTimeout": {
+     "title": "Connection Timeout",
+     "summaryTitle": "Connection Timeout Settings",
+     "summaryDescription": "Configure timeout values and retry settings for email server connections to optimize performance and reliability.",
+     "generalSettings": {
+       "title": "General Settings"
+     },
+     "customTimeouts": {
+       "title": "Custom Timeouts",
+       "subtitle": "Use custom timeout values instead of defaults"
+     },
+     "autoRetry": {
+       "title": "Auto Retry",
+       "subtitle": "Automatically retry failed connections"
+     },
+     "timeoutSettings": {
+       "title": "Timeout Configuration"
+     },
+     "connectionTimeout": {
+       "title": "Connection Timeout"
+     },
+     "readTimeout": {
+       "title": "Read Timeout"
+     },
+     "retrySettings": {
+       "title": "Retry Configuration"
+     },
+     "retryAttempts": {
+       "title": "Retry Attempts"
+     },
+     "currentSettings": {
+       "title": "Current Settings",
+       "connectionTimeout": "Connection Timeout",
+       "readTimeout": "Read Timeout",
+       "retryAttempts": "Retry Attempts"
+     },
+     "recommendations": {
+       "title": "Recommendations",
+       "description": "• Use 30-60 seconds for connection timeout on stable networks\n• Set read timeout to 60-120 seconds for slow connections\n• Limit retry attempts to 3-5 to avoid excessive delays\n• Disable auto-retry for mobile data to save battery"
+     }
+   },
+   "emailDataRetention": {
+     "title": "Data Retention",
+     "summaryTitle": "Data Retention Policy",
+     "summaryDescription": "Configure how long email data is stored and when it should be automatically cleaned up to optimize storage and privacy.",
+     "generalSettings": {
+       "title": "General Settings"
+     },
+     "retentionEnabled": {
+       "title": "Enable Data Retention",
+       "subtitle": "Automatically manage data lifecycle"
+     },
+     "autoCleanup": {
+       "title": "Auto Cleanup",
+       "subtitle": "Automatically delete old data based on retention policy"
+     },
+     "retentionSettings": {
+       "title": "Retention Configuration"
+     },
+     "retentionPeriod": {
+       "title": "Retention Period"
+     },
+     "cleanupSchedule": {
+       "title": "Cleanup Schedule"
+     },
+     "storageOptimization": {
+       "title": "Storage Optimization"
+     },
+     "compressOldData": {
+       "title": "Compress Old Data",
+       "subtitle": "Compress old data to save storage space"
+     },
+     "storageStatistics": {
+       "title": "Storage Statistics",
+       "totalData": "Total Data",
+       "oldestData": "Oldest Data",
+       "itemsToCleanup": "Items to Cleanup"
+     },
+     "manualCleanup": {
+       "title": "Manual Cleanup",
+       "button": "Clean Up Now",
+       "description": "Manually remove old data and free up storage space"
+     }
+   },
   "connectedAccounts": {
     "lastSyncTimes": {
       "twoMinutesAgo": "2 minutes ago",

@@ -209,6 +209,51 @@ export default function RootLayout() {
                 gestureDirection: 'vertical',
               }} 
             />
+            <Stack.Screen 
+              name="modals/email/email-advanced-settings" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/email/email-certificate-management" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/email/email-encryption-settings" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/email/email-connection-timeout" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
+            <Stack.Screen 
+              name="modals/email/email-data-retention" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'vertical',
+              }} 
+            />
 
             <Stack.Screen 
               name="modals/auth/pin" 

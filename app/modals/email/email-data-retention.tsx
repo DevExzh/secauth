@@ -4,136 +4,106 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { router } from 'expo-router';
 import {
-  ArrowLeft,
-  Bell,
-  ChevronRight,
-  Clock,
-  Link,
-  Mail,
-  Plus,
-  RefreshCw,
-  Settings,
-  Shield,
-  Trash2
+    ArrowLeft,
+    Calendar,
+    ChevronRight,
+    Clock,
+    Database,
+    Timer,
+    Trash2
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
-export default function EmailSettingsModal() {
+export default function EmailDataRetentionModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
 
-  // Local state for settings
-  const [emailAutoSync, setEmailAutoSync] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [autoDeleteEmails, setAutoDeleteEmails] = useState(true);
-  const [secureConnection, setSecureConnection] = useState(true);
+  // Local state for data retention settings
+  const [retentionEnabled, setRetentionEnabled] = useState(true);
+  const [autoCleanup, setAutoCleanup] = useState(true);
+  const [compressOldData, setCompressOldData] = useState(false);
+  const [retentionPeriod, setRetentionPeriod] = useState('30 days');
+  const [cleanupSchedule, setCleanupSchedule] = useState('Weekly');
 
-  // Mock data
-  const connectedAccountsCount = 2;
-  const currentSyncFrequency = t('emailSettings.syncFrequency');
+  const retentionPeriods = [
+    { label: '7 days', value: '7 days' },
+    { label: '30 days', value: '30 days' },
+    { label: '90 days', value: '90 days' },
+    { label: '6 months', value: '6 months' },
+    { label: '1 year', value: '1 year' },
+    { label: 'Never', value: 'Never' },
+  ];
 
-  const handleConnectedAccounts = () => {
-    router.push('/modals/settings/connected-accounts' as any);
-  };
-
-  const handleAddAccount = () => {
-    router.push('/modals/email/email-add-input' as any);
-  };
-
-  const handleSyncFrequency = () => {
-    router.push('/modals/settings/sync-frequency' as any);
-  };
+  const cleanupSchedules = [
+    { label: 'Daily', value: 'Daily' },
+    { label: 'Weekly', value: 'Weekly' },
+    { label: 'Monthly', value: 'Monthly' },
+  ];
 
   const settingsGroups = [
     {
-      title: t('emailSettings.accountManagement.title'),
+      title: t('emailDataRetention.generalSettings.title'),
       items: [
         {
-          icon: <Link size={20} color={colors.primary} />,
-          title: t('emailSettings.connectedAccounts.title'),
-          subtitle: t('emailSettings.connectedAccounts.subtitle', { count: connectedAccountsCount }),
-          type: 'navigation',
-          onPress: handleConnectedAccounts,
+          icon: <Database size={20} color={colors.primary} />,
+          title: t('emailDataRetention.retentionEnabled.title'),
+          subtitle: t('emailDataRetention.retentionEnabled.subtitle'),
+          type: 'switch',
+          value: retentionEnabled,
+          onToggle: setRetentionEnabled,
         },
         {
-          icon: <Plus size={20} color={colors.primary} />,
-          title: t('emailSettings.addEmailAccount.title'),
-          subtitle: t('emailSettings.addEmailAccount.subtitle'),
-          type: 'navigation',
-          onPress: handleAddAccount,
+          icon: <Trash2 size={20} color={colors.primary} />,
+          title: t('emailDataRetention.autoCleanup.title'),
+          subtitle: t('emailDataRetention.autoCleanup.subtitle'),
+          type: 'switch',
+          value: autoCleanup,
+          onToggle: setAutoCleanup,
+          disabled: !retentionEnabled,
         },
       ],
     },
     {
-      title: t('emailSettings.syncSettings.title'),
+      title: t('emailDataRetention.retentionSettings.title'),
       items: [
         {
-          icon: <RefreshCw size={20} color={colors.primary} />,
-          title: t('emailSettings.autoSync.title'),
-          subtitle: t('emailSettings.autoSync.subtitle'),
-          type: 'switch',
-          value: emailAutoSync,
-          onToggle: setEmailAutoSync,
+          icon: <Calendar size={20} color={colors.primary} />,
+          title: t('emailDataRetention.retentionPeriod.title'),
+          subtitle: retentionPeriod,
+          type: 'navigation',
+          onPress: () => console.log('Select retention period'),
+          disabled: !retentionEnabled,
         },
         {
           icon: <Clock size={20} color={colors.primary} />,
-          title: t('emailSettings.syncFrequencyOption.title'),
-          subtitle: currentSyncFrequency,
+          title: t('emailDataRetention.cleanupSchedule.title'),
+          subtitle: cleanupSchedule,
           type: 'navigation',
-          onPress: handleSyncFrequency,
-          disabled: !emailAutoSync,
+          onPress: () => console.log('Select cleanup schedule'),
+          disabled: !retentionEnabled || !autoCleanup,
         },
       ],
     },
     {
-      title: t('emailSettings.emailProcessing.title'),
+      title: t('emailDataRetention.storageOptimization.title'),
       items: [
         {
-          icon: <Trash2 size={20} color={colors.primary} />,
-          title: t('emailSettings.autoDeleteEmails.title'),
-          subtitle: t('emailSettings.autoDeleteEmails.subtitle'),
+          icon: <Timer size={20} color={colors.primary} />,
+          title: t('emailDataRetention.compressOldData.title'),
+          subtitle: t('emailDataRetention.compressOldData.subtitle'),
           type: 'switch',
-          value: autoDeleteEmails,
-          onToggle: setAutoDeleteEmails,
-        },
-        {
-          icon: <Bell size={20} color={colors.primary} />,
-          title: t('emailSettings.emailNotifications.title'),
-          subtitle: t('emailSettings.emailNotifications.subtitle'),
-          type: 'switch',
-          value: emailNotifications,
-          onToggle: setEmailNotifications,
-        },
-      ],
-    },
-    {
-      title: t('emailSettings.securitySettings.title'),
-      items: [
-        {
-          icon: <Shield size={20} color={colors.primary} />,
-          title: t('emailSettings.secureConnection.title'),
-          subtitle: t('emailSettings.secureConnection.subtitle'),
-          type: 'switch',
-          value: secureConnection,
-          onToggle: setSecureConnection,
-        },
-        {
-          icon: <Settings size={20} color={colors.primary} />,
-          title: t('emailSettings.advancedSettings.title'),
-          subtitle: t('emailSettings.advancedSettings.subtitle'),
-          type: 'navigation',
-          onPress: () => {
-            router.push('/modals/email/email-advanced-settings' as any);
-          },
+          value: compressOldData,
+          onToggle: setCompressOldData,
+          disabled: !retentionEnabled,
         },
       ],
     },
@@ -197,7 +167,7 @@ export default function EmailSettingsModal() {
         <ArrowLeft size={24} color={colors.text} />
       </TouchableOpacity>
       <Text style={[styles.headerTitle, { color: colors.text }]}>
-        {t('emailSettings.title')}
+        {t('emailDataRetention.title')}
       </Text>
       <View style={styles.placeholder} />
     </View>
@@ -210,13 +180,13 @@ export default function EmailSettingsModal() {
         {/* Summary Section */}
         <View style={styles.summarySection}>
           <View style={[styles.summaryIcon, { backgroundColor: colors.primary + '20' }]}>
-            <Mail size={32} color={colors.primary} />
+            <Database size={32} color={colors.primary} />
           </View>
           <Text style={[styles.summaryTitle, { color: colors.text }]}>
-            {t('emailSettings.summaryTitle')}
+            {t('emailDataRetention.summaryTitle')}
           </Text>
           <Text style={[styles.summaryDescription, { color: colors.textSecondary }]}>
-            {t('emailSettings.summaryDescription')}
+            {t('emailDataRetention.summaryDescription')}
           </Text>
         </View>
 
@@ -239,46 +209,52 @@ export default function EmailSettingsModal() {
           </View>
         ))}
 
-        {/* Status Section */}
-        <View style={styles.statusSection}>
-          <Text style={[styles.statusTitle, { color: colors.text }]}>
-            {t('emailSettings.statusSection.title')}
+        {/* Storage Statistics */}
+        <View style={styles.storageSection}>
+          <Text style={[styles.storageTitle, { color: colors.text }]}>
+            {t('emailDataRetention.storageStatistics.title')}
           </Text>
-          <View style={[styles.statusCard, { backgroundColor: colors.surface }]}>
-            <View style={styles.statusRow}>
-              <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.lastSync')}
+          <View style={[styles.storageCard, { backgroundColor: colors.surface }]}>
+            <View style={styles.storageRow}>
+              <Text style={[styles.storageLabel, { color: colors.textSecondary }]}>
+                {t('emailDataRetention.storageStatistics.totalData')}
               </Text>
-              <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.lastSyncValue')}
-              </Text>
-            </View>
-            <View style={styles.statusRow}>
-              <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.scannedEmails')}
-              </Text>
-              <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.scannedEmailsValue')}
+              <Text style={[styles.storageValue, { color: colors.text }]}>
+                2.4 MB
               </Text>
             </View>
-            <View style={styles.statusRow}>
-              <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.foundAccounts')}
+            <View style={styles.storageRow}>
+              <Text style={[styles.storageLabel, { color: colors.textSecondary }]}>
+                {t('emailDataRetention.storageStatistics.oldestData')}
               </Text>
-              <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.foundAccountsValue')}
+              <Text style={[styles.storageValue, { color: colors.text }]}>
+                15 days ago
+              </Text>
+            </View>
+            <View style={styles.storageRow}>
+              <Text style={[styles.storageLabel, { color: colors.textSecondary }]}>
+                {t('emailDataRetention.storageStatistics.itemsToCleanup')}
+              </Text>
+              <Text style={[styles.storageValue, { color: colors.primary }]}>
+                12 items
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Info Section */}
-        <View style={styles.infoSection}>
-          <Text style={[styles.infoTitle, { color: colors.text }]}>
-            {t('emailSettings.infoSection.title')}
+        {/* Manual Cleanup Section */}
+        <View style={styles.cleanupSection}>
+          <Text style={[styles.cleanupTitle, { color: colors.text }]}>
+            {t('emailDataRetention.manualCleanup.title')}
           </Text>
-          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            {t('emailSettings.infoSection.description')}
+          <TouchableOpacity style={[styles.cleanupButton, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
+            <Trash2 size={20} color={colors.primary} />
+            <Text style={[styles.cleanupButtonText, { color: colors.primary }]}>
+              {t('emailDataRetention.manualCleanup.button')}
+            </Text>
+          </TouchableOpacity>
+          <Text style={[styles.cleanupDescription, { color: colors.textSecondary }]}>
+            {t('emailDataRetention.manualCleanup.description')}
           </Text>
         </View>
       </ScrollView>
@@ -377,43 +353,58 @@ const styles = StyleSheet.create({
     height: 1,
     marginLeft: 48,
   },
-  statusSection: {
+  storageSection: {
     marginHorizontal: 16,
     marginBottom: 24,
   },
-  statusTitle: {
+  storageTitle: {
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
   },
-  statusCard: {
+  storageCard: {
     padding: 16,
     borderRadius: 12,
   },
-  statusRow: {
+  storageRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
   },
-  statusLabel: {
+  storageLabel: {
     fontSize: 14,
   },
-  statusValue: {
+  storageValue: {
     fontSize: 14,
     fontWeight: '500',
   },
-  infoSection: {
+  cleanupSection: {
     marginHorizontal: 16,
     marginBottom: 32,
   },
-  infoTitle: {
+  cleanupTitle: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: 16,
   },
-  infoText: {
+  cleanupButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 8,
+  },
+  cleanupButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 8,
+  },
+  cleanupDescription: {
     fontSize: 14,
     lineHeight: 20,
+    textAlign: 'center',
   },
 }); 

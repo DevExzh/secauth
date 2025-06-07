@@ -341,6 +341,281 @@
       "description": "• 仅扫描包含两步验证信息的邮件\n• 不会读取或存储个人邮件内容\n• 所有连接都使用安全加密协议\n• 您可以随时断开邮箱连接"
     }
   },
+  "emailAdvancedSettings": {
+    "title": "高级安全设置",
+    "summaryTitle": "高级邮箱安全",
+    "summaryDescription": "配置邮箱连接的高级安全功能，包括加密、身份验证和数据保留政策。",
+    "encryption": {
+      "title": "加密设置",
+      "alertTitle": "加密配置",
+      "alertMessage": "此功能允许您为安全邮箱连接配置加密算法和密钥管理。"
+    },
+    "endToEndEncryption": {
+      "title": "端到端加密",
+      "subtitle": "为邮箱数据启用端到端加密"
+    },
+    "encryptionSettings": {
+      "title": "加密配置",
+      "subtitle": "配置加密算法和密钥设置"
+    },
+    "authentication": {
+      "title": "身份验证方法"
+    },
+    "twoFactorAuth": {
+      "title": "双重身份验证",
+      "subtitle": "邮箱账户访问需要2FA"
+    },
+    "certificateValidation": {
+      "title": "证书验证",
+      "subtitle": "验证服务器证书以确保安全连接"
+    },
+    "certificateManagement": {
+      "title": "证书管理",
+      "subtitle": "管理受信任的证书和证书颁发机构"
+    },
+    "certificate": {
+      "alertTitle": "证书管理",
+      "alertMessage": "此功能允许您管理安全邮箱连接的受信任证书和证书颁发机构。"
+    },
+    "connection": {
+      "title": "连接安全"
+    },
+    "secureProtocolOnly": {
+      "title": "仅安全协议",
+      "subtitle": "仅允许加密连接 (SSL/TLS)"
+    },
+    "connectionTimeout": {
+      "title": "连接超时",
+      "subtitle": "配置邮箱连接的超时设置"
+    },
+    "timeout": {
+      "alertTitle": "连接超时",
+      "alertMessage": "此功能允许您配置邮件服务器连接的超时设置，以优化性能和安全性。"
+    },
+    "security": {
+      "title": "访问安全"
+    },
+    "autoLockEnabled": {
+      "title": "自动锁定",
+      "subtitle": "不活动时自动锁定邮箱访问"
+    },
+    "autoLockSettings": {
+      "title": "自动锁定配置",
+      "subtitle": "配置自动锁定时间和行为"
+    },
+    "autoLock": {
+      "alertTitle": "自动锁定配置",
+      "alertMessage": "此功能允许您配置在不活动期间后自动锁定邮箱访问。"
+    },
+    "dataManagement": {
+      "title": "数据管理"
+    },
+    "dataRetentionEnabled": {
+      "title": "数据保留政策",
+      "subtitle": "启用自动数据保留和清理"
+    },
+    "dataRetentionSettings": {
+      "title": "保留配置",
+      "subtitle": "配置数据保留期和政策"
+    },
+    "dataRetention": {
+      "alertTitle": "数据保留",
+      "alertMessage": "此功能允许您配置邮箱数据的保留时长以及何时应自动清理。"
+    },
+    "warning": {
+      "title": "安全提醒",
+      "description": "这些是高级安全设置。更改可能会影响邮箱连接和性能。仅在您了解影响的情况下修改这些设置。"
+    }
+  },
+  "emailCertificateManagement": {
+    "title": "证书管理",
+    "summaryTitle": "证书管理",
+    "summaryDescription": "管理安全邮箱连接的受信任证书和证书颁发机构。查看、导入、导出和管理证书信任设置。",
+    "stats": {
+      "valid": "有效",
+      "expired": "已过期",
+      "revoked": "已吊销"
+    },
+    "status": {
+      "valid": "有效",
+      "expired": "已过期",
+      "revoked": "已吊销"
+    },
+    "actions": {
+      "title": "证书操作"
+    },
+    "certificates": {
+      "title": "已安装证书"
+    },
+    "importCertificate": {
+      "title": "导入证书",
+      "subtitle": "从文件或服务器添加新证书",
+      "message": "选择您希望如何导入证书：",
+      "fromFile": "从文件",
+      "fromServer": "从服务器"
+    },
+    "importFromFile": {
+      "title": "从文件导入",
+      "message": "选择一个证书文件(.crt, .pem, .der)导入到受信任证书存储中。"
+    },
+    "importFromServer": {
+      "title": "从服务器导入",
+      "message": "输入服务器主机名以自动获取并导入服务器的证书。"
+    },
+    "exportCertificates": {
+      "title": "导出证书",
+      "subtitle": "将证书备份到外部存储",
+      "message": "将所有受信任证书导出到备份文件，以便保存或转移到其他设备。"
+    },
+    "exportSuccess": {
+      "title": "导出完成",
+      "message": "证书已成功导出到您的设备存储。"
+    },
+    "certificateDetails": {
+      "issuer": "颁发者",
+      "expiry": "过期时间",
+      "fingerprint": "指纹",
+      "revoke": "撤销信任"
+    },
+    "revokeCertificate": {
+      "title": "撤销证书",
+      "message": "确定要撤销此证书的信任吗？这可能会影响邮箱连接。"
+    },
+    "revokeSuccess": {
+      "title": "证书已撤销",
+      "message": "证书信任已成功撤销。"
+    },
+    "security": {
+      "title": "安全提醒",
+      "description": "仅从受信任的来源导入证书。无效或恶意证书可能会危及您的邮箱连接安全。"
+    }
+  },
+  "emailEncryptionSettings": {
+    "title": "加密设置",
+    "summaryTitle": "邮箱加密配置",
+    "summaryDescription": "配置邮箱连接的加密算法、密钥管理和安全设置。",
+    "basicSettings": {
+      "title": "基础加密"
+    },
+    "encryptionEnabled": {
+      "title": "启用加密",
+      "subtitle": "为所有邮箱连接使用加密"
+    },
+    "strongEncryption": {
+      "title": "强加密",
+      "subtitle": "使用军用级加密算法"
+    },
+    "algorithmSettings": {
+      "title": "算法配置"
+    },
+    "encryptionAlgorithm": {
+      "title": "加密算法"
+    },
+    "keyLength": {
+      "title": "密钥长度"
+    },
+    "keyManagement": {
+      "title": "密钥管理"
+    },
+    "keyRotation": {
+      "title": "自动密钥轮换",
+      "subtitle": "定期自动轮换加密密钥"
+    },
+    "currentSettings": {
+      "title": "当前配置",
+      "algorithm": "算法",
+      "keyLength": "密钥长度",
+      "status": "状态"
+    },
+    "infoSection": {
+      "title": "关于加密",
+      "description": "加密在传输和存储过程中保护您的邮箱数据。更高的安全级别可能影响性能，但能更好地防止未经授权的访问。"
+    }
+  },
+  "emailConnectionTimeout": {
+    "title": "连接超时",
+    "summaryTitle": "连接超时设置",
+    "summaryDescription": "配置邮件服务器连接的超时值和重试设置，以优化性能和可靠性。",
+    "generalSettings": {
+      "title": "常规设置"
+    },
+    "customTimeouts": {
+      "title": "自定义超时",
+      "subtitle": "使用自定义超时值而非默认值"
+    },
+    "autoRetry": {
+      "title": "自动重试",
+      "subtitle": "自动重试失败的连接"
+    },
+    "timeoutSettings": {
+      "title": "超时配置"
+    },
+    "connectionTimeout": {
+      "title": "连接超时"
+    },
+    "readTimeout": {
+      "title": "读取超时"
+    },
+    "retrySettings": {
+      "title": "重试配置"
+    },
+    "retryAttempts": {
+      "title": "重试次数"
+    },
+    "currentSettings": {
+      "title": "当前设置",
+      "connectionTimeout": "连接超时",
+      "readTimeout": "读取超时",
+      "retryAttempts": "重试次数"
+    },
+    "recommendations": {
+      "title": "建议",
+      "description": "• 稳定网络下连接超时使用30-60秒\n• 慢连接下读取超时设置为60-120秒\n• 重试次数限制在3-5次以避免过度延迟\n• 移动数据下禁用自动重试以节省电量"
+    }
+  },
+  "emailDataRetention": {
+    "title": "数据保留",
+    "summaryTitle": "数据保留政策",
+    "summaryDescription": "配置邮箱数据的存储时长以及何时应自动清理，以优化存储和隐私。",
+    "generalSettings": {
+      "title": "常规设置"
+    },
+    "retentionEnabled": {
+      "title": "启用数据保留",
+      "subtitle": "自动管理数据生命周期"
+    },
+    "autoCleanup": {
+      "title": "自动清理",
+      "subtitle": "根据保留政策自动删除旧数据"
+    },
+    "retentionSettings": {
+      "title": "保留配置"
+    },
+    "retentionPeriod": {
+      "title": "保留期限"
+    },
+    "cleanupSchedule": {
+      "title": "清理计划"
+    },
+    "storageOptimization": {
+      "title": "存储优化"
+    },
+    "compressOldData": {
+      "title": "压缩旧数据",
+      "subtitle": "压缩旧数据以节省存储空间"
+    },
+    "storageStatistics": {
+      "title": "存储统计",
+      "totalData": "总数据量",
+      "oldestData": "最旧数据",
+      "itemsToCleanup": "待清理项目"
+    },
+    "manualCleanup": {
+      "title": "手动清理",
+      "button": "立即清理",
+      "description": "手动删除旧数据并释放存储空间"
+    }
+  },
   "connectedAccounts": {
     "lastSyncTimes": {
       "twoMinutesAgo": "2分钟前",

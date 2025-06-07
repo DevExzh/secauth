@@ -4,136 +4,104 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { router } from 'expo-router';
 import {
-  ArrowLeft,
-  Bell,
-  ChevronRight,
-  Clock,
-  Link,
-  Mail,
-  Plus,
-  RefreshCw,
-  Settings,
-  Shield,
-  Trash2
+    ArrowLeft,
+    ChevronRight,
+    FileKey,
+    Key,
+    Lock,
+    Shield,
+    ShieldCheck
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
-export default function EmailSettingsModal() {
+export default function EmailEncryptionSettingsModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
 
-  // Local state for settings
-  const [emailAutoSync, setEmailAutoSync] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [autoDeleteEmails, setAutoDeleteEmails] = useState(true);
-  const [secureConnection, setSecureConnection] = useState(true);
+  // Local state for encryption settings
+  const [encryptionEnabled, setEncryptionEnabled] = useState(true);
+  const [strongEncryption, setStrongEncryption] = useState(true);
+  const [keyRotation, setKeyRotation] = useState(false);
+  const [encryptionAlgorithm, setEncryptionAlgorithm] = useState('AES-256');
+  const [keyLength, setKeyLength] = useState('256-bit');
 
-  // Mock data
-  const connectedAccountsCount = 2;
-  const currentSyncFrequency = t('emailSettings.syncFrequency');
+  const encryptionAlgorithms = [
+    { label: 'AES-256', value: 'AES-256', recommended: true },
+    { label: 'AES-128', value: 'AES-128', recommended: false },
+    { label: 'ChaCha20', value: 'ChaCha20', recommended: true },
+    { label: 'Blowfish', value: 'Blowfish', recommended: false },
+  ];
 
-  const handleConnectedAccounts = () => {
-    router.push('/modals/settings/connected-accounts' as any);
-  };
-
-  const handleAddAccount = () => {
-    router.push('/modals/email/email-add-input' as any);
-  };
-
-  const handleSyncFrequency = () => {
-    router.push('/modals/settings/sync-frequency' as any);
-  };
+  const keyLengths = [
+    { label: '256-bit', value: '256-bit', recommended: true },
+    { label: '128-bit', value: '128-bit', recommended: false },
+    { label: '512-bit', value: '512-bit', recommended: false },
+  ];
 
   const settingsGroups = [
     {
-      title: t('emailSettings.accountManagement.title'),
+      title: t('emailEncryptionSettings.basicSettings.title'),
       items: [
         {
-          icon: <Link size={20} color={colors.primary} />,
-          title: t('emailSettings.connectedAccounts.title'),
-          subtitle: t('emailSettings.connectedAccounts.subtitle', { count: connectedAccountsCount }),
-          type: 'navigation',
-          onPress: handleConnectedAccounts,
-        },
-        {
-          icon: <Plus size={20} color={colors.primary} />,
-          title: t('emailSettings.addEmailAccount.title'),
-          subtitle: t('emailSettings.addEmailAccount.subtitle'),
-          type: 'navigation',
-          onPress: handleAddAccount,
-        },
-      ],
-    },
-    {
-      title: t('emailSettings.syncSettings.title'),
-      items: [
-        {
-          icon: <RefreshCw size={20} color={colors.primary} />,
-          title: t('emailSettings.autoSync.title'),
-          subtitle: t('emailSettings.autoSync.subtitle'),
+          icon: <Lock size={20} color={colors.primary} />,
+          title: t('emailEncryptionSettings.encryptionEnabled.title'),
+          subtitle: t('emailEncryptionSettings.encryptionEnabled.subtitle'),
           type: 'switch',
-          value: emailAutoSync,
-          onToggle: setEmailAutoSync,
+          value: encryptionEnabled,
+          onToggle: setEncryptionEnabled,
         },
-        {
-          icon: <Clock size={20} color={colors.primary} />,
-          title: t('emailSettings.syncFrequencyOption.title'),
-          subtitle: currentSyncFrequency,
-          type: 'navigation',
-          onPress: handleSyncFrequency,
-          disabled: !emailAutoSync,
-        },
-      ],
-    },
-    {
-      title: t('emailSettings.emailProcessing.title'),
-      items: [
-        {
-          icon: <Trash2 size={20} color={colors.primary} />,
-          title: t('emailSettings.autoDeleteEmails.title'),
-          subtitle: t('emailSettings.autoDeleteEmails.subtitle'),
-          type: 'switch',
-          value: autoDeleteEmails,
-          onToggle: setAutoDeleteEmails,
-        },
-        {
-          icon: <Bell size={20} color={colors.primary} />,
-          title: t('emailSettings.emailNotifications.title'),
-          subtitle: t('emailSettings.emailNotifications.subtitle'),
-          type: 'switch',
-          value: emailNotifications,
-          onToggle: setEmailNotifications,
-        },
-      ],
-    },
-    {
-      title: t('emailSettings.securitySettings.title'),
-      items: [
         {
           icon: <Shield size={20} color={colors.primary} />,
-          title: t('emailSettings.secureConnection.title'),
-          subtitle: t('emailSettings.secureConnection.subtitle'),
+          title: t('emailEncryptionSettings.strongEncryption.title'),
+          subtitle: t('emailEncryptionSettings.strongEncryption.subtitle'),
           type: 'switch',
-          value: secureConnection,
-          onToggle: setSecureConnection,
+          value: strongEncryption,
+          onToggle: setStrongEncryption,
+          disabled: !encryptionEnabled,
+        },
+      ],
+    },
+    {
+      title: t('emailEncryptionSettings.algorithmSettings.title'),
+      items: [
+        {
+          icon: <FileKey size={20} color={colors.primary} />,
+          title: t('emailEncryptionSettings.encryptionAlgorithm.title'),
+          subtitle: encryptionAlgorithm,
+          type: 'navigation',
+          onPress: () => console.log('Select algorithm'),
+          disabled: !encryptionEnabled,
         },
         {
-          icon: <Settings size={20} color={colors.primary} />,
-          title: t('emailSettings.advancedSettings.title'),
-          subtitle: t('emailSettings.advancedSettings.subtitle'),
+          icon: <Key size={20} color={colors.primary} />,
+          title: t('emailEncryptionSettings.keyLength.title'),
+          subtitle: keyLength,
           type: 'navigation',
-          onPress: () => {
-            router.push('/modals/email/email-advanced-settings' as any);
-          },
+          onPress: () => console.log('Select key length'),
+          disabled: !encryptionEnabled,
+        },
+      ],
+    },
+    {
+      title: t('emailEncryptionSettings.keyManagement.title'),
+      items: [
+        {
+          icon: <ShieldCheck size={20} color={colors.primary} />,
+          title: t('emailEncryptionSettings.keyRotation.title'),
+          subtitle: t('emailEncryptionSettings.keyRotation.subtitle'),
+          type: 'switch',
+          value: keyRotation,
+          onToggle: setKeyRotation,
+          disabled: !encryptionEnabled,
         },
       ],
     },
@@ -197,7 +165,7 @@ export default function EmailSettingsModal() {
         <ArrowLeft size={24} color={colors.text} />
       </TouchableOpacity>
       <Text style={[styles.headerTitle, { color: colors.text }]}>
-        {t('emailSettings.title')}
+        {t('emailEncryptionSettings.title')}
       </Text>
       <View style={styles.placeholder} />
     </View>
@@ -210,13 +178,13 @@ export default function EmailSettingsModal() {
         {/* Summary Section */}
         <View style={styles.summarySection}>
           <View style={[styles.summaryIcon, { backgroundColor: colors.primary + '20' }]}>
-            <Mail size={32} color={colors.primary} />
+            <FileKey size={32} color={colors.primary} />
           </View>
           <Text style={[styles.summaryTitle, { color: colors.text }]}>
-            {t('emailSettings.summaryTitle')}
+            {t('emailEncryptionSettings.summaryTitle')}
           </Text>
           <Text style={[styles.summaryDescription, { color: colors.textSecondary }]}>
-            {t('emailSettings.summaryDescription')}
+            {t('emailEncryptionSettings.summaryDescription')}
           </Text>
         </View>
 
@@ -239,34 +207,34 @@ export default function EmailSettingsModal() {
           </View>
         ))}
 
-        {/* Status Section */}
+        {/* Current Settings Status */}
         <View style={styles.statusSection}>
           <Text style={[styles.statusTitle, { color: colors.text }]}>
-            {t('emailSettings.statusSection.title')}
+            {t('emailEncryptionSettings.currentSettings.title')}
           </Text>
           <View style={[styles.statusCard, { backgroundColor: colors.surface }]}>
             <View style={styles.statusRow}>
               <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.lastSync')}
+                {t('emailEncryptionSettings.currentSettings.algorithm')}
               </Text>
               <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.lastSyncValue')}
+                {encryptionAlgorithm}
               </Text>
             </View>
             <View style={styles.statusRow}>
               <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.scannedEmails')}
+                {t('emailEncryptionSettings.currentSettings.keyLength')}
               </Text>
               <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.scannedEmailsValue')}
+                {keyLength}
               </Text>
             </View>
             <View style={styles.statusRow}>
               <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>
-                {t('emailSettings.statusSection.foundAccounts')}
+                {t('emailEncryptionSettings.currentSettings.status')}
               </Text>
-              <Text style={[styles.statusValue, { color: colors.text }]}>
-                {t('emailSettings.statusSection.foundAccountsValue')}
+              <Text style={[styles.statusValue, { color: encryptionEnabled ? colors.primary : colors.textSecondary }]}>
+                {encryptionEnabled ? t('common.enabled') : t('common.disabled')}
               </Text>
             </View>
           </View>
@@ -275,10 +243,10 @@ export default function EmailSettingsModal() {
         {/* Info Section */}
         <View style={styles.infoSection}>
           <Text style={[styles.infoTitle, { color: colors.text }]}>
-            {t('emailSettings.infoSection.title')}
+            {t('emailEncryptionSettings.infoSection.title')}
           </Text>
           <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            {t('emailSettings.infoSection.description')}
+            {t('emailEncryptionSettings.infoSection.description')}
           </Text>
         </View>
       </ScrollView>

@@ -341,6 +341,281 @@
       "description": "• Solo escanea emails que contienen información de autenticación de dos factores\n• No lee ni almacena contenido personal de emails\n• Todas las conexiones usan protocolos de encriptación seguros\n• Puedes desconectar conexiones de email en cualquier momento"
     }
   },
+  "emailAdvancedSettings": {
+    "title": "Configuración de Seguridad Avanzada",
+    "summaryTitle": "Seguridad Avanzada de Email",
+    "summaryDescription": "Configure funciones de seguridad avanzadas para conexiones de email, incluyendo encriptación, autenticación y políticas de retención de datos.",
+    "encryption": {
+      "title": "Configuración de Encriptación",
+      "alertTitle": "Configuración de Encriptación",
+      "alertMessage": "Esta función le permite configurar algoritmos de encriptación y gestión de claves para conexiones seguras de email."
+    },
+    "endToEndEncryption": {
+      "title": "Encriptación de Extremo a Extremo",
+      "subtitle": "Habilitar encriptación de extremo a extremo para datos de email"
+    },
+    "encryptionSettings": {
+      "title": "Configuración de Encriptación",
+      "subtitle": "Configurar algoritmos de encriptación y configuración de claves"
+    },
+    "authentication": {
+      "title": "Métodos de Autenticación"
+    },
+    "twoFactorAuth": {
+      "title": "Autenticación de Dos Factores",
+      "subtitle": "Requerir 2FA para acceso a cuenta de email"
+    },
+    "certificateValidation": {
+      "title": "Validación de Certificados",
+      "subtitle": "Validar certificados de servidor para conexiones seguras"
+    },
+    "certificateManagement": {
+      "title": "Gestión de Certificados",
+      "subtitle": "Gestionar certificados confiables y autoridades"
+    },
+    "certificate": {
+      "alertTitle": "Gestión de Certificados",
+      "alertMessage": "Esta función le permite gestionar certificados confiables y autoridades de certificados para conexiones seguras de email."
+    },
+    "connection": {
+      "title": "Seguridad de Conexión"
+    },
+    "secureProtocolOnly": {
+      "title": "Solo Protocolos Seguros",
+      "subtitle": "Permitir solo conexiones encriptadas (SSL/TLS)"
+    },
+    "connectionTimeout": {
+      "title": "Tiempo de Espera de Conexión",
+      "subtitle": "Configurar ajustes de tiempo de espera para conexiones de email"
+    },
+    "timeout": {
+      "alertTitle": "Tiempo de Espera de Conexión",
+      "alertMessage": "Esta función le permite configurar ajustes de tiempo de espera para conexiones de servidor de email para optimizar rendimiento y seguridad."
+    },
+    "security": {
+      "title": "Seguridad de Acceso"
+    },
+    "autoLockEnabled": {
+      "title": "Bloqueo Automático",
+      "subtitle": "Bloquear automáticamente acceso a email después de inactividad"
+    },
+    "autoLockSettings": {
+      "title": "Configuración de Bloqueo Automático",
+      "subtitle": "Configurar tiempo y comportamiento de bloqueo automático"
+    },
+    "autoLock": {
+      "alertTitle": "Configuración de Bloqueo Automático",
+      "alertMessage": "Esta función le permite configurar el bloqueo automático de acceso a email después de períodos de inactividad."
+    },
+    "dataManagement": {
+      "title": "Gestión de Datos"
+    },
+    "dataRetentionEnabled": {
+      "title": "Política de Retención de Datos",
+      "subtitle": "Habilitar retención automática de datos y limpieza"
+    },
+    "dataRetentionSettings": {
+      "title": "Configuración de Retención",
+      "subtitle": "Configurar períodos de retención de datos y políticas"
+    },
+    "dataRetention": {
+      "alertTitle": "Retención de Datos",
+      "alertMessage": "Esta función le permite configurar cuánto tiempo se retienen los datos de email y cuándo deben limpiarse automáticamente."
+    },
+    "warning": {
+      "title": "Aviso de Seguridad",
+      "description": "Estas son configuraciones de seguridad avanzadas. Los cambios pueden afectar la conectividad y rendimiento del email. Solo modifique estas configuraciones si comprende las implicaciones."
+    }
+  },
+  "emailCertificateManagement": {
+    "title": "Gestión de Certificados",
+    "summaryTitle": "Gestión de Certificados",
+    "summaryDescription": "Gestione certificados confiables y autoridades de certificación para conexiones de email seguras. Ver, importar, exportar y gestionar configuraciones de confianza de certificados.",
+    "stats": {
+      "valid": "Válido",
+      "expired": "Expirado",
+      "revoked": "Revocado"
+    },
+    "status": {
+      "valid": "Válido",
+      "expired": "Expirado",
+      "revoked": "Revocado"
+    },
+    "actions": {
+      "title": "Acciones de Certificado"
+    },
+    "certificates": {
+      "title": "Certificados Instalados"
+    },
+    "importCertificate": {
+      "title": "Importar Certificado",
+      "subtitle": "Agregar nuevo certificado desde archivo o servidor",
+      "message": "Elija cómo desea importar el certificado:",
+      "fromFile": "Desde Archivo",
+      "fromServer": "Desde Servidor"
+    },
+    "importFromFile": {
+      "title": "Importar desde Archivo",
+      "message": "Seleccione un archivo de certificado (.crt, .pem, .der) para importar al almacén de certificados confiables."
+    },
+    "importFromServer": {
+      "title": "Importar desde Servidor",
+      "message": "Ingrese el nombre del host del servidor para recuperar e importar automáticamente el certificado del servidor."
+    },
+    "exportCertificates": {
+      "title": "Exportar Certificados",
+      "subtitle": "Respaldar certificados al almacenamiento externo",
+      "message": "Exporte todos los certificados confiables a un archivo de respaldo para custodia o transferencia a otro dispositivo."
+    },
+    "exportSuccess": {
+      "title": "Exportación Completa",
+      "message": "Los certificados se han exportado exitosamente al almacenamiento de su dispositivo."
+    },
+    "certificateDetails": {
+      "issuer": "Emisor",
+      "expiry": "Expira",
+      "fingerprint": "Huella Digital",
+      "revoke": "Revocar Confianza"
+    },
+    "revokeCertificate": {
+      "title": "Revocar Certificado",
+      "message": "¿Está seguro de que desea revocar la confianza para este certificado? Esto puede afectar la conectividad del email."
+    },
+    "revokeSuccess": {
+      "title": "Certificado Revocado",
+      "message": "La confianza del certificado se ha revocado exitosamente."
+    },
+    "security": {
+      "title": "Aviso de Seguridad",
+      "description": "Solo importe certificados de fuentes confiables. Certificados inválidos o maliciosos pueden comprometer la seguridad de sus conexiones de email."
+    }
+  },
+  "emailEncryptionSettings": {
+    "title": "Configuración de Encriptación",
+    "summaryTitle": "Configuración de Encriptación de Email",
+    "summaryDescription": "Configure algoritmos de encriptación, gestión de claves y configuraciones de seguridad para conexiones de email.",
+    "basicSettings": {
+      "title": "Encriptación Básica"
+    },
+    "encryptionEnabled": {
+      "title": "Habilitar Encriptación",
+      "subtitle": "Usar encriptación para todas las conexiones de email"
+    },
+    "strongEncryption": {
+      "title": "Encriptación Fuerte",
+      "subtitle": "Usar algoritmos de encriptación de grado militar"
+    },
+    "algorithmSettings": {
+      "title": "Configuración de Algoritmo"
+    },
+    "encryptionAlgorithm": {
+      "title": "Algoritmo de Encriptación"
+    },
+    "keyLength": {
+      "title": "Longitud de Clave"
+    },
+    "keyManagement": {
+      "title": "Gestión de Claves"
+    },
+    "keyRotation": {
+      "title": "Rotación Automática de Claves",
+      "subtitle": "Rotar automáticamente claves de encriptación periódicamente"
+    },
+    "currentSettings": {
+      "title": "Configuración Actual",
+      "algorithm": "Algoritmo",
+      "keyLength": "Longitud de Clave",
+      "status": "Estado"
+    },
+    "infoSection": {
+      "title": "Acerca de la Encriptación",
+      "description": "La encriptación protege sus datos de email durante la transmisión y almacenamiento. Niveles de seguridad más altos pueden impactar el rendimiento pero proporcionan mejor protección contra acceso no autorizado."
+    }
+  },
+  "emailConnectionTimeout": {
+    "title": "Tiempo de Espera de Conexión",
+    "summaryTitle": "Configuración de Tiempo de Espera de Conexión",
+    "summaryDescription": "Configure valores de tiempo de espera y configuraciones de reintento para conexiones de servidor de email para optimizar rendimiento y confiabilidad.",
+    "generalSettings": {
+      "title": "Configuraciones Generales"
+    },
+    "customTimeouts": {
+      "title": "Tiempos de Espera Personalizados",
+      "subtitle": "Usar valores de tiempo de espera personalizados en lugar de los predeterminados"
+    },
+    "autoRetry": {
+      "title": "Reintento Automático",
+      "subtitle": "Reintentar automáticamente conexiones fallidas"
+    },
+    "timeoutSettings": {
+      "title": "Configuración de Tiempo de Espera"
+    },
+    "connectionTimeout": {
+      "title": "Tiempo de Espera de Conexión"
+    },
+    "readTimeout": {
+      "title": "Tiempo de Espera de Lectura"
+    },
+    "retrySettings": {
+      "title": "Configuración de Reintentos"
+    },
+    "retryAttempts": {
+      "title": "Intentos de Reintento"
+    },
+    "currentSettings": {
+      "title": "Configuraciones Actuales",
+      "connectionTimeout": "Tiempo de Espera de Conexión",
+      "readTimeout": "Tiempo de Espera de Lectura",
+      "retryAttempts": "Intentos de Reintento"
+    },
+    "recommendations": {
+      "title": "Recomendaciones",
+      "description": "• Use 30-60 segundos para tiempo de espera de conexión en redes estables\n• Establezca tiempo de espera de lectura a 60-120 segundos para conexiones lentas\n• Limite intentos de reintento a 3-5 para evitar retrasos excesivos\n• Deshabilite reintento automático para datos móviles para ahorrar batería"
+    }
+  },
+  "emailDataRetention": {
+    "title": "Retención de Datos",
+    "summaryTitle": "Política de Retención de Datos",
+    "summaryDescription": "Configure cuánto tiempo se almacenan los datos de email y cuándo deben limpiarse automáticamente para optimizar almacenamiento y privacidad.",
+    "generalSettings": {
+      "title": "Configuraciones Generales"
+    },
+    "retentionEnabled": {
+      "title": "Habilitar Retención de Datos",
+      "subtitle": "Gestionar automáticamente el ciclo de vida de datos"
+    },
+    "autoCleanup": {
+      "title": "Limpieza Automática",
+      "subtitle": "Eliminar automáticamente datos antiguos basado en política de retención"
+    },
+    "retentionSettings": {
+      "title": "Configuración de Retención"
+    },
+    "retentionPeriod": {
+      "title": "Período de Retención"
+    },
+    "cleanupSchedule": {
+      "title": "Horario de Limpieza"
+    },
+    "storageOptimization": {
+      "title": "Optimización de Almacenamiento"
+    },
+    "compressOldData": {
+      "title": "Comprimir Datos Antiguos",
+      "subtitle": "Comprimir datos antiguos para ahorrar espacio de almacenamiento"
+    },
+    "storageStatistics": {
+      "title": "Estadísticas de Almacenamiento",
+      "totalData": "Datos Totales",
+      "oldestData": "Datos Más Antiguos",
+      "itemsToCleanup": "Elementos para Limpiar"
+    },
+    "manualCleanup": {
+      "title": "Limpieza Manual",
+      "button": "Limpiar Ahora",
+      "description": "Eliminar manualmente datos antiguos y liberar espacio de almacenamiento"
+    }
+  },
   "connectedAccounts": {
     "lastSyncTimes": {
       "twoMinutesAgo": "hace 2 minutos",
