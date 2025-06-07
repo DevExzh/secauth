@@ -320,6 +320,8 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   const panGesture = useMemo(() => {
     return Gesture.Pan()
       .enabled(currentAccount.isTemporary || isExpired())
+      .activeOffsetX([-10, 10]) // Only activate when horizontal movement > 10px
+      .failOffsetY([-20, 20]) // Fail if vertical movement > 20px (allow list scrolling)
       .onUpdate((event) => {
         // Only allow left swipe (negative translateX)
         if (event.translationX < 0) {
