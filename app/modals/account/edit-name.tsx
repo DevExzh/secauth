@@ -31,7 +31,7 @@ export default function EditNameScreen() {
     if (!account) return;
     
     if (newName.trim() === '') {
-      Alert.alert(t('common.error'), 'Account name cannot be empty');
+      Alert.alert(t('common.error'), t('accountMenu.nameCannotBeEmpty'));
       return;
     }
 
@@ -44,7 +44,7 @@ export default function EditNameScreen() {
     // For now, we'll just close the modal
     Alert.alert(
       t('common.success'),
-      'Account name updated successfully',
+      t('accountMenu.nameUpdatedMessage'),
       [{ text: t('common.ok'), onPress: handleClose }]
     );
   };
@@ -53,7 +53,7 @@ export default function EditNameScreen() {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Text style={[styles.errorText, { color: colors.error }]}>
-          Account not found
+          {t('accountMenu.accountNotFound')}
         </Text>
       </View>
     );
@@ -68,7 +68,7 @@ export default function EditNameScreen() {
         </TouchableOpacity>
         
         <Text style={[styles.headerTitle, { color: colors.text }]}>
-          Edit Name
+          {t('accountMenu.editNameTitle')}
         </Text>
         
         <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
@@ -82,7 +82,7 @@ export default function EditNameScreen() {
       <View style={styles.content}>
         <View style={styles.form}>
           <Text style={[styles.label, { color: colors.text }]}>
-            Account Name
+            {t('accountMenu.accountName')}
           </Text>
           <TextInput
             style={[
@@ -95,14 +95,14 @@ export default function EditNameScreen() {
             ]}
             value={newName}
             onChangeText={setNewName}
-            placeholder="Enter account name"
+            placeholder={t('accountMenu.accountNamePlaceholder')}
             placeholderTextColor={colors.textSecondary}
             autoFocus
             selectTextOnFocus
           />
           
           <Text style={[styles.helperText, { color: colors.textSecondary }]}>
-            Choose a descriptive name to help you identify this account.
+            {t('accountMenu.editNameHelperText')}
           </Text>
         </View>
       </View>

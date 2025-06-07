@@ -32,7 +32,7 @@ export default function QRCodeScreen() {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Text style={[styles.errorText, { color: colors.error }]}>
-          Account not found
+          {t('accountMenu.accountNotFound')}
         </Text>
       </View>
     );
@@ -47,10 +47,10 @@ export default function QRCodeScreen() {
     try {
       await Clipboard.setStringAsync(account.secret);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert(t('common.success'), 'Secret key copied to clipboard');
+      Alert.alert(t('common.success'), t('accountMenu.secretCopied'));
     } catch (error) {
       console.error('Copy secret error:', error);
-      Alert.alert(t('common.error'), 'Failed to copy secret key');
+      Alert.alert(t('common.error'), t('accountMenu.copySecretFailed'));
     }
   };
 
@@ -60,10 +60,10 @@ export default function QRCodeScreen() {
     try {
       await Clipboard.setStringAsync(qrCodeUrl);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert(t('common.success'), 'QR code data copied to clipboard');
+      Alert.alert(t('common.success'), t('accountMenu.qrDataCopied'));
     } catch (error) {
       console.error('Copy QR data error:', error);
-      Alert.alert(t('common.error'), 'Failed to copy QR code data');
+      Alert.alert(t('common.error'), t('accountMenu.copyQRDataFailed'));
     }
   };
 
@@ -123,7 +123,7 @@ export default function QRCodeScreen() {
           >
             <Copy size={20} color={colors.text} />
             <Text style={[styles.actionButtonText, { color: colors.text }]}>
-              Copy Secret
+              {t('accountMenu.copySecret')}
             </Text>
           </TouchableOpacity>
           
@@ -133,7 +133,7 @@ export default function QRCodeScreen() {
           >
             <Copy size={20} color={colors.text} />
             <Text style={[styles.actionButtonText, { color: colors.text }]}>
-              Copy QR Data
+              {t('accountMenu.copyQRData')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -141,7 +141,7 @@ export default function QRCodeScreen() {
         {/* Warning */}
         <View style={[styles.warningContainer, { backgroundColor: colors.cardBackground }]}>
           <Text style={[styles.warningText, { color: colors.textSecondary }]}>
-            ⚠️ Keep your QR code and secret key secure. Anyone with access to them can generate your verification codes.
+            {t('accountMenu.qrCodeWarning')}
           </Text>
         </View>
       </View>

@@ -830,12 +830,23 @@
     "accountNamePlaceholder": "Enter account name",
     "qrCodeTitle": "QR Code",
     "qrCodeDescription": "Scan this QR code to add the account to another device",
+    "qrCodeInstructions": "Scan this QR code with an authenticator app to add this account to another device.",
+    "copySecret": "Copy Secret",
+    "copyQRData": "Copy QR Data",
+    "secretCopied": "Secret key copied to clipboard",
+    "qrDataCopied": "QR code data copied to clipboard",
+    "copySecretFailed": "Failed to copy secret key",
+    "copyQRDataFailed": "Failed to copy QR code data",
+    "qrCodeWarning": "⚠️ Keep your QR code and secret key secure. Anyone with access to them can generate your verification codes.",
+    "accountNotFound": "Account not found",
+    "nameCannotBeEmpty": "Account name cannot be empty",
     "nameUpdated": "Name Updated",
     "nameUpdatedMessage": "Account name has been updated successfully",
     "nameRequired": "Name Required",
     "nameRequiredMessage": "Please enter a valid account name",
     "nameUpdateError": "Update Failed",
-    "nameUpdateErrorMessage": "Failed to update account name. Please try again."
+    "nameUpdateErrorMessage": "Failed to update account name. Please try again.",
+    "editNameHelperText": "Choose a descriptive name to help you identify this account."
   },
   "dataManagement": {
     "importData": {
