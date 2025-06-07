@@ -22,7 +22,8 @@
     "build:android:debug": "cd android && ./gradlew assembleDebug",
     "build:android:bundle": "cd android && ./gradlew bundleRelease",
     "build:android:clean": "cd android && ./gradlew clean",
-    "run:android:release": "expo run:android --variant release"
+    "run:android:release": "expo run:android --variant release",
+    "icons:rebuild": "./scripts/rebuild-icons.sh"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
