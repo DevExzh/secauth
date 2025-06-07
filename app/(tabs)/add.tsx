@@ -10,20 +10,20 @@ import { OTPService } from '@/services/otpService';
 import { determineCategory } from '@/utils/totpParser';
 import { router } from 'expo-router';
 import {
-    Camera,
-    Mail,
-    Plus,
-    QrCode,
-    Shield,
-    Type
+  Camera,
+  Mail,
+  Plus,
+  QrCode,
+  Shield,
+  Type
 } from 'lucide-react-native';
 import React from 'react';
 import {
-    Alert,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 export default function AddScreen() {
@@ -155,7 +155,7 @@ export default function AddScreen() {
           />
         }
         avoidTabBar={true}
-        scrollable={false}
+        scrollable={true}
         style={{ backgroundColor: colors.background }}
       >
         <View style={styles.content}>

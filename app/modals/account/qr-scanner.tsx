@@ -1,6 +1,9 @@
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { AccountService } from '@/services/accountService';
+import { OTPService } from '@/services/otpService';
+import { determineCategory } from '@/utils/totpParser';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
@@ -37,11 +40,84 @@ export default function QRScannerScreen() {
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     
     if (data.startsWith('otpauth://')) {
-      router.back();
-      // In a real implementation, you would pass this data back to the Add screen
-      setTimeout(() => {
-        Alert.alert(t('qrScanner.scanSuccess'), `${t('qrScanner.data')}: ${data.substring(0, 50)}...`);
-      }, 100);
+      try {
+        const parsedData = OTPService.parseOTPUri(data);
+        if (parsedData) {
+          // Create a complete account object
+          const newAccount = {
+            name: parsedData.name || '',
+            email: parsedData.email || '',
+            secret: parsedData.secret || '',
+            type: parsedData.type || 'TOTP' as const,
+            category: determineCategory(parsedData.name || ''),
+            issuer: parsedData.issuer,
+            algorithm: parsedData.algorithm || 'SHA1' as const,
+            digits: parsedData.digits || 6,
+            period: parsedData.period || 30,
+            counter: parsedData.counter || 0,
+            pin: parsedData.pin || undefined,
+          };
+
+          // Validate required fields
+          if (!newAccount.name || !newAccount.email || !newAccount.secret) {
+            Alert.alert(
+              t('add.alerts.scanFailed'),
+              t('add.alerts.incompleteData'),
+              [
+                { text: t('add.alerts.manualInput'), onPress: () => {
+                  router.back();
+                  // Navigate to add screen with pre-filled data
+                  setTimeout(() => {
+                    router.push('/(tabs)/add');
+                  }, 100);
+                }},
+                { text: t('add.alerts.cancel'), onPress: handleClose }
+              ]
+            );
+            return;
+          }
+
+          // Save the account using AccountService
+          const savedAccount = await AccountService.addAccount(newAccount);
+          
+          Alert.alert(
+            t('add.alerts.scanSuccess'),
+            t('add.alerts.scanSuccessMessage', { name: savedAccount.name }),
+            [{ 
+              text: t('add.alerts.ok'), 
+              onPress: () => {
+                router.back();
+                // Navigate to home tab to show the new account
+                setTimeout(() => {
+                  router.push('/(tabs)');
+                }, 100);
+              }
+            }]
+          );
+        } else {
+          Alert.alert(
+            t('add.alerts.scanFailed'),
+            t('add.alerts.scanFailedMessage'),
+            [
+              { text: t('add.alerts.manualInput'), onPress: () => {
+                router.back();
+                setTimeout(() => {
+                  router.push('/(tabs)/add');
+                }, 100);
+              }},
+              { text: t('add.alerts.rescan'), onPress: () => setScanned(false) },
+              { text: t('add.alerts.cancel'), onPress: handleClose }
+            ]
+          );
+        }
+      } catch (error) {
+        console.error('Error processing QR scan result:', error);
+        Alert.alert(
+          t('add.alerts.error'),
+          error instanceof Error ? error.message : t('add.alerts.unknownError'),
+          [{ text: t('add.alerts.ok'), onPress: () => setScanned(false) }]
+        );
+      }
     } else {
       Alert.alert(
         t('qrScanner.invalidQR'),
