@@ -4,19 +4,19 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
-    ArrowLeft,
-    Mail,
-    Shield,
-    Trash2
+  ArrowLeft,
+  Mail,
+  Shield,
+  Trash2
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 interface EmailConfig {
@@ -30,7 +30,7 @@ interface EmailConfig {
   useSsl: boolean;
 }
 
-export default function EmailAddIntegrationModal() {
+export default function EmailIntegrationModal() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'dark'];
   const { t } = useLanguage();
@@ -63,13 +63,17 @@ export default function EmailAddIntegrationModal() {
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
       
-      // Navigate to add parsing screen
-      router.push({
-        pathname: '/modals/email/email-add-parsing',
-        params: {
-          userEmail: emailConfig?.email || ''
-        }
-      } as any);
+      // Navigate to parsing screen
+      if (emailConfig?.email) {
+        router.push({
+          pathname: '/modals/email/email-parsing',
+          params: {
+            userEmail: emailConfig.email
+          }
+        } as any);
+      } else {
+        router.push('/modals/email/email-parsing' as any);
+      }
     } catch (error) {
       console.error('Email integration error:', error);
       Alert.alert(t('emailIntegration.alerts.error'), t('emailIntegration.alerts.errorMessage'));

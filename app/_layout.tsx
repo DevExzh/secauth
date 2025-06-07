@@ -181,15 +181,7 @@ export default function RootLayout() {
                   gestureDirection: 'vertical',
                 }} 
               />
-              <Stack.Screen 
-                name="modals/email/email-integration" 
-                options={{ 
-                  presentation: 'modal',
-                  headerShown: false,
-                  gestureEnabled: true,
-                  gestureDirection: 'vertical',
-                }} 
-              />
+
                           <Stack.Screen 
               name="modals/email/email-parsing" 
               options={{ 
@@ -217,15 +209,7 @@ export default function RootLayout() {
                 gestureDirection: 'vertical',
               }} 
             />
-            <Stack.Screen 
-              name="modals/email/email-add-parsing" 
-              options={{ 
-                presentation: 'modal',
-                headerShown: false,
-                gestureEnabled: true,
-                gestureDirection: 'vertical',
-              }} 
-            />
+
             <Stack.Screen 
               name="modals/auth/pin" 
               options={{ 

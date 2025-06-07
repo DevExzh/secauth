@@ -95,7 +95,7 @@ export default function ConnectedAccountsModal() {
 
   const handleAddAccount = () => {
     // Navigate to email integration
-    router.push('/modals/email/email-integration' as any);
+    router.push('/modals/email/email-add-integration' as any);
   };
 
   const getProviderIcon = (provider: string) => {

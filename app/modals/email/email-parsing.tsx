@@ -6,19 +6,19 @@ import { EmailService } from '@/services/emailService';
 import { Account } from '@/types/auth';
 import { router } from 'expo-router';
 import {
-    ArrowLeft,
-    Check,
-    Clock,
-    Shield
+  ArrowLeft,
+  Check,
+  Clock,
+  Shield
 } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default function EmailParsingModal() {
@@ -213,25 +213,27 @@ export default function EmailParsingModal() {
         </View>
         <View style={styles.accountContent}>
           <View style={styles.accountHeader}>
-            <Text style={[styles.accountName, { color: colors.text }]}>
-              {account.name}
-            </Text>
-            <View style={[
-              styles.tempLabel, 
-              { 
-                backgroundColor: isExpired ? colors.error + '20' : colors.warning + '20' 
-              }
-            ]}>
-              <Clock size={12} color={isExpired ? colors.error : colors.warning} />
-              <Text style={[
-                styles.tempLabelText, 
-                { color: isExpired ? colors.error : colors.warning }
-              ]}>
-                {t('account.typeTemporary')}
+            <View style={styles.accountNameRow}>
+              <Text style={[styles.accountName, { color: colors.text }]} numberOfLines={2}>
+                {account.name}
               </Text>
+              <View style={[
+                styles.tempLabel, 
+                { 
+                  backgroundColor: isExpired ? colors.error + '20' : colors.warning + '20' 
+                }
+              ]}>
+                <Clock size={10} color={isExpired ? colors.error : colors.warning} />
+                <Text style={[
+                  styles.tempLabelText, 
+                  { color: isExpired ? colors.error : colors.warning }
+                ]}>
+                  {t('account.typeTemporary')}
+                </Text>
+              </View>
             </View>
           </View>
-          <Text style={[styles.accountEmail, { color: colors.textSecondary }]}>
+          <Text style={[styles.accountEmail, { color: colors.textSecondary }]} numberOfLines={1} ellipsizeMode="middle">
             {account.email}
           </Text>
           <Text style={[
@@ -241,7 +243,7 @@ export default function EmailParsingModal() {
                      isExpiringSoon ? colors.warning : 
                      colors.textSecondary 
             }
-          ]}>
+          ]} numberOfLines={1}>
             {getTimeRemaining()}
           </Text>
         </View>
@@ -277,20 +279,20 @@ export default function EmailParsingModal() {
       {renderHeader()}
       <ScrollView style={styles.content}>
         <View style={styles.descriptionSection}>
-          <Text style={[styles.description, { color: colors.textSecondary }]}>
+          <Text style={[styles.description, { color: colors.textSecondary }]} numberOfLines={0}>
             {t('emailParsing.description')}
           </Text>
         </View>
 
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+            <Text style={[styles.loadingText, { color: colors.textSecondary }]} numberOfLines={2}>
               {t('emailParsing.scanning')}
             </Text>
           </View>
         ) : (
           <View style={styles.accountsList}>
-            <Text style={[styles.accountsTitle, { color: colors.text }]}>
+            <Text style={[styles.accountsTitle, { color: colors.text }]} numberOfLines={2}>
               {t('emailParsing.foundAccounts', { count: accounts.length })}
             </Text>
             {accounts.map(renderAccountItem)}
@@ -311,7 +313,7 @@ export default function EmailParsingModal() {
             ]}>
               {deleteProcessedEmails && <Check size={16} color={colors.background} />}
             </View>
-            <Text style={[styles.deleteOptionText, { color: colors.text }]}>
+            <Text style={[styles.deleteOptionText, { color: colors.text }]} numberOfLines={0}>
               {t('emailParsing.deleteProcessedEmails')}
             </Text>
           </TouchableOpacity>
@@ -324,7 +326,7 @@ export default function EmailParsingModal() {
               onPress={handleActivate2FA}
               disabled={isActivating || selectedAccounts.size === 0}
             >
-              <Text style={[styles.activateButtonText, { color: colors.background }]}>
+              <Text style={[styles.activateButtonText, { color: colors.background }]} numberOfLines={2}>
                 {isActivating ? t('emailParsing.activating') : t('emailParsing.activate2FA')}
               </Text>
             </TouchableOpacity>
@@ -335,7 +337,7 @@ export default function EmailParsingModal() {
                 Alert.alert(t('emailParsing.alerts.securityConnection'), t('emailParsing.alerts.securityConnectionSettings'));
               }}
             >
-              <Text style={[styles.secureButtonText, { color: colors.primary }]}>
+              <Text style={[styles.secureButtonText, { color: colors.primary }]} numberOfLines={2}>
                 {t('emailParsing.secureConnection')}
               </Text>
             </TouchableOpacity>
@@ -362,6 +364,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: 16,
   },
   placeholder: {
     width: 40,
@@ -394,10 +399,11 @@ const styles = StyleSheet.create({
   },
   accountItem: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     padding: 16,
     borderRadius: 12,
     marginBottom: 8,
+    minHeight: 80,
   },
   accountIcon: {
     width: 40,
@@ -407,35 +413,55 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
+    marginTop: 2,
+    flexShrink: 0,
   },
   accountContent: {
     flex: 1,
+    paddingRight: 12,
+    minWidth: 0, // Allow content to shrink below its minimum content size
   },
   accountHeader: {
+    flexDirection: 'column',
+    marginBottom: 4,
+  },
+  accountNameRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 6,
+    flexWrap: 'wrap',
+    gap: 8,
   },
   accountName: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 4,
+    flex: 1,
+    minWidth: 0, // Allow text to shrink
   },
   accountEmail: {
     fontSize: 14,
+    marginBottom: 4,
+    flexWrap: 'wrap',
   },
   tempLabel: {
-    padding: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
     borderRadius: 4,
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-start',
+    flexShrink: 0,
   },
   tempLabelText: {
-    fontSize: 12,
+    fontSize: 11,
     marginLeft: 4,
+    fontWeight: '500',
   },
   expirationText: {
-    fontSize: 14,
+    fontSize: 13,
+    marginTop: 2,
+    fontWeight: '500',
   },
   checkbox: {
     width: 24,
@@ -444,38 +470,48 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 12,
+    marginTop: 8,
+    flexShrink: 0,
   },
   deleteOption: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 24,
+    paddingHorizontal: 4,
   },
   deleteOptionText: {
     fontSize: 16,
     marginLeft: 12,
+    flex: 1,
+    flexWrap: 'wrap',
   },
   buttonContainer: {
     marginBottom: 32,
   },
   activateButton: {
     paddingVertical: 16,
+    paddingHorizontal: 20,
     borderRadius: 12,
     alignItems: 'center',
     marginBottom: 12,
+    minHeight: 48,
   },
   activateButtonText: {
     fontSize: 16,
     fontWeight: '600',
+    textAlign: 'center',
   },
   secureButton: {
     paddingVertical: 16,
+    paddingHorizontal: 20,
     borderRadius: 12,
     borderWidth: 2,
     alignItems: 'center',
+    minHeight: 48,
   },
   secureButtonText: {
     fontSize: 16,
     fontWeight: '600',
+    textAlign: 'center',
   },
 }); 
