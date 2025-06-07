@@ -52,10 +52,24 @@ export class AccountService {
     const regularAccounts = accounts
       .filter(account => !account.isTemporary)
       .sort((a, b) => {
-        // Sort by custom order if available, then by creation time
-        const orderA = (a as any).customOrder ?? new Date(a.createdAt).getTime();
-        const orderB = (b as any).customOrder ?? new Date(b.createdAt).getTime();
-        return orderA - orderB;
+        const aExtended = a as Account & { customOrder?: number };
+        const bExtended = b as Account & { customOrder?: number };
+        
+        // Sort by custom order if available
+        if (typeof aExtended.customOrder === 'number' && typeof bExtended.customOrder === 'number') {
+          return aExtended.customOrder - bExtended.customOrder;
+        }
+        
+        // If only one has custom order, prioritize it
+        if (typeof aExtended.customOrder === 'number') {
+          return -1;
+        }
+        if (typeof bExtended.customOrder === 'number') {
+          return 1;
+        }
+        
+        // If neither has custom order, sort by creation time (newest first for better UX)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
     
     return [...temporaryAccounts, ...regularAccounts];
@@ -172,6 +186,36 @@ export class AccountService {
   }
 
   /**
+   * Add multiple accounts with optimization (batch operation)
+   */
+  static async addAccounts(accountsToAdd: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<Account[]> {
+    try {
+      const now = new Date();
+      const newAccounts: Account[] = accountsToAdd.map((account, index) => ({
+        ...account,
+        id: `account_${Date.now()}_${Math.random()}_${index}`,
+        createdAt: now,
+        updatedAt: now,
+        category: account.category || 'Other',
+      }));
+
+      const accounts = await this.getAccounts();
+      const updatedAccounts = [...accounts, ...newAccounts];
+      
+      // Update cache immediately
+      this.cache = updatedAccounts;
+      
+      // Save to storage and wait for completion to ensure persistence
+      await this.saveAccountsAsync(updatedAccounts);
+
+      return newAccounts;
+    } catch (error) {
+      console.error('Error adding accounts:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Update account name with optimization
    */
   static async updateAccountName(accountId: string, newName: string): Promise<Account> {
@@ -276,10 +320,23 @@ export class AccountService {
    */
   static async updateAccountOrder(accountIds: string[]): Promise<void> {
     try {
+      console.log('updateAccountOrder: Updating order for accounts:', accountIds);
+      
       const accounts = await this.getAccounts();
+      console.log('updateAccountOrder: Current accounts count:', accounts.length);
+      
+      // Create a map of new orders for faster lookup
+      const orderMap = new Map<string, number>();
+      accountIds.forEach((id, index) => {
+        orderMap.set(id, index);
+      });
+      
+      console.log('updateAccountOrder: Order map:', Array.from(orderMap.entries()));
+      
       const updatedAccounts = accounts.map(account => {
-        const newOrder = accountIds.indexOf(account.id);
-        if (newOrder !== -1 && !account.isTemporary) {
+        if (orderMap.has(account.id) && !account.isTemporary) {
+          const newOrder = orderMap.get(account.id)!;
+          console.log(`updateAccountOrder: Setting customOrder ${newOrder} for account ${account.name} (${account.id})`);
           return {
             ...account,
             customOrder: newOrder,
@@ -291,9 +348,11 @@ export class AccountService {
       
       // Update cache immediately
       this.cache = updatedAccounts;
+      console.log('updateAccountOrder: Updated cache');
       
       // Save to storage
       await this.saveAccountsAsync(updatedAccounts);
+      console.log('updateAccountOrder: Saved to storage');
     } catch (error) {
       console.error('Error updating account order:', error);
       throw error;

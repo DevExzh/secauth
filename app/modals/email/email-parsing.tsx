@@ -2,6 +2,7 @@ import { SmartScreen } from '@/components/layout/SmartScreen';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { AccountService } from '@/services/accountService';
 import { EmailService } from '@/services/emailService';
 import { Account } from '@/types/auth';
 import { router } from 'expo-router';
@@ -155,15 +156,32 @@ export default function EmailParsingModal() {
         selectedAccounts.has(account.id)
       );
       
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare accounts for saving (remove fields that will be generated)
+      const accountsToSave = selectedAccountsList.map(account => ({
+        name: account.name,
+        email: account.email,
+        secret: account.secret,
+        type: account.type,
+        category: account.category,
+        algorithm: account.algorithm,
+        digits: account.digits,
+        period: account.period,
+        isTemporary: account.isTemporary,
+        expiresAt: account.expiresAt,
+        issuer: account.issuer
+      }));
+      
+      // Save accounts to storage using batch operation
+      await AccountService.addAccounts(accountsToSave);
       
       if (deleteProcessedEmails) {
         await EmailService.deleteProcessedEmails(Array.from(selectedAccounts));
       }
       
-      // TODO: Implement actual 2FA activation logic
-      console.log('Activated 2FA for accounts:', selectedAccountsList);
-      router.back();
+      console.log('Successfully saved temporary accounts:', selectedAccountsList.length);
+      
+      // Navigate to home tab instead of just going back
+      router.replace('/(tabs)');
     } catch (error) {
       console.error('2FA activation error:', error);
       Alert.alert(t('emailParsing.alerts.error'), t('emailParsing.alerts.activationError'));
